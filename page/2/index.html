@@ -51,7 +51,7 @@
         
           <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
         
-        <a id="nav-search-btn" class="nav-icon" title="Suche"></a>
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
         <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
@@ -95,7 +95,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/10/07/PWN/Linux栈溢出漏洞利用小结/" data-id="cje8b2l40001ursjq57k8qwcv" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2016/10/07/PWN/Linux栈溢出漏洞利用小结/" data-id="cje8bm567001sq4jq7r9it4vw" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PWN/">PWN</a></li></ul>
@@ -136,7 +136,7 @@
         <p>接着《调试器gdb的基本使用方法（1）》，继续介绍gdb的基本使用方法。</p>
 <h3 id="0x01-其他断点"><a href="#0x01-其他断点" class="headerlink" title="0x01.　其他断点"></a>0x01.　其他断点</h3><p>硬件断点（<code>hbreak</code>）,适用于ROM空间等无法修改的内存区域中的程序。在有些框架中无法使用。临时断点（<code>tbreak</code>）和临时硬件断点（<code>thbreak</code>），与断点相同，都会在运行到该处时暂停，不同之处就是临时断点（临时硬件断点）会在此时被删除，故在只需停止一次时用起来很方便。</p>
 <h3 id="0x02-改变变量的值"><a href="#0x02-改变变量的值" class="headerlink" title="0x02.　改变变量的值"></a>0x02.　改变变量的值</h3><p>可以使用命令<code>set variable</code> 改变运行中程序的变量值。格式：<code>set variable &lt;变量&gt;=&lt;表达式&gt;</code></p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">(gdb) p options</span><br><span class="line"><span class="meta">$</span><span class="bash">7 = 1</span></span><br><span class="line">(gdb) set variable options = 0</span><br><span class="line">(gdb) p options</span><br><span class="line"><span class="meta">$</span><span class="bash">8 = 0</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">(gdb) p options</span><br><span class="line"><span class="meta">$</span>7 = 1</span><br><span class="line">(gdb) set variable options = 0</span><br><span class="line">(gdb) p options</span><br><span class="line"><span class="meta">$</span>8 = 0</span><br></pre></td></tr></table></figure>
 <h3 id="0x03-生成内核转储文件"><a href="#0x03-生成内核转储文件" class="headerlink" title="0x03.　生成内核转储文件"></a>0x03.　生成内核转储文件</h3><p>使用 <code>generate-core-file</code>可将调试中的进程生成内核转储文件。<br>例如：<code>(gdb) generate-core-file  ====&gt; Saved corefile core.13163</code><br>有了内核转储文件和调试对象，以后就能查看生成转储文件时的运行历史（寄存器值、内存值等）。</p>
 <h3 id="0x04-attach-到进程"><a href="#0x04-attach-到进程" class="headerlink" title="0x04.　attach 到进程"></a>0x04.　attach 到进程</h3><p>要调试守护进程（damon process）等已经启动的进程，或者调试陷入死循环而无法返回控制台的进程时，可以使用<code>attach</code>命令。<br>如下格式：<code>attach pid</code>，执行这一命令就可以attach到进程ID为pid的进程上。可以使用<code>ps</code>命令查看进程ID。<br>需要在gdb和进程分离时使用<code>detach</code>命令。这样调试中的进程就被从gdb的控制下释放出来。进程被detach后会继续运行。<br>进程信息可以用<code>info proc</code>命令显示。</p>
 <h3 id="0x05-条件断点"><a href="#0x05-条件断点" class="headerlink" title="0x05.　条件断点"></a>0x05.　条件断点</h3><p>有一种断点仅在特定条件下中断。<br>格式：<code>break 断点 if 条件</code>，该命令将测试给定的条件，如果为真则暂停运行。<br>另外几种格式：<br><code>condition 断点编号</code>       //给指定的断点删除触发条件<br><code>condition 断点编号  条件</code> //给指定的断点添加触发条件</p>
@@ -389,7 +389,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/07/31/Debug/调试器gdb的基本使用方法（2）/" data-id="cje8b2l2p000krsjqehamn04x" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2016/07/31/Debug/调试器gdb的基本使用方法（2）/" data-id="cje8bm54h0007q4jqrkn9138l" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/软件调试/">软件调试</a></li></ul>
@@ -633,7 +633,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/07/30/Debug/调试器gdb的基本使用方法（1）/" data-id="cje8b2l2p000drsjqjqx0rg6u" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2016/07/30/Debug/调试器gdb的基本使用方法（1）/" data-id="cje8bm5410003q4jqmsrht3kf" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/软件调试/">软件调试</a></li></ul>
@@ -679,7 +679,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/07/16/Linux/Ubuntu-14-04-设置方法/" data-id="cje8b2l1u0003rsjqek6huihi" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2016/07/16/Linux/Ubuntu-14-04-设置方法/" data-id="cje8bm55c000xq4jqna4jjb4g" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ubuntu/">ubuntu</a></li></ul>
@@ -723,7 +723,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/06/29/Programming/搜索之BFS/" data-id="cje8b2l4v002xrsjqoxtq84k0" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2016/06/29/Programming/搜索之BFS/" data-id="cje8bm56n0028q4jq6sqlv173" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/搜索算法/">搜索算法</a></li></ul>
@@ -776,7 +776,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/06/29/Programming/硬币问题：贪心算法/" data-id="cje8b2l4v002zrsjqb3v2r419" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2016/06/29/Programming/硬币问题：贪心算法/" data-id="cje8bm58t003iq4jq945ez6pn" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/搜索算法/">搜索算法</a></li></ul>
@@ -822,7 +822,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/06/20/Debug/IDA-PRO-插件/" data-id="cje8b2l29000crsjqbr2klca8" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2016/06/20/Debug/IDA-PRO-插件/" data-id="cje8bm5410002q4jqu9mpr2v5" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Reverse/">Reverse</a></li></ul>
@@ -869,7 +869,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/06/19/Mobile Security/APKTOOL学习指南/" data-id="cje8b2l35000rrsjq92wr401d" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2016/06/19/Mobile Security/APKTOOL学习指南/" data-id="cje8bm54x000iq4jqpjx2g3hk" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android-Reverse/">Android Reverse</a></li></ul>
@@ -927,7 +927,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/06/16/Debug/主要的调试器操作/" data-id="cje8b2l290008rsjqsmvft3n6" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2016/06/16/Debug/主要的调试器操作/" data-id="cje8bm54h0006q4jqg8zf97j1" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/软件调试/">软件调试</a></li></ul>
@@ -974,7 +974,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/06/15/Debug/软件调试的原则/" data-id="cje8b2l35000vrsjq123auodt" class="article-share-link">Teilen</a>
+      <a data-url="http://yoursite.com/2016/06/15/Debug/软件调试的原则/" data-id="cje8bm54x000cq4jqmu6pdata" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/软件调试/">软件调试</a></li></ul>
@@ -990,7 +990,7 @@
 
   <nav id="page-nav">
     
-    <a class="extend prev" rel="prev" href="/">&laquo; zurück</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/">weiter &raquo;</a>
+    <a class="extend prev" rel="prev" href="/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/">Next &raquo;</a>
   </nav>
 
 </section>
@@ -999,7 +999,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Kategorien</h3>
+    <h3 class="widget-title">Categories</h3>
     <div class="widget">
       <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mobile-Security/">Mobile Security</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Programming/">Programming</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Security/">Security</a></li></ul>
     </div>
@@ -1028,7 +1028,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Archiv</h3>
+    <h3 class="widget-title">Archives</h3>
     <div class="widget">
       <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li></ul>
     </div>
@@ -1038,7 +1038,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">letzter Beitrag</h3>
+    <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
         
