@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>ARM64 汇编语言 | 不要说话</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="0x00.　前言前面已经介绍过ARM32汇编语言，但是从ARMv8-A开始出现了64位的ARM指令集，因此有必要学习一下64位的ARM指令集。虽然ARM官方将64位的ARM指令集叫做Aarch64，但为了和前面ARM32对比，暂且叫64位的ARM指令集为ARM64。ARM32和ARM64属于两套不同的指令集，在此仅介绍ARM64指令集中的一些改变。 0x01.　ARM64汇编中寄存器　　ARM64">
+<meta name="keywords" content="Android Reverse">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ARM64 汇编语言">
+<meta property="og:url" content="http://yoursite.com/2017/03/17/Mobile Security/ARM64-汇编语言/index.html">
+<meta property="og:site_name" content="不要说话">
+<meta property="og:description" content="0x00.　前言前面已经介绍过ARM32汇编语言，但是从ARMv8-A开始出现了64位的ARM指令集，因此有必要学习一下64位的ARM指令集。虽然ARM官方将64位的ARM指令集叫做Aarch64，但为了和前面ARM32对比，暂且叫64位的ARM指令集为ARM64。ARM32和ARM64属于两套不同的指令集，在此仅介绍ARM64指令集中的一些改变。 0x01.　ARM64汇编中寄存器　　ARM64">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-03-24T01:52:46.417Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ARM64 汇编语言">
+<meta name="twitter:description" content="0x00.　前言前面已经介绍过ARM32汇编语言，但是从ARMv8-A开始出现了64位的ARM指令集，因此有必要学习一下64位的ARM指令集。虽然ARM官方将64位的ARM指令集叫做Aarch64，但为了和前面ARM32对比，暂且叫64位的ARM指令集为ARM64。ARM32和ARM64属于两套不同的指令集，在此仅介绍ARM64指令集中的一些改变。 0x01.　ARM64汇编中寄存器　　ARM64">
+  
+    <link rel="alternate" href="/atom.xml" title="不要说话" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">不要说话</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Suche"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Mobile Security/ARM64-汇编语言" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/03/17/Mobile Security/ARM64-汇编语言/" class="article-date">
+  <time datetime="2017-03-17T13:40:32.000Z" itemprop="datePublished">2017-03-17</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Mobile-Security/">Mobile Security</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      ARM64 汇编语言
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00.　前言"></a>0x00.　前言</h3><p>前面已经介绍过ARM32汇编语言，但是从ARMv8-A开始出现了64位的ARM指令集，因此有必要学习一下64位的ARM指令集。虽然ARM官方将64位的ARM指令集叫做Aarch64，但为了和前面ARM32对比，暂且叫64位的ARM指令集为ARM64。ARM32和ARM64属于两套不同的指令集，在此仅介绍ARM64指令集中的一些改变。</p>
+<h3 id="0x01-ARM64汇编中寄存器"><a href="#0x01-ARM64汇编中寄存器" class="headerlink" title="0x01.　ARM64汇编中寄存器　　"></a>0x01.　ARM64汇编中寄存器　　</h3><p>ARM64微处理器中，程序员可以使用31个64位的通用寄存器x0~x30，堆栈指针寄存器sp，指令指针寄存器pc。也可以只使用这些通用寄存器中的低32位，即w0~w30，wsp。ARM遵循ATPCS规则，ARM64汇编语言函数前8个参数使用x0-x7寄存器（或w0-w7寄存器）传递，多于8个的参数均通过堆栈传递，并且返回值通过x0寄存器（或w0寄存器）返回。在使用软中断进行系统调时，系统调用号通过x8寄存器传递，用svc指令产生软中断，实现从用户模式到管理模式的切换。例如：<br><figure class="highlight arm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">mov </span>x0, <span class="number">123</span> // exit <span class="meta">code</span></span><br><span class="line"><span class="keyword">mov </span>x8, <span class="number">93</span>  // sys_exit() is at index <span class="number">93</span> in kernel functions table</span><br><span class="line"><span class="keyword">svc </span><span class="number">#0</span>      // generate kernel call sys_exit(<span class="number">123</span>)<span class="comment">;</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="0x02-AMR64汇编语言"><a href="#0x02-AMR64汇编语言" class="headerlink" title="0x02.　AMR64汇编语言"></a>0x02.　AMR64汇编语言</h3><p>ARM64汇编指令集所有指令的长度固定，每条指令是4字节（32位宽度），并且没有Thumb指令集。</p>
+<ol>
+<li><p>访存指令<br>ARM32中的LDM、STM、PUSH、POP指令，在ARM64中并不存在。取而代之的是LDP、STP指令，如一般在函数开头用来代替PUSH.<br>例如，用IDA Pro逆向的某个ARM64 SO库函数的开头和结尾：</p>
+<figure class="highlight arm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">STP</span>      X24, X23, [<span class="built_in">SP</span>,<span class="symbol">#var_40</span>]!</span><br><span class="line"><span class="symbol">STP</span>      X22, X21, [<span class="built_in">SP</span>,<span class="number">#0x40</span>+var_30]</span><br><span class="line"><span class="symbol">STP</span>      X20, X19, [<span class="built_in">SP</span>,<span class="number">#0x40</span>+var_20]</span><br><span class="line"><span class="symbol">STP</span>      X29, X30, [<span class="built_in">SP</span>,<span class="number">#0x40</span>+var_10]</span><br><span class="line"><span class="keyword">ADD </span>     X29, <span class="built_in">SP</span>, <span class="number">#0x40</span>+var_10</span><br><span class="line"><span class="symbol">....</span></span><br><span class="line"><span class="keyword">SUB </span>     <span class="built_in">SP</span>, X29, <span class="number">#0x30</span></span><br><span class="line"><span class="symbol">LDP</span>      X29, X30, [<span class="built_in">SP</span>,<span class="number">#0x150</span>+var_120]</span><br><span class="line"><span class="symbol">LDP</span>      X20, X19, [<span class="built_in">SP</span>,<span class="number">#0x150</span>+var_130]</span><br><span class="line"><span class="symbol">LDP</span>      X22, X21, [<span class="built_in">SP</span>,<span class="number">#0x150</span>+var_140]</span><br><span class="line"><span class="symbol">LDP</span>      X24, X23, [<span class="built_in">SP</span>+<span class="number">0x150</span>+var_150],<span class="number">#0x40</span></span><br><span class="line"><span class="symbol">RET</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>跳转指令<br>跳转和链接指令，将PC保存到链接寄存器(BL和BLR)。</p>
+</li>
+<li><p>ARM64指令<br>ARM32指令集在涉及程序计数器（PC）计算时，由于多流水线的原因，需要加上4或者8的偏移。而ARM64指令集在涉及程序计数器（PC）计算时，不需要加上偏移。能够修改PC的唯一的方式，使用隐式的控制流指令（条件跳转，无条件跳转，异常生成，异常返回）。</p>
+</li>
+</ol>
+<p><strong>PS:</strong> 由于时间关系，没有深入学习ARM64汇编指令集。以后有时间，继续补充本文，2017.03.24。</p>
+<h3 id="0x03-参考文献"><a href="#0x03-参考文献" class="headerlink" title="0x03.　参考文献"></a>0x03.　参考文献</h3><p><a href="https://en.wikipedia.org/wiki/ARM_architecture" target="_blank" rel="noopener">1. Wiki ARM Architecture</a><br><a href="https://wiki.cdot.senecacollege.ca/wiki/Aarch64_Register_and_Instruction_Quick_Start" target="_blank" rel="noopener">2. Aarch64 Register and Instruction Quick Start</a><br><a href="http://cocoahuke.com/2015/08/30/ARMarch64%E6%B1%87%E7%BC%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" target="_blank" rel="noopener">3. ARMarch64汇编学习笔记</a><br><a href="http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.den0024a/ch05s01.html" target="_blank" rel="noopener">4. ARM The Architecture for the Digital World</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/03/17/Mobile Security/ARM64-汇编语言/" data-id="cje8aweok0022d8jqw9njof3i" class="article-share-link">Teilen</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android-Reverse/">Android Reverse</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2017/03/11/Mobile Security/ARM32-汇编语言/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Älter</strong>
+      <div class="article-nav-title">ARM32 汇编语言</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Kategorien</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mobile-Security/">Mobile Security</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Programming/">Programming</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Security/">Security</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android-Reverse/">Android Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kali/">Kali</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PWN/">PWN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RegExp/">RegExp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ubuntu/">ubuntu</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/字符串处理/">字符串处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/搜索算法/">搜索算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/树结构/">树结构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/软件调试/">软件调试</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Android-Reverse/" style="font-size: 17.5px;">Android Reverse</a> <a href="/tags/Kali/" style="font-size: 10px;">Kali</a> <a href="/tags/PWN/" style="font-size: 20px;">PWN</a> <a href="/tags/RegExp/" style="font-size: 10px;">RegExp</a> <a href="/tags/Reverse/" style="font-size: 10px;">Reverse</a> <a href="/tags/ubuntu/" style="font-size: 12.5px;">ubuntu</a> <a href="/tags/字符串处理/" style="font-size: 10px;">字符串处理</a> <a href="/tags/搜索算法/" style="font-size: 15px;">搜索算法</a> <a href="/tags/树结构/" style="font-size: 10px;">树结构</a> <a href="/tags/软件调试/" style="font-size: 17.5px;">软件调试</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archiv</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">letzter Beitrag</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2017/03/17/Mobile Security/ARM64-汇编语言/">ARM64 汇编语言</a>
+          </li>
+        
+          <li>
+            <a href="/2017/03/11/Mobile Security/ARM32-汇编语言/">ARM32 汇编语言</a>
+          </li>
+        
+          <li>
+            <a href="/2017/03/04/PWN/Linux堆漏洞之Use-after-free实例/">Linux堆漏洞之Use after free实例</a>
+          </li>
+        
+          <li>
+            <a href="/2017/03/01/PWN/Linux堆漏洞之off-by-one/">Linux堆漏洞之off-by-one</a>
+          </li>
+        
+          <li>
+            <a href="/2017/02/24/PWN/Linux堆漏洞之Double-free/">Linux堆漏洞之Double free</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 D0m021ng<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

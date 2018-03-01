@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Linux栈溢出利用之return to dl-resolve payload 构造原理（一） | 不要说话</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="0x00.　写在前面   Return to dl-resolve是一种新的rop攻击方式，出自USENIX Security 2015上的一篇论文How the ELF Ruined Christmas。前段时间，学习了return to dl-resolve 方法，并且分别在32位应用和64位应用上实践了一番。网上有很多文章讲解return to dl-resolve的原理，现记录下我的学习心">
+<meta name="keywords" content="PWN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux栈溢出利用之return to dl-resolve payload 构造原理（一）">
+<meta property="og:url" content="http://yoursite.com/2016/11/03/PWN/ret2-dl-resolve-payload-构造原理（一）/index.html">
+<meta property="og:site_name" content="不要说话">
+<meta property="og:description" content="0x00.　写在前面   Return to dl-resolve是一种新的rop攻击方式，出自USENIX Security 2015上的一篇论文How the ELF Ruined Christmas。前段时间，学习了return to dl-resolve 方法，并且分别在32位应用和64位应用上实践了一番。网上有很多文章讲解return to dl-resolve的原理，现记录下我的学习心">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-03-01T08:48:50.899Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux栈溢出利用之return to dl-resolve payload 构造原理（一）">
+<meta name="twitter:description" content="0x00.　写在前面   Return to dl-resolve是一种新的rop攻击方式，出自USENIX Security 2015上的一篇论文How the ELF Ruined Christmas。前段时间，学习了return to dl-resolve 方法，并且分别在32位应用和64位应用上实践了一番。网上有很多文章讲解return to dl-resolve的原理，现记录下我的学习心">
+  
+    <link rel="alternate" href="/atom.xml" title="不要说话" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">不要说话</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Suche"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-PWN/ret2-dl-resolve-payload-构造原理（一）" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/11/03/PWN/ret2-dl-resolve-payload-构造原理（一）/" class="article-date">
+  <time datetime="2016-11-03T15:53:49.000Z" itemprop="datePublished">2016-11-03</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Security/">Security</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Linux栈溢出利用之return to dl-resolve payload 构造原理（一）
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="0x00-写在前面"><a href="#0x00-写在前面" class="headerlink" title="0x00.　写在前面"></a><strong>0x00.　写在前面</strong></h3><p>   Return to dl-resolve是一种新的rop攻击方式，出自USENIX Security 2015上的一篇论文How the ELF Ruined Christmas。前段时间，学习了return to dl-resolve 方法，并且分别在32位应用和64位应用上实践了一番。网上有很多文章讲解return to dl-resolve的原理，现记录下我的学习心得，如有不对的地方，欢迎斧正。</p>
+<h3 id="0x01-dl-resolve解析原理"><a href="#0x01-dl-resolve解析原理" class="headerlink" title="0x01.　dl-resolve解析原理"></a><strong>0x01.　dl-resolve解析原理</strong></h3><p>return to dl-resolve 主要是利用Linux glibc的延迟绑定技术(Lazy binding)。Linux下glibc库函数在第一次被调用的时候，才会去寻找函数的真正地址然后进行绑定。在这一过程中，主要由过程链接表(PLT)提供跳转到解析函数的胶水代码，然后将函数的真正地址回填到函数的全局偏移表中，再将控制权给需要解析的函数。</p>
+<p> 首先，了解一下在动态链接过程中需要的辅助信息：重定位表(.rel.plt和.rel.dyn)、全局偏移表(.got和.got.plt)、动态链接符号表(.dyn.sym)、动态链接字符串表(.dyn.str)。</p>
+<p> 1) 重定位表<br>  重定位表中.rel.plt用于函数重定位，.rel.dyn用于变量重定位。函数重定位表的主要作用是提供函数在动态链接符号表以及全局偏移表中的位置。具体的，函数重定位表表项为地址解析函数提供一个参数(r_info的前24位)，定位需要解析的函数；为重定位入口提供一个偏移地址，定位函数地址的保存位置(r_offset)，即函数的全局偏移表值(.got.plt)。重定位表的定义如下：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf32_Addr	r_offset;		<span class="comment">/* Address */</span></span><br><span class="line">  Elf32_Word	r_info;			<span class="comment">/* Relocation type and symbol index */</span></span><br><span class="line">&#125; Elf32_Rel;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf64_Addr	r_offset;		<span class="comment">/* Address */</span></span><br><span class="line">  Elf64_Xword	r_info;			<span class="comment">/* Relocation type and symbol index */</span></span><br><span class="line">  Elf64_Sxword	r_addend;		<span class="comment">/* Addend */</span></span><br><span class="line">&#125; Elf64_Rela;</span><br></pre></td></tr></table></figure></p>
+<p> 2）全局偏移表<br>  全局偏移表中.got 保存全局变量偏移表，.got.plt 保存全局函数偏移表。全局函数偏移表主要保存了函数在内存中的实际地址，刚开始全局函数便宜表中存放的是：过程链接表PLT中该函数胶水代码中的第二条指令地址。在函数解析之后，才存放了函数的真正地址。以XMAN中32位ELF level4中的read@plt为例：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">~/workspace/pwn/jarvisoj/xman$ objdump -d -j.plt level4</span><br><span class="line">level4:     file format elf32-i386</span><br><span class="line">Disassembly of section .plt:</span><br><span class="line">08048300 &lt;read@plt-0x10&gt;:</span><br><span class="line"> 8048300:	ff 35 04 a0 04 08    	pushl  0x804a004</span><br><span class="line"> 8048306:	ff 25 08 a0 04 08    	jmp    *0x804a008</span><br><span class="line"> 804830c:	00 00                	add    %al,(%eax)</span><br><span class="line">   ...</span><br><span class="line"> 08048310 &lt;read@plt&gt;:</span><br><span class="line"> 8048310:	ff 25 0c a0 04 08    	jmp    *0x804a00c</span><br><span class="line"> 8048316:	68 00 00 00 00       	push   $0x0</span><br><span class="line"> 804831b:	e9 e0 ff ff ff       	jmp    8048300 &lt;_init+0x30&gt;</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">~/workspace/pwn/jarvisoj/xman$ objdump -R level4</span><br><span class="line">level4:     file format elf32-i386</span><br><span class="line">DYNAMIC RELOCATION RECORDS</span><br><span class="line">OFFSET   TYPE              VALUE</span><br><span class="line">08049ffc R_386_GLOB_DAT    __gmon_start__</span><br><span class="line">0804a00c R_386_JUMP_SLOT   read</span><br><span class="line">   ...</span><br><span class="line"></span><br><span class="line">~/workspace/pwn/jarvisoj/xman$ gdb level4</span><br><span class="line">GNU gdb (Ubuntu 7.7.1-0ubuntu5~14.04.2) 7.7.1</span><br><span class="line">Copyright (C) 2014 Free Software Foundation, Inc.</span><br><span class="line"></span><br><span class="line">(gdb) x/wx 0x804a00c</span><br><span class="line">0x804a00c &lt;read@got.plt&gt;:	0x08048316</span><br><span class="line">(gdb) x/wi 0x804a00c</span><br><span class="line">0x804a00c &lt;read@got.plt&gt;:	push   %ss</span><br></pre></td></tr></table></figure></p>
+<p>调用函数read时，先调用read@plt(本例是0x8048310)。在read@plt中先跳转到.got.plt，如上图所示，第一次调用时.got.plt值为 read@plt的第二条指令地址。然后reloc_arg参数进栈，跳转到过程链接表开始（PLT[0]），执行胶水代码。<br>read@plt - 0x10(本例是0x8048300)是整个过程链接表的开始（PLT[0]），该处的胶水代码是进入_dl_runtime_resolve(link_map, reloc_arg)的入口。pushl 0x804a004，将_dl_runtime_resolve函数的第一个参数 link_map 入栈，该link_map函数地址位于全局函数偏移表(.got.plt) + 4的地方（64位应该是+8）。第二个参数reloc_arg 前面已经通过read@plt 中的第二条指令（本例是0x8048316）入栈。<br>在32位应用中reloc_arg为重定位项在重定位表的偏移值，而64位应用中reloc_arg为重定位项在重定位表中的索引，构造payload的时候需要注意一下。下面的宏定义说明了原因。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> reloc_offset</span></span><br><span class="line"> <span class="meta">#<span class="meta-keyword">define</span> reloc_offset reloc_arg</span></span><br><span class="line"> <span class="meta">#<span class="meta-keyword">define</span> reloc_index  reloc_arg / sizeof (PLTREL)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure></p>
+<p> 3） 动态链接符号表和动态链接字符串表<br> 动态链接符号表是一个结构体数组，保存了每个函数解析是需要的信息，比如函数名在动态链接字符串表中的偏移等等。动态链接字符串表中保存了函数的名称，并且以\x00作为开始和结尾。动态链接符号表的定义如下：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"> * Symbol table entry.  */</span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf32_Word	st_name;		<span class="comment">/* Symbol name (string tbl index) */</span></span><br><span class="line">  Elf32_Addr	st_value;		<span class="comment">/* Symbol value */</span></span><br><span class="line">  Elf32_Word	st_size;		<span class="comment">/* Symbol size */</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">char</span>	st_info;		<span class="comment">/* Symbol type and binding */</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">char</span>	st_other;		<span class="comment">/* Symbol visibility */</span></span><br><span class="line">  Elf32_Section	st_shndx;		<span class="comment">/* Section index */</span></span><br><span class="line">&#125; Elf32_Sym;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  Elf64_Word	st_name;		<span class="comment">/* Symbol name (string tbl index) */</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">char</span>	st_info;		<span class="comment">/* Symbol type and binding */</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">char</span> st_other;		<span class="comment">/* Symbol visibility */</span></span><br><span class="line">  Elf64_Section	st_shndx;		<span class="comment">/* Section index */</span></span><br><span class="line">  Elf64_Addr	st_value;		<span class="comment">/* Symbol value */</span></span><br><span class="line">  Elf64_Xword	st_size;		<span class="comment">/* Symbol size */</span></span><br><span class="line">&#125; Elf64_Sym;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ELF32_R_SYM(val)		((val) &gt;&gt; 8)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ELF32_R_TYPE(val)		((val) &amp; 0xff)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ELF32_R_INFO(sym, type)		(((sym) &lt;&lt; 8) + ((type) &amp; 0xff))</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ELF64_R_SYM(i)			((i) &gt;&gt; 32)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ELF64_R_TYPE(i)			((i) &amp; 0xffffffff)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ELF64_R_INFO(sym,type)		((((Elf64_Xword) (sym)) &lt;&lt; 32) + (type))</span></span><br></pre></td></tr></table></figure></p>
+<p>注意：32位动态链接符号表和64位动态链接符号表中的顺序。</p>
+<p>4）延迟绑定的过程<br> 正如前面提到的，从PLT[0]进入_dl_runtime_resolve函数。<br> <strong>32位应用中：</strong> ，该函数位于glibc-2.24/sysdeps/i386/dl-trampoline.S中。用汇编语言写的，先保存寄存器值，然后通过栈传递参数，调用_dl_fixup函数。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">glibc<span class="number">-2.24</span>/sysdeps/i386/dl-trampoline.S _dl_runtime_resolve(link_map, reloc_arg)函数:</span><br><span class="line"></span><br><span class="line"><span class="number">28</span>	        .text</span><br><span class="line"><span class="number">29</span>	        .globl _dl_runtime_resolve</span><br><span class="line"><span class="number">30</span>	        .type _dl_runtime_resolve, @function</span><br><span class="line"><span class="number">31</span>	        cfi_startproc</span><br><span class="line"><span class="number">32</span>	        .align <span class="number">16</span></span><br><span class="line"><span class="number">33</span>	_dl_runtime_resolve:</span><br><span class="line"><span class="number">34</span>	        cfi_adjust_cfa_offset (<span class="number">8</span>)</span><br><span class="line"><span class="number">35</span>	        pushl %eax                # Preserve registers otherwise clobbered.</span><br><span class="line"><span class="number">36</span>	        cfi_adjust_cfa_offset (<span class="number">4</span>)</span><br><span class="line"><span class="number">37</span>	        pushl %ecx</span><br><span class="line"><span class="number">38</span>	        cfi_adjust_cfa_offset (<span class="number">4</span>)</span><br><span class="line"><span class="number">39</span>	        pushl %edx</span><br><span class="line"><span class="number">40</span>	        cfi_adjust_cfa_offset (<span class="number">4</span>)</span><br><span class="line"><span class="number">41</span>	        movl <span class="number">16</span>(%esp), %edx        # Copy args pushed by PLT in <span class="keyword">register</span>.  Note</span><br><span class="line">42	        movl 12(%esp), %eax        # that `fixup' takes its parameters in regs.</span><br><span class="line"><span class="number">43</span>	        call _dl_fixup                # Call resolver.</span><br><span class="line"><span class="number">44</span>	        popl %edx                # Get <span class="keyword">register</span> content back.</span><br><span class="line"><span class="number">45</span>	        cfi_adjust_cfa_offset (<span class="number">-4</span>)</span><br><span class="line"><span class="number">46</span>	        movl (%esp), %ecx</span><br><span class="line"><span class="number">47</span>	        movl %eax, (%esp)        # Store the function address.</span><br><span class="line"><span class="number">48</span>	        movl <span class="number">4</span>(%esp), %eax</span><br><span class="line"><span class="number">49</span>	        ret $<span class="number">12</span>                        # Jump to function address.</span><br><span class="line"><span class="number">50</span>	        cfi_endproc</span><br><span class="line"><span class="number">51</span>	        .size _dl_runtime_resolve, .-_dl_runtime_resolve</span><br></pre></td></tr></table></figure></p>
+<p> 函数_dl_fixup是在glibc-2.24/elf/dl-runtime.c中实现的，源代码如下：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><span class="line">DL_FIXUP_VALUE_TYPE</span><br><span class="line">attribute_hidden __attribute ((noinline)) ARCH_FIXUP_ATTRIBUTE</span><br><span class="line">_dl_fixup (</span><br><span class="line"># ifdef ELF_MACHINE_RUNTIME_FIXUP_ARGS</span><br><span class="line">	   ELF_MACHINE_RUNTIME_FIXUP_ARGS,</span><br><span class="line"># endif</span><br><span class="line">	   struct link_map *l, ElfW(Word) reloc_arg)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="comment">// 分别获取动态链接符号表和动态链接字符串表的基址</span></span><br><span class="line">  <span class="function"><span class="keyword">const</span> <span class="title">ElfW</span><span class="params">(Sym)</span> *<span class="keyword">const</span> symtab</span></span><br><span class="line"><span class="function">    </span>= (<span class="keyword">const</span> <span class="keyword">void</span> *) D_PTR (l, l_info[DT_SYMTAB]);</span><br><span class="line">  <span class="keyword">const</span> <span class="keyword">char</span> *strtab = (<span class="keyword">const</span> <span class="keyword">void</span> *) D_PTR (l, l_info[DT_STRTAB]);</span><br><span class="line"></span><br><span class="line">  <span class="comment">//通过参数reloc_arg计算重定位入口，这里的DT_JMPREL即.rel.plt, reloc_offset即reloc_arg</span></span><br><span class="line">  <span class="keyword">const</span> PLTREL *<span class="keyword">const</span> reloc</span><br><span class="line">    = (<span class="keyword">const</span> <span class="keyword">void</span> *) (D_PTR (l, l_info[DT_JMPREL]) + reloc_offset);</span><br><span class="line"></span><br><span class="line">  <span class="comment">//根据函数重定位表中的动态链接符号表索引，即r_info字段，获取函数在动态链接符号表中对应的条目。</span></span><br><span class="line">  <span class="function"><span class="keyword">const</span> <span class="title">ElfW</span><span class="params">(Sym)</span> *sym </span>= &amp;symtab[ELFW(R_SYM) (reloc-&gt;r_info)];</span><br><span class="line">  <span class="keyword">void</span> *<span class="keyword">const</span> rel_addr = (<span class="keyword">void</span> *)(l-&gt;l_addr + reloc-&gt;r_offset);</span><br><span class="line">  <span class="keyword">lookup_t</span> result;</span><br><span class="line">  DL_FIXUP_VALUE_TYPE value;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Sanity check that we're really looking at a PLT relocation.  */</span></span><br><span class="line">  assert (ELFW(R_TYPE)(reloc-&gt;r_info) == ELF_MACHINE_JMP_SLOT);</span><br><span class="line"></span><br><span class="line">   <span class="comment">/* Look up the target symbol.  If the normal lookup rules are not</span></span><br><span class="line"><span class="comment">      used don't look in the global scope.  */</span></span><br><span class="line">  <span class="keyword">if</span> (__builtin_expect (ELFW(ST_VISIBILITY) (sym-&gt;st_other), <span class="number">0</span>) == <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">r_found_version</span> *<span class="title">version</span> = <span class="title">NULL</span>;</span></span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (l-&gt;l_info[VERSYMIDX (DT_VERSYM)] != <span class="literal">NULL</span>)</span><br><span class="line">	&#123;</span><br><span class="line">	  <span class="function"><span class="keyword">const</span> <span class="title">ElfW</span><span class="params">(Half)</span> *vernum </span>=</span><br><span class="line">	    (<span class="keyword">const</span> <span class="keyword">void</span> *) D_PTR (l, l_info[VERSYMIDX (DT_VERSYM)]);</span><br><span class="line">	  ElfW(Half) ndx = vernum[ELFW(R_SYM) (reloc-&gt;r_info)] &amp; <span class="number">0x7fff</span>;</span><br><span class="line">	  version = &amp;l-&gt;l_versions[ndx];</span><br><span class="line">	  <span class="keyword">if</span> (version-&gt;hash == <span class="number">0</span>)</span><br><span class="line">	    version = <span class="literal">NULL</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">/* We need to keep the scope around so do some locking.  This is</span></span><br><span class="line"><span class="comment">	 not necessary for objects which cannot be unloaded or when</span></span><br><span class="line"><span class="comment">	 we are not using any threads (yet).  */</span></span><br><span class="line">      <span class="keyword">int</span> flags = DL_LOOKUP_ADD_DEPENDENCY;</span><br><span class="line">      <span class="keyword">if</span> (!RTLD_SINGLE_THREAD_P)</span><br><span class="line">	&#123;</span><br><span class="line">	  THREAD_GSCOPE_SET_FLAG ();</span><br><span class="line">	  flags |= DL_LOOKUP_GSCOPE_LOCK;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> RTLD_ENABLE_FOREIGN_CALL</span></span><br><span class="line">      RTLD_ENABLE_FOREIGN_CALL;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">      <span class="comment">//根据strtab+sym-&gt;st_name在字符串表中找到函数名，然后进行符号查找获取libc基地址result</span></span><br><span class="line">      result = _dl_lookup_symbol_x (strtab + sym-&gt;st_name, l, &amp;sym, l-&gt;l_scope,</span><br><span class="line">				    version, ELF_RTYPE_CLASS_PLT, flags, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">      <span class="comment">/* We are done with the global scope.  */</span></span><br><span class="line">      <span class="keyword">if</span> (!RTLD_SINGLE_THREAD_P)</span><br><span class="line">	THREAD_GSCOPE_RESET_FLAG ();</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> RTLD_FINALIZE_FOREIGN_CALL</span></span><br><span class="line">      RTLD_FINALIZE_FOREIGN_CALL;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">      <span class="comment">/* Currently result contains the base load address (or link map)</span></span><br><span class="line"><span class="comment">	 of the object that defines sym.  Now add in the symbol</span></span><br><span class="line"><span class="comment">	 offset.  */</span></span><br><span class="line">	 <span class="comment">//将要解析的函数的偏移地址加上libc基址，就可以获取函数的实际地址</span></span><br><span class="line">      value = DL_FIXUP_MAKE_VALUE (result,</span><br><span class="line">				   sym ? (LOOKUP_VALUE_ADDRESS (result)</span><br><span class="line">					  + sym-&gt;st_value) : <span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">      <span class="comment">/* We already found the symbol.  The module (and therefore its load</span></span><br><span class="line"><span class="comment">	 address) is also known.  */</span></span><br><span class="line">      value = DL_FIXUP_MAKE_VALUE (l, l-&gt;l_addr + sym-&gt;st_value);</span><br><span class="line">      result = l;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* And now perhaps the relocation addend.  */</span></span><br><span class="line">  value = elf_machine_plt_value (l, reloc, value);</span><br><span class="line"></span><br><span class="line">  <span class="comment">//将已经解析完的函数地址写入相应的GOT表中</span></span><br><span class="line">  <span class="keyword">if</span> (sym != <span class="literal">NULL</span></span><br><span class="line">      &amp;&amp; __builtin_expect (ELFW(ST_TYPE) (sym-&gt;st_info) == STT_GNU_IFUNC, <span class="number">0</span>))</span><br><span class="line">    value = elf_ifunc_invoke (DL_FIXUP_VALUE_ADDR (value));</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Finally, fix up the plt itself.  */</span></span><br><span class="line">  <span class="keyword">if</span> (__glibc_unlikely (GLRO(dl_bind_not)))</span><br><span class="line">    <span class="keyword">return</span> value;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> elf_machine_fixup_plt (l, result, reloc, rel_addr, value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><strong>64位应用中：</strong>该函数位于glibc-2.24/sysdeps/x86_64/dl-trampoline.h中。dl_runtime_resolve函数和_dl_fixup函数在有些方面与32位不同，后面payload构造时介绍。</p>
+<h3 id="0x03-参考文献"><a href="#0x03-参考文献" class="headerlink" title="0x03.　参考文献"></a><strong>0x03.　参考文献</strong></h3><p><a href="http://www.evil0x.com/posts/19226.html" target="_blank" rel="noopener">1. 通过ELF动态装载构造ROP链（Return-to-dl-resolve）</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/11/03/PWN/ret2-dl-resolve-payload-构造原理（一）/" data-id="cje8aweok001od8jq2b62beot" class="article-share-link">Teilen</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PWN/">PWN</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/11/03/PWN/ret2-dl-resolve-payload-构造原理（二）/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Neuer</strong>
+      <div class="article-nav-title">
+        
+          Linux栈溢出利用之return to dl-resolve payload 构造原理（二）
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/10/07/PWN/Linux栈溢出利用之DynELF实例/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Älter</strong>
+      <div class="article-nav-title">Linux栈溢出利用之DynELF实例</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Kategorien</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mobile-Security/">Mobile Security</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Programming/">Programming</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Security/">Security</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android-Reverse/">Android Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kali/">Kali</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PWN/">PWN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RegExp/">RegExp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ubuntu/">ubuntu</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/字符串处理/">字符串处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/搜索算法/">搜索算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/树结构/">树结构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/软件调试/">软件调试</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Android-Reverse/" style="font-size: 17.5px;">Android Reverse</a> <a href="/tags/Kali/" style="font-size: 10px;">Kali</a> <a href="/tags/PWN/" style="font-size: 20px;">PWN</a> <a href="/tags/RegExp/" style="font-size: 10px;">RegExp</a> <a href="/tags/Reverse/" style="font-size: 10px;">Reverse</a> <a href="/tags/ubuntu/" style="font-size: 12.5px;">ubuntu</a> <a href="/tags/字符串处理/" style="font-size: 10px;">字符串处理</a> <a href="/tags/搜索算法/" style="font-size: 15px;">搜索算法</a> <a href="/tags/树结构/" style="font-size: 10px;">树结构</a> <a href="/tags/软件调试/" style="font-size: 17.5px;">软件调试</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archiv</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">letzter Beitrag</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2017/03/17/Mobile Security/ARM64-汇编语言/">ARM64 汇编语言</a>
+          </li>
+        
+          <li>
+            <a href="/2017/03/11/Mobile Security/ARM32-汇编语言/">ARM32 汇编语言</a>
+          </li>
+        
+          <li>
+            <a href="/2017/03/04/PWN/Linux堆漏洞之Use-after-free实例/">Linux堆漏洞之Use after free实例</a>
+          </li>
+        
+          <li>
+            <a href="/2017/03/01/PWN/Linux堆漏洞之off-by-one/">Linux堆漏洞之off-by-one</a>
+          </li>
+        
+          <li>
+            <a href="/2017/02/24/PWN/Linux堆漏洞之Double-free/">Linux堆漏洞之Double free</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 D0m021ng<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

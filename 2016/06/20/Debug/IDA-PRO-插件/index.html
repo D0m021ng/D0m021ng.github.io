@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>IDA PRO 插件 | 不要说话</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="IDA Pro 是一款很强大的静态反汇编工具，现在介绍几个IDA Pro常用的插件。 0x01.　Hex-Rays 反编译插件Hex-Rays 反编译插件可以将汇编代码反编译成伪C/C++代码，便于用户阅读，提高反汇编的效率。目前Hex-Rays反编译插件只能在32位平台上运行，可以反编译Intel x86、Intel x86_64，ARM32、ARM64处理器产生的汇编代码。Hex-Rays仅以">
+<meta name="keywords" content="Reverse">
+<meta property="og:type" content="article">
+<meta property="og:title" content="IDA PRO 插件">
+<meta property="og:url" content="http://yoursite.com/2016/06/20/Debug/IDA-PRO-插件/index.html">
+<meta property="og:site_name" content="不要说话">
+<meta property="og:description" content="IDA Pro 是一款很强大的静态反汇编工具，现在介绍几个IDA Pro常用的插件。 0x01.　Hex-Rays 反编译插件Hex-Rays 反编译插件可以将汇编代码反编译成伪C/C++代码，便于用户阅读，提高反汇编的效率。目前Hex-Rays反编译插件只能在32位平台上运行，可以反编译Intel x86、Intel x86_64，ARM32、ARM64处理器产生的汇编代码。Hex-Rays仅以">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-02-09T13:16:41.725Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="IDA PRO 插件">
+<meta name="twitter:description" content="IDA Pro 是一款很强大的静态反汇编工具，现在介绍几个IDA Pro常用的插件。 0x01.　Hex-Rays 反编译插件Hex-Rays 反编译插件可以将汇编代码反编译成伪C/C++代码，便于用户阅读，提高反汇编的效率。目前Hex-Rays反编译插件只能在32位平台上运行，可以反编译Intel x86、Intel x86_64，ARM32、ARM64处理器产生的汇编代码。Hex-Rays仅以">
+  
+    <link rel="alternate" href="/atom.xml" title="不要说话" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">不要说话</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Suche"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Debug/IDA-PRO-插件" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/06/20/Debug/IDA-PRO-插件/" class="article-date">
+  <time datetime="2016-06-20T02:11:03.000Z" itemprop="datePublished">2016-06-20</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Security/">Security</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      IDA PRO 插件
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>IDA Pro 是一款很强大的静态反汇编工具，现在介绍几个IDA Pro常用的插件。</p>
+<h3 id="0x01-Hex-Rays-反编译插件"><a href="#0x01-Hex-Rays-反编译插件" class="headerlink" title="0x01.　Hex-Rays 反编译插件"></a>0x01.　Hex-Rays 反编译插件</h3><p>Hex-Rays 反编译插件可以将汇编代码反编译成伪C/C++代码，便于用户阅读，提高反汇编的效率。目前Hex-Rays反编译插件只能在32位平台上运行，可以反编译Intel x86、Intel x86_64，ARM32、ARM64处理器产生的汇编代码。Hex-Rays仅以二进制格式发布，安装时，只需将提供的插件文件复制到<idadir>/plugins目录即可。<br>使用时，反编译包含光标的函数，只需要通过View -&gt; Open Subview -&gt; Pseudocode(热键 F5)。反编译整个程序，使用File -&gt; Produce File -&gt; Create C File (热键 CTRL+F5)。</idadir></p>
+<h3 id="0x02-IDAPython"><a href="#0x02-IDAPython" class="headerlink" title="0x02.　IDAPython"></a>0x02.　IDAPython</h3><p>IDAPython功能十分强大。目前在IDA Pro 5.4及以后版本都已经集成了。</p>
+<h3 id="0x03-idaemu"><a href="#0x03-idaemu" class="headerlink" title="0x03.　idaemu"></a>0x03.　idaemu</h3><p>这个插件可以在IDA Pro中模拟执行指令代码。目前支持的架构：X86(16, 32, 64bit)、ARM32、ARM64、MIPS。<a href="https://github.com/36hours/idaemu" target="_blank" rel="noopener"><strong><font color="red">插件网址</font></strong></a></p>
+<h3 id="0x04-待续…"><a href="#0x04-待续…" class="headerlink" title="0x04.  待续…"></a>0x04.  待续…</h3>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/06/20/Debug/IDA-PRO-插件/" data-id="cje8aweme0008d8jqobb69pq8" class="article-share-link">Teilen</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Reverse/">Reverse</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/06/29/Programming/硬币问题：贪心算法/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Neuer</strong>
+      <div class="article-nav-title">
+        
+          硬币问题（DFS）
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/06/19/Mobile Security/APKTOOL学习指南/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Älter</strong>
+      <div class="article-nav-title">Apktool学习指南</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Kategorien</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mobile-Security/">Mobile Security</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Programming/">Programming</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Security/">Security</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android-Reverse/">Android Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kali/">Kali</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PWN/">PWN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RegExp/">RegExp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ubuntu/">ubuntu</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/字符串处理/">字符串处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/搜索算法/">搜索算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/树结构/">树结构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/软件调试/">软件调试</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Android-Reverse/" style="font-size: 17.5px;">Android Reverse</a> <a href="/tags/Kali/" style="font-size: 10px;">Kali</a> <a href="/tags/PWN/" style="font-size: 20px;">PWN</a> <a href="/tags/RegExp/" style="font-size: 10px;">RegExp</a> <a href="/tags/Reverse/" style="font-size: 10px;">Reverse</a> <a href="/tags/ubuntu/" style="font-size: 12.5px;">ubuntu</a> <a href="/tags/字符串处理/" style="font-size: 10px;">字符串处理</a> <a href="/tags/搜索算法/" style="font-size: 15px;">搜索算法</a> <a href="/tags/树结构/" style="font-size: 10px;">树结构</a> <a href="/tags/软件调试/" style="font-size: 17.5px;">软件调试</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archiv</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">letzter Beitrag</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2017/03/17/Mobile Security/ARM64-汇编语言/">ARM64 汇编语言</a>
+          </li>
+        
+          <li>
+            <a href="/2017/03/11/Mobile Security/ARM32-汇编语言/">ARM32 汇编语言</a>
+          </li>
+        
+          <li>
+            <a href="/2017/03/04/PWN/Linux堆漏洞之Use-after-free实例/">Linux堆漏洞之Use after free实例</a>
+          </li>
+        
+          <li>
+            <a href="/2017/03/01/PWN/Linux堆漏洞之off-by-one/">Linux堆漏洞之off-by-one</a>
+          </li>
+        
+          <li>
+            <a href="/2017/02/24/PWN/Linux堆漏洞之Double-free/">Linux堆漏洞之Double free</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 D0m021ng<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

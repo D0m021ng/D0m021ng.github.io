@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>调试器gdb的基本使用方法（2） | 不要说话</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="接着《调试器gdb的基本使用方法（1）》，继续介绍gdb的基本使用方法。 0x01.　其他断点硬件断点（hbreak）,适用于ROM空间等无法修改的内存区域中的程序。在有些框架中无法使用。临时断点（tbreak）和临时硬件断点（thbreak），与断点相同，都会在运行到该处时暂停，不同之处就是临时断点（临时硬件断点）会在此时被删除，故在只需停止一次时用起来很方便。 0x02.　改变变量的值可以使用">
+<meta name="keywords" content="软件调试">
+<meta property="og:type" content="article">
+<meta property="og:title" content="调试器gdb的基本使用方法（2）">
+<meta property="og:url" content="http://yoursite.com/2016/07/31/Debug/调试器gdb的基本使用方法（2）/index.html">
+<meta property="og:site_name" content="不要说话">
+<meta property="og:description" content="接着《调试器gdb的基本使用方法（1）》，继续介绍gdb的基本使用方法。 0x01.　其他断点硬件断点（hbreak）,适用于ROM空间等无法修改的内存区域中的程序。在有些框架中无法使用。临时断点（tbreak）和临时硬件断点（thbreak），与断点相同，都会在运行到该处时暂停，不同之处就是临时断点（临时硬件断点）会在此时被删除，故在只需停止一次时用起来很方便。 0x02.　改变变量的值可以使用">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2016-11-04T13:50:00.309Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="调试器gdb的基本使用方法（2）">
+<meta name="twitter:description" content="接着《调试器gdb的基本使用方法（1）》，继续介绍gdb的基本使用方法。 0x01.　其他断点硬件断点（hbreak）,适用于ROM空间等无法修改的内存区域中的程序。在有些框架中无法使用。临时断点（tbreak）和临时硬件断点（thbreak），与断点相同，都会在运行到该处时暂停，不同之处就是临时断点（临时硬件断点）会在此时被删除，故在只需停止一次时用起来很方便。 0x02.　改变变量的值可以使用">
+  
+    <link rel="alternate" href="/atom.xml" title="不要说话" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">不要说话</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Suche"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Debug/调试器gdb的基本使用方法（2）" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/07/31/Debug/调试器gdb的基本使用方法（2）/" class="article-date">
+  <time datetime="2016-07-31T03:31:17.000Z" itemprop="datePublished">2016-07-31</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Linux/">Linux</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      调试器gdb的基本使用方法（2）
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>接着《调试器gdb的基本使用方法（1）》，继续介绍gdb的基本使用方法。</p>
+<h3 id="0x01-其他断点"><a href="#0x01-其他断点" class="headerlink" title="0x01.　其他断点"></a>0x01.　其他断点</h3><p>硬件断点（<code>hbreak</code>）,适用于ROM空间等无法修改的内存区域中的程序。在有些框架中无法使用。临时断点（<code>tbreak</code>）和临时硬件断点（<code>thbreak</code>），与断点相同，都会在运行到该处时暂停，不同之处就是临时断点（临时硬件断点）会在此时被删除，故在只需停止一次时用起来很方便。</p>
+<h3 id="0x02-改变变量的值"><a href="#0x02-改变变量的值" class="headerlink" title="0x02.　改变变量的值"></a>0x02.　改变变量的值</h3><p>可以使用命令<code>set variable</code> 改变运行中程序的变量值。格式：<code>set variable &lt;变量&gt;=&lt;表达式&gt;</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">(gdb) p options</span><br><span class="line"><span class="meta">$</span><span class="bash">7 = 1</span></span><br><span class="line">(gdb) set variable options = 0</span><br><span class="line">(gdb) p options</span><br><span class="line"><span class="meta">$</span><span class="bash">8 = 0</span></span><br></pre></td></tr></table></figure>
+<h3 id="0x03-生成内核转储文件"><a href="#0x03-生成内核转储文件" class="headerlink" title="0x03.　生成内核转储文件"></a>0x03.　生成内核转储文件</h3><p>使用 <code>generate-core-file</code>可将调试中的进程生成内核转储文件。<br>例如：<code>(gdb) generate-core-file  ====&gt; Saved corefile core.13163</code><br>有了内核转储文件和调试对象，以后就能查看生成转储文件时的运行历史（寄存器值、内存值等）。</p>
+<h3 id="0x04-attach-到进程"><a href="#0x04-attach-到进程" class="headerlink" title="0x04.　attach 到进程"></a>0x04.　attach 到进程</h3><p>要调试守护进程（damon process）等已经启动的进程，或者调试陷入死循环而无法返回控制台的进程时，可以使用<code>attach</code>命令。<br>如下格式：<code>attach pid</code>，执行这一命令就可以attach到进程ID为pid的进程上。可以使用<code>ps</code>命令查看进程ID。<br>需要在gdb和进程分离时使用<code>detach</code>命令。这样调试中的进程就被从gdb的控制下释放出来。进程被detach后会继续运行。<br>进程信息可以用<code>info proc</code>命令显示。</p>
+<h3 id="0x05-条件断点"><a href="#0x05-条件断点" class="headerlink" title="0x05.　条件断点"></a>0x05.　条件断点</h3><p>有一种断点仅在特定条件下中断。<br>格式：<code>break 断点 if 条件</code>，该命令将测试给定的条件，如果为真则暂停运行。<br>另外几种格式：<br><code>condition 断点编号</code>       //给指定的断点删除触发条件<br><code>condition 断点编号  条件</code> //给指定的断点添加触发条件</p>
+<h3 id="0x06-反复执行"><a href="#0x06-反复执行" class="headerlink" title="0x06.　反复执行"></a>0x06.　反复执行</h3><p>在编号指定的断点、监视点（watchpoints）或捕获点（catchpoint）忽略指定的次数。格式：<code>ignore 断点编号  次数</code><br><code>continue</code> 命令与<code>ignore</code>命令一样，也可以指定次数，达到指定次数前，执行到断点时不暂停，二者的意义是相同的。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">格式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">continue N</td>
+<td>执行continue N次</td>
+</tr>
+<tr>
+<td style="text-align:center">step N</td>
+<td>执行step N次</td>
+</tr>
+<tr>
+<td style="text-align:center">stepi N</td>
+<td>执行stepi N次</td>
+</tr>
+<tr>
+<td style="text-align:center">next N</td>
+<td>执行next N次</td>
+</tr>
+<tr>
+<td style="text-align:center">nexti N</td>
+<td>执行nexti N次</td>
+</tr>
+</tbody>
+</table>
+<p>其他指令，<code>finish</code>命令执行完当前函数后暂停。<code>until</code>命令执行完当前函数等代码块后暂停，如果时循环，则在执行完循环后暂停，常用于跳出循环。</p>
+<h3 id="0x07-删除断点和禁用断点"><a href="#0x07-删除断点和禁用断点" class="headerlink" title="0x07.　删除断点和禁用断点"></a>0x07.　删除断点和禁用断点</h3><p>用<code>clear</code>命令删除已定义的断点，用<code>disable</code>命令禁用断点，用<code>enable</code>命令重新启用断点。<br><code>clear</code>的使用方法和设置断点的方法类似。</p>
+<p><strong>禁用断点：</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">格式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">disable [breakpoints]</td>
+<td>禁用所有断点</td>
+</tr>
+<tr>
+<td style="text-align:center">disable [breakpoints] 断点编号</td>
+<td>禁用指定断点</td>
+</tr>
+<tr>
+<td style="text-align:center">disable display 显示编号</td>
+<td>禁用display命令定义的自动显示</td>
+</tr>
+<tr>
+<td style="text-align:center">disable mem  内存区域</td>
+<td>禁用mem命令定义的内存区域</td>
+</tr>
+</tbody>
+</table>
+<p><strong>启用断点：</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">格式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">enable [breakpoints]</td>
+<td>重新启用所有断点</td>
+</tr>
+<tr>
+<td style="text-align:center">enable [breakpoints] 断点编号</td>
+<td>重新启用指定断点</td>
+</tr>
+<tr>
+<td style="text-align:center">enable [breakpoints] once 断点编号</td>
+<td>重新启用指定断点，仅一次</td>
+</tr>
+<tr>
+<td style="text-align:center">enable [breakpoints] delete 断点编号</td>
+<td>重新启用指定断点，触发后删除该断点</td>
+</tr>
+<tr>
+<td style="text-align:center">enable display 显示编号</td>
+<td>启用display命令定义的自动显示</td>
+</tr>
+<tr>
+<td style="text-align:center">enable mem  内存区域</td>
+<td>启用mem命令定义的内存区域</td>
+</tr>
+</tbody>
+</table>
+<h3 id="0x08-断点命令"><a href="#0x08-断点命令" class="headerlink" title="0x08.　断点命令"></a>0x08.　断点命令</h3><p>断定命令（<code>commands</code>）可以定义在断点中断后自动执行的命令。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">格式：</span><br><span class="line">  commands  断点编号</span><br><span class="line">     命令</span><br><span class="line">     ...</span><br><span class="line">  end</span><br></pre></td></tr></table></figure></p>
+<p>程序在指定的断点处暂停后，就会自动执行命令。</p>
+<h3 id="0x09-gdb的常用命令及省略形式"><a href="#0x09-gdb的常用命令及省略形式" class="headerlink" title="0x09.　gdb的常用命令及省略形式"></a>0x09.　gdb的常用命令及省略形式</h3><p>命令名称在不与其他命令重复的前提下，可以按照下述方式简写，如下表所示。在命令行模式下使用时，按Tab键，gdb就会自动补全命令。</p>
+<p><strong>常见命令和简写形式</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">命令</th>
+<th style="text-align:center">简写形式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">backtrace</td>
+<td style="text-align:center">bt、where</td>
+<td>显示栈帧</td>
+</tr>
+<tr>
+<td style="text-align:center">break</td>
+<td style="text-align:center">b</td>
+<td>设置断点</td>
+</tr>
+<tr>
+<td style="text-align:center">continue</td>
+<td style="text-align:center">c、cont</td>
+<td>继续运行</td>
+</tr>
+<tr>
+<td style="text-align:center">clear</td>
+<td style="text-align:center"></td>
+<td>删除断点</td>
+</tr>
+<tr>
+<td style="text-align:center">delete</td>
+<td style="text-align:center">d</td>
+<td>删除断点</td>
+</tr>
+<tr>
+<td style="text-align:center">finish</td>
+<td style="text-align:center">fin</td>
+<td>运行到函数结束</td>
+</tr>
+<tr>
+<td style="text-align:center">info breakpoints</td>
+<td style="text-align:center">info break</td>
+<td>显示断点信息</td>
+</tr>
+<tr>
+<td style="text-align:center">next</td>
+<td style="text-align:center">n</td>
+<td>执行下一行，单步步过</td>
+</tr>
+<tr>
+<td style="text-align:center">print</td>
+<td style="text-align:center">p</td>
+<td>显示表达式</td>
+</tr>
+<tr>
+<td style="text-align:center">run</td>
+<td style="text-align:center">r</td>
+<td>运行程序</td>
+</tr>
+<tr>
+<td style="text-align:center">step</td>
+<td style="text-align:center">s</td>
+<td>一次执行一行，单步步入</td>
+</tr>
+<tr>
+<td style="text-align:center">x</td>
+<td style="text-align:center"></td>
+<td>显示内存内容</td>
+</tr>
+<tr>
+<td style="text-align:center">until</td>
+<td style="text-align:center">u</td>
+<td>执行到指定行</td>
+</tr>
+<tr>
+<td style="text-align:center">directory</td>
+<td style="text-align:center">dir</td>
+<td>插入目录</td>
+</tr>
+<tr>
+<td style="text-align:center">disable</td>
+<td style="text-align:center">dis</td>
+<td>禁用断点</td>
+</tr>
+<tr>
+<td style="text-align:center">down</td>
+<td style="text-align:center">do</td>
+<td>当前调用的栈帧中选择要显示的栈帧</td>
+</tr>
+<tr>
+<td style="text-align:center">edit</td>
+<td style="text-align:center">e</td>
+<td>编辑文件或函数</td>
+</tr>
+<tr>
+<td style="text-align:center">frame</td>
+<td style="text-align:center">f</td>
+<td>选择要显示的栈帧</td>
+</tr>
+<tr>
+<td style="text-align:center">forward-search</td>
+<td style="text-align:center">fo</td>
+<td>向前搜索</td>
+</tr>
+<tr>
+<td style="text-align:center">generate-core-file</td>
+<td style="text-align:center">gcore</td>
+<td>生成内核转储</td>
+</tr>
+<tr>
+<td style="text-align:center">help</td>
+<td style="text-align:center">h</td>
+<td>显示帮助信息</td>
+</tr>
+<tr>
+<td style="text-align:center">info</td>
+<td style="text-align:center">i</td>
+<td>显示信息</td>
+</tr>
+<tr>
+<td style="text-align:center">list</td>
+<td style="text-align:center">l</td>
+<td>显示函数或行</td>
+</tr>
+<tr>
+<td style="text-align:center">nexti</td>
+<td style="text-align:center">ni</td>
+<td>汇编级，单步步过</td>
+</tr>
+<tr>
+<td style="text-align:center">print-object</td>
+<td style="text-align:center">po</td>
+<td>显示目标信息</td>
+</tr>
+<tr>
+<td style="text-align:center">sharedlibrary</td>
+<td style="text-align:center">share</td>
+<td>加载共享库的符号</td>
+</tr>
+<tr>
+<td style="text-align:center">stepi</td>
+<td style="text-align:center">si</td>
+<td>汇编级，单步步入</td>
+</tr>
+</tbody>
+</table>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/07/31/Debug/调试器gdb的基本使用方法（2）/" data-id="cje8awenp000yd8jqwllssu86" class="article-share-link">Teilen</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/软件调试/">软件调试</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/10/07/PWN/Linux栈溢出漏洞利用小结/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Neuer</strong>
+      <div class="article-nav-title">
+        
+          Linux栈溢出漏洞利用小结
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/07/30/Debug/调试器gdb的基本使用方法（1）/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Älter</strong>
+      <div class="article-nav-title">调试器gdb的基本使用方法（1）</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Kategorien</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mobile-Security/">Mobile Security</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Programming/">Programming</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Security/">Security</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android-Reverse/">Android Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kali/">Kali</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PWN/">PWN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RegExp/">RegExp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ubuntu/">ubuntu</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/字符串处理/">字符串处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/搜索算法/">搜索算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/树结构/">树结构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/软件调试/">软件调试</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Android-Reverse/" style="font-size: 17.5px;">Android Reverse</a> <a href="/tags/Kali/" style="font-size: 10px;">Kali</a> <a href="/tags/PWN/" style="font-size: 20px;">PWN</a> <a href="/tags/RegExp/" style="font-size: 10px;">RegExp</a> <a href="/tags/Reverse/" style="font-size: 10px;">Reverse</a> <a href="/tags/ubuntu/" style="font-size: 12.5px;">ubuntu</a> <a href="/tags/字符串处理/" style="font-size: 10px;">字符串处理</a> <a href="/tags/搜索算法/" style="font-size: 15px;">搜索算法</a> <a href="/tags/树结构/" style="font-size: 10px;">树结构</a> <a href="/tags/软件调试/" style="font-size: 17.5px;">软件调试</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archiv</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">letzter Beitrag</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2017/03/17/Mobile Security/ARM64-汇编语言/">ARM64 汇编语言</a>
+          </li>
+        
+          <li>
+            <a href="/2017/03/11/Mobile Security/ARM32-汇编语言/">ARM32 汇编语言</a>
+          </li>
+        
+          <li>
+            <a href="/2017/03/04/PWN/Linux堆漏洞之Use-after-free实例/">Linux堆漏洞之Use after free实例</a>
+          </li>
+        
+          <li>
+            <a href="/2017/03/01/PWN/Linux堆漏洞之off-by-one/">Linux堆漏洞之off-by-one</a>
+          </li>
+        
+          <li>
+            <a href="/2017/02/24/PWN/Linux堆漏洞之Double-free/">Linux堆漏洞之Double free</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 D0m021ng<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

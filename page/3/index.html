@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>不要说话</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="不要说话">
+<meta property="og:url" content="http://yoursite.com/page/3/index.html">
+<meta property="og:site_name" content="不要说话">
+<meta property="og:locale" content="zh-Hans">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="不要说话">
+  
+    <link rel="alternate" href="/atom.xml" title="不要说话" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">不要说话</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Suche"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-Debug/软件调试书单" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/06/13/Debug/软件调试书单/" class="article-date">
+  <time datetime="2016-06-13T13:28:25.000Z" itemprop="datePublished">2016-06-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Linux/">Linux</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/06/13/Debug/软件调试书单/">软件调试书单</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>最近准备学习一下调试技术，为以后的逆向分析打下基础，主要关注是Linux平台下的软件调试。现在列举一些调试相关的书籍，一边看书，一边实践。</p>
+<ol>
+<li>软件调试的艺术（The Art of Debugging with GDB,DDD, and Eclipse）, 2009.11</li>
+<li>软件调试实战 （The Developers Guide to Debugging）, 2010.2</li>
+<li>Debug It! Find, Repair, and Prevent Bugs in Your Code , 2011.6</li>
+<li>格蠹汇编 —— 软件调试案例集锦</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/06/13/Debug/软件调试书单/" data-id="cje8aweo50013d8jqd0r4r1nh" class="article-share-link">Teilen</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/软件调试/">软件调试</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Programming/最长回文子串" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/05/19/Programming/最长回文子串/" class="article-date">
+  <time datetime="2016-05-19T12:54:36.000Z" itemprop="datePublished">2016-05-19</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Programming/">Programming</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/05/19/Programming/最长回文子串/">最长回文子串</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>最长回文子串是字符串处理中最经典的问题之一，其解决方法有多种，效率也不一样。下面分别介绍几种解决方法。</p>
+<h3 id="0x01-动态规划"><a href="#0x01-动态规划" class="headerlink" title="0x01. 动态规划"></a>0x01. 动态规划</h3><p>时间复杂度：o(n^2), 空间复杂度：o(n^2).<br>动态规划方程：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">dp[i][j] 表示子串s[i…j]是否是回文</span><br><span class="line">初始化：</span><br><span class="line">   dp[i][i] = true (0 &lt;= i &lt;= n-1);</span><br><span class="line">   dp[i][i-1] = true (1 &lt;= i &lt;= n-1); 其余的初始化为false</span><br><span class="line">dp[i][j] = (s[i] == s[j] &amp;&amp; dp[i+1][j-1] == true)</span><br></pre></td></tr></table></figure></p>
+<h3 id="0x02-Manecher算法"><a href="#0x02-Manecher算法" class="headerlink" title="0x02. Manecher算法"></a>0x02. Manecher算法</h3><p>时间复杂度：o(n), 空间复杂度：o(n).<br>该算法首先对字符串进行预处理，在字符串的每个字符前后都加入一个特殊符号，比如字符串 abcb 处理成#a#b#c#b#。为了避免处理越界，在字符串首尾加上不同的两个特殊字符（C类型的字符串后面有’\0’，不用加），最后预处理的字符串为^#a#b#c#b#。<br>就以上面的字符串为例，经过预处理后，变成s= “^#a#b#c#b#”;<br>设数组p[i]的值为以字符s[i]为中心的最长回文子串向两边扩展的长度（包括s[i]）,以上述字符串为例：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">s:  ^ # a # b # c # b #</span><br><span class="line">p:    1 2 1 2 1 4 1 2 1</span><br></pre></td></tr></table></figure></p>
+<p>仔细观察可以发现，p[i]-1 正好是原字符串中回文串的总长度。<br>p[]数组的求法：<br>设id是当前求得的最长回文子串中心的位置，mx是当前最长回文子串的右边界（回文子串不包括该右边界），即mx = id + p[id]。设i是id右边的位置，则关于id对称的点j = id-(i-id)= 2*id-i。</p>
+<ol>
+<li>当 mx &gt; i 时：<br>如果 mx-i &gt; p[j], 则以s[j]为中心的回文子串包含在以s[id]为中心的回文子串中。由于i和j对称，那么以s[i]为中心的回文子串必然包含在以s[id]为中心的回文子串中。所以至少 p[i]&gt;=p[j]，后面的在继续匹配。<br>如果 mx-i &lt;= p[j], 则以s[j]为中心的回文子串不完全包含于以s[id]为中心的回文子串中。但由于对称性，以s[i]为中心的回文串，其向右至少会扩展到mx的位置，即p[i]至少等于 mx-i,至于后面的部分是否对称，只好一一匹配。</li>
+<li>当 mx &lt;= i 时：<br>无法对p[i]做更多的假设，只能p[i] = 1, 然后再去匹配。<br>上述过程的C语言实现如下：   <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//输入预处理的字符串s</span></span><br><span class="line"><span class="keyword">int</span> p[MAXN], mx = <span class="number">0</span>, id = <span class="number">0</span>;</span><br><span class="line"><span class="built_in">memset</span>(p, <span class="number">0</span>, <span class="keyword">sizeof</span>(p));</span><br><span class="line"><span class="keyword">for</span> (i = <span class="number">1</span>; s[i] != <span class="string">'\0'</span>; i++) &#123;</span><br><span class="line">    p[i] = mx &gt; i ? min(p[<span class="number">2</span>*id-i], mx-i) : <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">while</span> (s[i + p[i]] == s[i - p[i]]) p[i]++;</span><br><span class="line">    <span class="keyword">if</span> (i + p[i] &gt; mx) &#123;</span><br><span class="line">        mx = i + p[i];</span><br><span class="line">        id = i;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//找出p[i]中最大的</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="0x03-后缀数组（后缀树）"><a href="#0x03-后缀数组（后缀树）" class="headerlink" title="0x03. 后缀数组（后缀树）"></a>0x03. 后缀数组（后缀树）</h3><p>待续。。。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/05/19/Programming/最长回文子串/" data-id="cje8awepg002kd8jq6dzevraj" class="article-share-link">Teilen</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/字符串处理/">字符串处理</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Programming/搜索之枚举" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/05/18/Programming/搜索之枚举/" class="article-date">
+  <time datetime="2016-05-18T13:14:27.000Z" itemprop="datePublished">2016-05-18</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Programming/">Programming</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/05/18/Programming/搜索之枚举/">搜索之枚举</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>搜索算法是最基础的算法，比较实用。枚举搜索是最简单的搜索算法，适用于问题规模比较小的情景。下面用一道题熟悉一下，搜索24点。</p>
+<p>题目来源：<a href="http://hihocoder.com/contest/hiho98/problem/1" target="_blank" rel="noopener">http://hihocoder.com/contest/hiho98/problem/1</a></p>
+<p>C实现的算法：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span>  used[<span class="number">4</span>], nowNumber[<span class="number">4</span>], number[<span class="number">4</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">// ^'表示反减,'|'表示反除，</span></span><br><span class="line"><span class="keyword">char</span> ops[<span class="number">3</span>], opType[<span class="number">6</span>] = &#123;<span class="string">'+'</span>,<span class="string">'-'</span>,<span class="string">'*'</span>,<span class="string">'/'</span>,<span class="string">'^'</span>,<span class="string">'|'</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">float</span> <span class="title">operate</span><span class="params">(<span class="keyword">char</span> op, <span class="keyword">float</span> a, <span class="keyword">float</span> b)</span></span>&#123;</span><br><span class="line">	<span class="keyword">float</span> t;</span><br><span class="line">	<span class="keyword">switch</span>(op)&#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">'+'</span> : t = a+b; <span class="keyword">break</span>;</span><br><span class="line">    	<span class="keyword">case</span> <span class="string">'-'</span> : t = a-b; <span class="keyword">break</span>;</span><br><span class="line">    	<span class="keyword">case</span> <span class="string">'*'</span> : t = a*b; <span class="keyword">break</span>;</span><br><span class="line">    	<span class="keyword">case</span> <span class="string">'/'</span> : &#123;</span><br><span class="line">    		<span class="keyword">if</span>(b&lt;<span class="number">0</span> || b&gt;<span class="number">0</span>)</span><br><span class="line">    		    t = a/b;</span><br><span class="line">    		<span class="keyword">break</span>;</span><br><span class="line">    	&#125;</span><br><span class="line">    	<span class="keyword">case</span> <span class="string">'^'</span> : t = b-a; <span class="keyword">break</span>;</span><br><span class="line">    	<span class="keyword">case</span> <span class="string">'|'</span> :&#123;</span><br><span class="line">    		<span class="keyword">if</span>(a&lt;<span class="number">0</span> || a&gt;<span class="number">0</span>)</span><br><span class="line">    		   t = b/a;</span><br><span class="line">    		<span class="keyword">break</span>;</span><br><span class="line">    	&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> t;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//计算类型一表达式：((a@b)@c)@d</span></span><br><span class="line"><span class="function"><span class="keyword">float</span> <span class="title">calcType1</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i;</span><br><span class="line">	<span class="keyword">float</span> tmp;</span><br><span class="line">	tmp = nowNumber[<span class="number">0</span>];</span><br><span class="line">	<span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;<span class="number">3</span>; ++i)&#123;</span><br><span class="line">    	tmp = operate(ops[i], tmp, nowNumber[i+<span class="number">1</span>]);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> tmp;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//计算类型二表达式：(a@b)@(c@d)</span></span><br><span class="line"><span class="function"><span class="keyword">float</span> <span class="title">calcType2</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">float</span> t,m,n;</span><br><span class="line">    m = operate(ops[<span class="number">0</span>], nowNumber[<span class="number">0</span>], nowNumber[<span class="number">1</span>]);</span><br><span class="line">    n = operate(ops[<span class="number">2</span>], nowNumber[<span class="number">2</span>], nowNumber[<span class="number">3</span>]);</span><br><span class="line">    t = operate(ops[<span class="number">1</span>], m, n);</span><br><span class="line">	<span class="keyword">return</span> t;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">makeOperation</span><span class="params">(<span class="keyword">int</span> depth)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i;</span><br><span class="line">	<span class="keyword">if</span>(depth &gt;= <span class="number">3</span>)&#123;</span><br><span class="line">		<span class="comment">//计算类型一</span></span><br><span class="line">		<span class="keyword">if</span>(calcType1()&gt;=<span class="number">24</span> &amp;&amp; calcType1()&lt;=<span class="number">24</span>)</span><br><span class="line">			<span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">		<span class="comment">//计算类型二</span></span><br><span class="line">		<span class="keyword">if</span>(calcType2()&gt;=<span class="number">24</span> &amp;&amp; calcType2()&lt;=<span class="number">24</span>)</span><br><span class="line">			<span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;<span class="number">6</span>; ++i)&#123;</span><br><span class="line">		ops[depth] = opType[i];</span><br><span class="line">		<span class="keyword">if</span>(makeOperation(depth+<span class="number">1</span>))</span><br><span class="line">			<span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">makeNumber</span><span class="params">(<span class="keyword">int</span> depth)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="keyword">if</span>(depth &gt;= <span class="number">4</span>)</span><br><span class="line">    	<span class="keyword">return</span> makeOperation(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;<span class="number">4</span>; ++i)&#123;</span><br><span class="line">    	<span class="keyword">if</span>(used[i] == <span class="number">0</span>)&#123;</span><br><span class="line">           nowNumber[ depth ] = number[i];</span><br><span class="line"></span><br><span class="line">           used[i] = <span class="number">1</span>;</span><br><span class="line">           <span class="keyword">if</span>(makeNumber(depth+<span class="number">1</span>))&#123;</span><br><span class="line">           	    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">           &#125;</span><br><span class="line">           used[i] = <span class="number">0</span>;</span><br><span class="line">    	&#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i,t;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">while</span>(<span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;t) != EOF)&#123;</span><br><span class="line">       <span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;t; ++i)&#123;</span><br><span class="line">          <span class="built_in">scanf</span>(<span class="string">"%d %d %d %d"</span>, &amp;number[<span class="number">0</span>], &amp;number[<span class="number">1</span>], &amp;number[<span class="number">2</span>], &amp;number[<span class="number">3</span>]);</span><br><span class="line">          <span class="built_in">memset</span>(used, <span class="number">0</span>, <span class="keyword">sizeof</span>(used));</span><br><span class="line">          <span class="keyword">if</span>(makeNumber(<span class="number">0</span>) == <span class="number">1</span>)</span><br><span class="line">          	<span class="built_in">printf</span>(<span class="string">"Yes\n"</span>);</span><br><span class="line">          <span class="keyword">else</span></span><br><span class="line">          	<span class="built_in">printf</span>(<span class="string">"No\n"</span>);</span><br><span class="line">       &#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/05/18/Programming/搜索之枚举/" data-id="cje8awepg002hd8jqzyxwcl86" class="article-share-link">Teilen</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/搜索算法/">搜索算法</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Programming/Trie树" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/05/17/Programming/Trie树/" class="article-date">
+  <time datetime="2016-05-17T03:04:53.000Z" itemprop="datePublished">2016-05-17</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Programming/">Programming</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/05/17/Programming/Trie树/">Trie树</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>字典树用于单词统计，查询，非常有用。现在就Trie树给出C语言实现。</p>
+<p>题目来源：<a href="http://hihocoder.com/problemset/problem/1014" target="_blank" rel="noopener">http://hihocoder.com/problemset/problem/1014</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;malloc.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MAXN  26</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Trie</span>&#123;</span></span><br><span class="line">	<span class="keyword">int</span> count;   <span class="comment">//单词计数</span></span><br><span class="line">	<span class="keyword">int</span> flag;    <span class="comment">// 1表示是单词，0表示不是单词</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">Trie</span> *<span class="title">next</span>[<span class="title">MAXN</span>];</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Trie</span> *<span class="title">rt</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//初始化Trie树</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">trie_init</span><span class="params">()</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i;</span><br><span class="line">	rt = (struct Trie*)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(struct Trie));</span><br><span class="line"></span><br><span class="line">	rt-&gt;count = <span class="number">0</span>;</span><br><span class="line">	rt-&gt;flag = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;MAXN; ++i)</span><br><span class="line">		rt-&gt;next[i] = <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//插入单词</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">trie_insert</span><span class="params">(<span class="keyword">char</span> *s)</span></span>&#123;</span><br><span class="line">	<span class="keyword">int</span> i;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">Trie</span> *<span class="title">tmp</span> = <span class="title">rt</span>;</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span>(s; *s!=<span class="string">'\0'</span>; ++s)&#123;</span><br><span class="line">		<span class="keyword">if</span>(tmp-&gt;next[*s -<span class="string">'a'</span>] == <span class="literal">NULL</span>)&#123;</span><br><span class="line">             <span class="class"><span class="keyword">struct</span> <span class="title">Trie</span> *<span class="title">cur</span> = (<span class="title">struct</span> <span class="title">Trie</span>*)<span class="title">malloc</span>(<span class="title">sizeof</span>(<span class="title">struct</span> <span class="title">Trie</span>));</span></span><br><span class="line">             cur-&gt;count = <span class="number">0</span>;</span><br><span class="line">             cur-&gt;flag = <span class="number">0</span>;</span><br><span class="line">             <span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;MAXN; ++i)</span><br><span class="line">		         cur-&gt;next[i] = <span class="literal">NULL</span>;</span><br><span class="line">		     tmp-&gt;next[*s -<span class="string">'a'</span>] = cur;</span><br><span class="line">		&#125;</span><br><span class="line">		tmp-&gt;count++;</span><br><span class="line">		tmp = tmp-&gt;next[*s -<span class="string">'a'</span>];</span><br><span class="line">	&#125;</span><br><span class="line">	tmp-&gt;flag = <span class="number">1</span>;</span><br><span class="line">	tmp-&gt;count++;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//查询给定字符串前缀的单词数目</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">trie_search</span><span class="params">(<span class="keyword">char</span> *s)</span></span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">Trie</span> *<span class="title">tmp</span> = <span class="title">rt</span>;</span></span><br><span class="line">	<span class="keyword">for</span>(s; *s!=<span class="string">'\0'</span>; ++s)&#123;</span><br><span class="line">		<span class="keyword">if</span>(tmp-&gt;next[*s -<span class="string">'a'</span>] == <span class="literal">NULL</span>)</span><br><span class="line">			<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">	    tmp = tmp-&gt;next[*s -<span class="string">'a'</span>];</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> tmp-&gt;count;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//删除整个Trie树</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">trie_del</span><span class="params">(struct Trie *root)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;MAXN; ++i)&#123;</span><br><span class="line">       <span class="keyword">if</span>(root-&gt;next[i] != <span class="literal">NULL</span>)</span><br><span class="line">       	trie_del(root-&gt;next[i]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">free</span>(root);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">  	<span class="keyword">int</span> i, n, m;</span><br><span class="line">	  <span class="keyword">char</span> ch[<span class="number">15</span>];</span><br><span class="line"></span><br><span class="line">    FILE *fin;</span><br><span class="line">    fin = fopen(<span class="string">"input.txt"</span>, <span class="string">"r"</span>);</span><br><span class="line"></span><br><span class="line"> <span class="keyword">while</span>(<span class="built_in">fscanf</span>(fin, <span class="string">"%d"</span>, &amp;n) != EOF)&#123;</span><br><span class="line">       trie_init();</span><br><span class="line">       <span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;n; ++i)&#123;</span><br><span class="line">       	   <span class="built_in">fscanf</span>(fin, <span class="string">"%s"</span>, ch);   	  </span><br><span class="line">       	   trie_insert(ch);</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="built_in">fscanf</span>(fin, <span class="string">"%d"</span>, &amp;m);</span><br><span class="line">       <span class="keyword">for</span>(i=<span class="number">0</span>; i&lt;m; ++i)&#123;</span><br><span class="line">		   <span class="built_in">fscanf</span>(fin, <span class="string">"%s"</span>, ch);</span><br><span class="line">       	   <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, trie_search(ch));</span><br><span class="line">       &#125;</span><br><span class="line">       trie_del(rt);</span><br><span class="line">	 &#125;  </span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/05/17/Programming/Trie树/" data-id="cje8awep0002ad8jqrt0m705d" class="article-share-link">Teilen</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/树结构/">树结构</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Linux/正则表达式必知必会" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/05/05/Linux/正则表达式必知必会/" class="article-date">
+  <time datetime="2016-05-05T12:44:45.000Z" itemprop="datePublished">2016-05-05</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Linux/">Linux</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/05/05/Linux/正则表达式必知必会/">正则表达式必知必会</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>最近花了一点时间看完《正则表达式必知必会》，记录下学习的知识点。正则表达式主要是用于处理文本，用于搜索和替换。</p>
+<h3 id="0x01-匹配单个字符"><a href="#0x01-匹配单个字符" class="headerlink" title="0x01.  匹配单个字符"></a>0x01.  匹配单个字符</h3><p>（1） 匹配纯文本<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#文本</span><br><span class="line">Hello, my name is Ben. Please visit my website at http://www.forta.com</span><br><span class="line">#正则表达式</span><br><span class="line">Ben</span><br></pre></td></tr></table></figure></p>
+<p>（2）匹配任意字符 ( 使用元字符. )<br>（3）匹配特殊字符 (使用转义字符\ 转义元字符)</p>
+<h3 id="0x02-匹配一组字符"><a href="#0x02-匹配一组字符" class="headerlink" title="0x02.  匹配一组字符"></a>0x02.  匹配一组字符</h3><p>（1）匹配多个字符中的某一个 ( 使用元字符[和]，如[ns])<br>（2）利用字符集合区间 (使用元字符- ，如：[A-Za-z0-9] )<br>（3）取非匹配 ( 使用元字符^，如：[^0-9])</p>
+<h3 id="0x03-使用元字符"><a href="#0x03-使用元字符" class="headerlink" title="0x03.  使用元字符"></a>0x03.  使用元字符</h3><p>(1) 对特殊字符进行转义 (使用转义字符)<br>(2) 匹配空白字符<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">| 元字符    |    说明    |</span><br><span class="line">| -------  | :-------: |</span><br><span class="line">| [\b]     | 回退（并删除）一个字符（Backspace键）|</span><br><span class="line">| \f       | 换页符|</span><br><span class="line">| \n       | 换行符|</span><br><span class="line">| \r       | 回车符|</span><br><span class="line">| \t       | 制表符（Tab键）|</span><br><span class="line">| \v       | 垂直制表符|</span><br></pre></td></tr></table></figure></p>
+<p>(3) 匹配特定的字符类别<br>1）匹配数字（与非数字）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">\d    匹配任何一个数字字符（等价于[0-9]）</span><br><span class="line">\D   匹配任何一个非数字字符（等价于[^0-9]）</span><br></pre></td></tr></table></figure></p>
+<p>2）匹配字母和数字（与非字母和数字）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">\w    匹配任何一个字母数字字符（大小写均可）或下划线（等价于[a-zA-Z0-9_]）</span><br><span class="line">\W   匹配任何一个非字母数字或下划线字符（等价于[^a-zA-Z0-9_]）</span><br></pre></td></tr></table></figure></p>
+<p>3）匹配空白字符（与非空白字符）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">\s    匹配任何一个空白字符（等价于[\f\n\r\t\v]）</span><br><span class="line">\S    匹配任何一个非空白字符（等价于[^\f\n\r\t\v]）</span><br></pre></td></tr></table></figure></p>
+<p>(4) 使用POSIX字符类<br>POSIX字符类是许多（但不是所有）正则表达式实现都支持的一种简写形式。</p>
+<h3 id="0x04-重复匹配"><a href="#0x04-重复匹配" class="headerlink" title="0x04.  重复匹配"></a>0x04.  重复匹配</h3><ol>
+<li>有多个匹配<pre><code>1)  匹配一个或多个字符（使用元字符 ``+``）
+2）匹配零个或多个字符（使用元字符  ``*``）
+3）匹配零个或一个字符（使用元字符  ``?``）
+</code></pre></li>
+<li>匹配的重复次数<pre><code>1) 为重复匹配次数设定一个精确的值（如：``{3}``）
+2) 为重复匹配次数设定一个区间（如：``{3-9}``）
+3) 匹配“至少重复多少次”（如：``{3, }``）
+</code></pre></li>
+<li>防止过度匹配<br>在进行模式匹配的时候会出现一种过度匹配的现象：在文本中匹配<code>&lt;[Bb]&gt;.*&lt;/[Bb]&gt;</code>时，会匹配第一个<b>或<b>到最后一个<b>或<b>之间的所有字符。原因：<code>*</code>和<code>+</code>都是所谓的“贪婪型”元字符，它们在进行匹配时的 行为模式是多多益善而不是适可而止。</b></b></b></b></li>
+</ol>
+<p>解决的方法：使用元字符的”懒惰型”版本，即在元字符后面加一个?后缀。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">贪婪型元字符         懒惰型元字符</span><br><span class="line">    *                  *?</span><br><span class="line">    +                  +?</span><br><span class="line">  &#123;n, &#125;            (n, )?</span><br></pre></td></tr></table></figure></p>
+<h3 id="0x05-位置匹配"><a href="#0x05-位置匹配" class="headerlink" title="0x05.  位置匹配"></a>0x05.  位置匹配</h3><p>(1) 单词边界 （使用元字符 \b表示，如：\bcat\b）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#文本</span><br><span class="line">The caption wore his cap and cape proudly as he sat listening to the recap of how his crew saved the men from a capsized vessel.</span><br><span class="line">#正则表达式          匹配结果</span><br><span class="line"> \bcap\b           cap</span><br><span class="line"> \bcap             captain cap cape capsized  </span><br><span class="line"> cap\b             cap recap</span><br></pre></td></tr></table></figure></p>
+<p>(2) 字符串边界（使用元字符^和$分别表示字符串的首和尾）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#文本</span><br><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;</span><br><span class="line">&lt;wsdl:definitions targerNamespace=&quot;http://tips.cf&quot;</span><br><span class="line">xmlns:impl=&quot;http://tips/cf&quot; xmlns:intf=&quot;http://tips.cf&quot;</span><br><span class="line">xmlns:apachesoap=&quot;http://xml.apache.org/xml.soap&quot;</span><br><span class="line">#正则表达式</span><br><span class="line">^\s*&lt;\?xml.*\?&gt;     匹配第一行</span><br></pre></td></tr></table></figure></p>
+<h3 id="0x06-使用子表达式"><a href="#0x06-使用子表达式" class="headerlink" title="0x06.  使用子表达式"></a>0x06.  使用子表达式</h3><p>(1)  子表达式 (使用元字符(和)包含表达式)<br>(2)  子表达式的嵌套</p>
+<h3 id="0x07-回溯引用：前后一致匹配"><a href="#0x07-回溯引用：前后一致匹配" class="headerlink" title="0x07.  回溯引用：前后一致匹配"></a>0x07.  回溯引用：前后一致匹配</h3><p>(1)  回溯引用匹配<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#正则表达式</span><br><span class="line">[ ]+(\w+)[ ]+\1</span><br><span class="line">&lt;[hH](1-6)&gt;.*?&lt;/[hH]\1&gt;    #.*?表示懒惰型.*匹配</span><br></pre></td></tr></table></figure></p>
+<p>(2)  回溯引用在替换操作中的应用<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#正则表达式                            </span><br><span class="line">(\w+[\w\.]*@[\w\.]+\.\w+)       </span><br><span class="line">#替换</span><br><span class="line">&lt;A HREF=&quot;mailto:$1&quot;&gt;$1&lt;/A&gt;</span><br></pre></td></tr></table></figure></p>
+<h3 id="0x08-前后查找"><a href="#0x08-前后查找" class="headerlink" title="0x08.  前后查找"></a>0x08.  前后查找</h3><p>(1)  向前查找（以 ?= 开头的子表达式）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#文本</span><br><span class="line">http://www.forta.com/</span><br><span class="line">https://mail/forta.com/</span><br><span class="line">ftp://ftp.forta.com/</span><br><span class="line">#正则表达式        结果</span><br><span class="line">.*(?=:)        http https ftp   #?=表示：只要找到：就行了，不要把它包括在最终的匹配结果里。</span><br></pre></td></tr></table></figure></p>
+<p>(2)  向后查找（以 ?&lt;= 开头的子表达式）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">#文本</span><br><span class="line">ABC01:  $23.45</span><br><span class="line">HGG42:  $5.31</span><br><span class="line">CFMX1:  $899.00</span><br><span class="line">XTC99:  $69.96</span><br><span class="line">Total items found: 4</span><br><span class="line"># 正则表达式         结果</span><br><span class="line">(?&lt;=\$)[0-9.]+     23.45  5.31 899.00 69.96</span><br></pre></td></tr></table></figure></p>
+<p>(3)  对前后查找取非<br>负向前查找将向前查找不与给定模式匹配的文本，负向后查找将向后查找不与给定模式匹配的文本。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">操作符          说明</span><br><span class="line">(?=)          正向前查找</span><br><span class="line">(?!)          负向前查找</span><br><span class="line">(?&lt;=)         正向后查找</span><br><span class="line">(?&lt;!)         负向后查找    </span><br><span class="line">#文本</span><br><span class="line">I paid $30 for 100 apples, 50 oranges, and 60 pears.</span><br><span class="line">I saved $5 on this order.</span><br><span class="line"></span><br><span class="line">#正则表达式                   </span><br><span class="line">(?&lt;=\$)\d+          #向后查找价格</span><br><span class="line">\b(?&lt;!\$)\d+\b      #只查找数量</span><br></pre></td></tr></table></figure></p>
+<h3 id="0x09-嵌入条件"><a href="#0x09-嵌入条件" class="headerlink" title="0x09.  嵌入条件"></a>0x09.  嵌入条件</h3><p>正则表达式里的条件要用?定义。<br>?匹配前一个字符或表达式，如果它存在的话。<br>?=和?&lt;=匹配前面或后面的文本，如果它存在的话。<br>嵌入条件语法也使用了?，嵌入条件的两种情况：1) 根据一个回溯引用来进行条件处理；2）根据一个前后查找来进行条件处理。<br>（1）回溯引用条件<br>定义这种条件的语法是：(?(backreference)true-regex|false-regex) ；也可以只用前面的true-regex;<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">#文本</span><br><span class="line">123-456-7890</span><br><span class="line">(123)456-7890</span><br><span class="line">(123)-456-7890</span><br><span class="line">(123-456-7890</span><br><span class="line">1234567890</span><br><span class="line">123 456 7890</span><br><span class="line">#正则表达式    匹配美式电话号码</span><br><span class="line">(\()?\d&#123;3&#125;(?(1)\)|-)\d&#123;3&#125;-\d&#123;4&#125;)   </span><br><span class="line">#结果</span><br><span class="line">123-456-7890</span><br><span class="line">(123)456-7890</span><br></pre></td></tr></table></figure></p>
+<p>（2）前后查找条件<br>定义这种条件的语法类似上面，只需把回溯引用替换为一个完整的前后查找表达式就行了。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">#文本  美国的邮政编码两种格式：12345形式的ZIP格式;12345-6789形式的ZIP+4格式</span><br><span class="line">11111</span><br><span class="line">22222</span><br><span class="line">33333</span><br><span class="line">44444-</span><br><span class="line">55555-5555</span><br><span class="line">#正则表达式</span><br><span class="line">\d&#123;5&#125;(?(?=-)-\d&#123;4&#125;)    #匹配美式邮编</span><br><span class="line">#结果</span><br><span class="line">11111</span><br><span class="line">22222</span><br><span class="line">33333</span><br><span class="line">55555-5555</span><br></pre></td></tr></table></figure></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/05/05/Linux/正则表达式必知必会/" data-id="cje8awelz0003d8jqwd71hinv" class="article-share-link">Teilen</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RegExp/">RegExp</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Mobile Security/2016腾讯游戏安全竞赛第一轮Android题分析" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/05/02/Mobile Security/2016腾讯游戏安全竞赛第一轮Android题分析/" class="article-date">
+  <time datetime="2016-05-02T10:41:59.000Z" itemprop="datePublished">2016-05-02</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Mobile-Security/">Mobile Security</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/05/02/Mobile Security/2016腾讯游戏安全竞赛第一轮Android题分析/">2016腾讯游戏安全竞赛第一轮Android题分析</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>最近在学习Android SO库逆向方面的知识，以2016腾讯游戏安全竞赛第一轮Android题练手，参考了一些资料，其中也有些不足的地方，希望未来好好学习逆向方面的知识。</p>
+<h3 id="0x01-分析思路"><a href="#0x01-分析思路" class="headerlink" title="0x01.　分析思路"></a>0x01.　分析思路</h3><p>本题用JEB看了一下，对于输入的Name和Code进行验证，主要的验证逻辑在SO库中。因此直接逆向SO库，找到导出的函数NativeCheckRegister(String name, String code)。</p>
+<h3 id="0x02-SO库逆向"><a href="#0x02-SO库逆向" class="headerlink" title="0x02.　SO库逆向"></a>0x02.　SO库逆向</h3><p>根据对SO中NativeCheckRegister函数的分析，该函数对Name字符串处理了2次，产生长度为20的字符数组；对Code字符串处理了1次，也产生长度为20的字符数组；做好对这两个数组进行比较。</p>
+<ol>
+<li><p><strong>对Name字符串的第一次处理</strong><br>函数刚开始就检查输入字符串Name的长度，是否在6和20之间；然后对Name字符串进行第一次处理，得到长为20的字符串。处理过程：每次会从Name字符串取一个字节，操作公式为：<strong>字节×(0x1339e7e+循环次数)×Name长度+上一次得到的4字节高3字节（第一次为0）</strong>，然后将得到的4字节的低字节存入新数组。循环次数为0x10次，多出来的4个长度为维护得到的4字节数的高3字节以及一个0。</p>
+</li>
+<li><p><strong>对Code字符串的处理</strong><br>在对Code字符串进行处理时用了2个子例程，分别是sub_146c和sub_1498。sub_1498是对注册码进行一些操作，得到一个数组；之后对数组长度进行判断，是否为0x14(即20)，等于0x20则进行后面的处理；反之直接结束。<br><strong>sub_1498子例程处理过程：</strong><br>该子例程传入的参数是 <strong>Code字符串首地址(R1)</strong> 和 <strong>栈上新数组首地址(R0)</strong>；<br>执行流程: 先通过查表操作判断Code字符串是否满足约束条件（Code字节对应的表值不能超过0x3F），如果不满足，则进行截断。因此查询的表需要dump下来，后面的字符串也要用到这个表。然后对满足约束条件的字符串进行处理。将字符串以4字节为单位，进行处理生成新的3字节字符存入栈上新数组；不足4字节的，分别进行一下处理：剩下1字节，直接退出；剩下2字节，经过操作生成1字节退出；剩下3字节，经过操作生成2字节退出；根据前面的数组长度要求为0x14,可以推断出注册码长度必须为27位：20/3=6…2 , 6*4+3 = 27 。<br>将字符串以4字节为单位操作的步骤：<br>1）通过查表，将第1个字节对应的表值逻辑左移2位，与第2个字节对应的表值逻辑右移4位进行或运算，产生第1个新字节；<br>2）通过查表，将第2个字节对应的表值逻辑左移4位，与第3个字节对应的表值逻辑右移2位进行或运算，产生第2个新字节；<br>3）通过查表，将第3个字节对应的表值逻辑左移6位，与第4个字节对应的表值进行或运算，产生第3个新字节；</p>
+</li>
+<li><p><strong>对Name字符串的第二次处理</strong><br>将20位的Name字符串数组，每个元素除以0xA,然后重新保存。</p>
+</li>
+<li><p><strong>比较</strong><br>将Name进行2次操作生成的长度20的数组，与注册码进行了1次操作生成的长度20的数组进行5次比较；<br>根据5次比较，设Name每4字节对应一个变量，那么就有5个已知的变量a1(对应数组0x00)、a2(0x04)、a3(0x08)、a4(0x0c)、a5(0x10);设注册码的20位数组每4个字节对应一个未知变量，那么就有5个未知变量x1(0x00)、x2(0x04)、x3(0x08)、x4(0x0c)、x5(0x10);根据比较列出方程：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1) a1 + x5 = x3</span><br><span class="line">2) a2 + x5 + a1 = x5 * 2</span><br><span class="line">3) x4 + a3 = x1</span><br><span class="line">4) a4 + x4 + a3 = x4 * 2</span><br><span class="line">5) x2 + a5  = a3 * 3</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/05/02/Mobile Security/2016腾讯游戏安全竞赛第一轮Android题分析/" data-id="cje8aweok001ud8jqcy8i5ood" class="article-share-link">Teilen</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android-Reverse/">Android Reverse</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Mobile Security/Protection-Measures-Of-APK" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/04/30/Mobile Security/Protection-Measures-Of-APK/" class="article-date">
+  <time datetime="2016-04-30T07:32:03.000Z" itemprop="datePublished">2016-04-30</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Mobile-Security/">Mobile Security</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/04/30/Mobile Security/Protection-Measures-Of-APK/">APK保护方法</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>最近在学习Android逆向相关的知识，了解APK的保护方法对逆向有很大的帮助。</p>
+<h3 id="0x01-Dex完整性校验"><a href="#0x01-Dex完整性校验" class="headerlink" title="0x01.　Dex完整性校验"></a>0x01.　Dex完整性校验</h3><p>classes.dex 在 Android 系统上基本负责完成所有的逻辑业务，因此很多针对 Android 应用程序的篡改都是针对 classes.dex 文件的。在 APK 的自我保护上，也可以考虑对 classes.dex文件进行完整性校验，简单的可以通过 CRC 校验完成， 也可以检查 Hash 值。由于只是检查classes.dex，所以可以将 CRC 值存储在 string 资源文件中，当然也可以放在自己的服务器上，通过运行时从服务器获取校验值。基本步骤如下：</p>
+<ul>
+<li>首先在代码中完成校验值比对的逻辑，此部分代码后续不能再改变，否则 CRC 值会发生变化；</li>
+<li>从生成的 APK文 件中提取出 classes.dex 文件，计算其 CRC 值，其他 hash 值类似；</li>
+<li>将计算出的值放入 strings.xml 文件中。</li>
+</ul>
+<h3 id="0x02-APK完整性校验"><a href="#0x02-APK完整性校验" class="headerlink" title="0x02.　APK完整性校验"></a>0x02.　APK完整性校验</h3><p>虽然 Android 程序的主要逻辑通过 classes.dex 文件执行，但是其他文件也会影响到整个程序的逻辑走向，以上述 Dex 文件校验为例，如果程序依赖 strings.xml 文件中的某些值，则修改这些值就会影响程序的运行，所以进一步可以整个 APK 文件进行完整性校验。 但是如果对整个 APK 文件进行完整性校验，由于在开发 Android 应用程序时，无法知道完整 APK 文件的 Hash 值，所以这个 Hash 值的存储无法像 Dex 完整性校验那样放在 strings.xml 文件中，所以可以考虑将值放在服务器端。</p>
+<h3 id="0x03-模拟器检测"><a href="#0x03-模拟器检测" class="headerlink" title="0x03.　模拟器检测"></a>0x03.　模拟器检测</h3><p>一般在分析 APK 的过程中会借助于 Android 模拟器，比如分析网络行为，动态调试等。因此从 APK 自我保护的角度出发，可以增加对 APK 当前运行环境的检测，判断是否运行在模拟器中，如果运行在模拟器中可以选择退出整个应用程序的执行或者跳到其他分支。模拟器检测的手段有很多，下面逐一分析。</p>
+<ol>
+<li><strong>属性检测</strong><br>Android 属性系统类似于 Windows 的注册表机制， 所有的进程可以共享系统设置值 一些属性值在 Android 模拟器和真机上是不同的，根据这些属性值在真实机器和模拟器上的差别可以比较容易的。</li>
+<li><strong>虚拟机文件检测</strong><br>相对于真实设备，Android模拟器中存在一些特殊的文件或目录，如/system/bin/qemu-props,该可执行文件可以用来在模拟器中设置系统属性。 另外还有/system/lib/libc_malloc_debug_qemu.so 文件以及/sys/qemu_trace 目录。我们可以通过检测这些特殊文件或者目录是否存在来判断 Android 应用程序是否运行在模拟器中。</li>
+</ol>
+<h3 id="0x04-调试器检测"><a href="#0x04-调试器检测" class="headerlink" title="0x04.　调试器检测"></a>0x04.　调试器检测</h3><p>在对 APK 逆向分析时，往往会采取动态调试技术，可以使用 netbeans+apktool 对反汇编生成的 smali 代码进行动态调试。为了防止 APK 被动态调试，可以检测是否有调试器连接。Android 系统在 android.os.Debug 类中提供了 isDebuggerConnected()方法，用于检测是否有调试器连接。可以在 Application 类中调用 isDebuggerConnected()方法，判断是否有调试器连接，如果有，直接退出程序。<br>除了 isDebuggerConnected 方法，还可以通过在 AndroidManifest 文件的 application 节点中加入 android:debuggable=”false”使得程序不可被调试，这样如果希望调试代码，则需要修改该值为 true，因此可以在代码中检查这个属性的值，判断程序是否被修改过，</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/04/30/Mobile Security/Protection-Measures-Of-APK/" data-id="cje8awep00026d8jq1ttvpwaj" class="article-share-link">Teilen</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android-Reverse/">Android Reverse</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Linux/Ubuntu14-04-Update-Kernel：Missing-Modules" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/04/06/Linux/Ubuntu14-04-Update-Kernel：Missing-Modules/" class="article-date">
+  <time datetime="2016-04-06T08:52:28.000Z" itemprop="datePublished">2016-04-06</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Linux/">Linux</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/04/06/Linux/Ubuntu14-04-Update-Kernel：Missing-Modules/">Ubuntu 14.04 更换内核重启出现：Missing Modules</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="0x01-前言"><a href="#0x01-前言" class="headerlink" title="0x01.　前言"></a>0x01.　前言</h2><p>最近由于实验的需要，需要更换Linux系统的内核。我的系统是Ubuntu1404，内核版本时3.19。由于实验的平台需要内核版本3.14.0，只好将Ubuntu14.04的内核从3.19降级到3.14.0。在编译安装之后，运行命令：update-grub,重启之后发现没有出现Grub程序菜单。接下来就是一系列问题。。。</p>
+<h2 id="0x02-问题"><a href="#0x02-问题" class="headerlink" title="0x02.　问题"></a>0x02.　问题</h2><p><strong>(1)  重启之后没有出现Grub菜单</strong></p>
+<p>由于Ubuntu14.04使用的是Grub2.0，在有些地方的配置与以前的Grub有所不同。重启之后没有出现Grub菜单，是由于Grub菜单被隐藏，并且是按照默认启动。</p>
+<h5 id="解决方法："><a href="#解决方法：" class="headerlink" title="解决方法："></a>解决方法：</h5><h6 id="将-etc-default-grub文档中的GRUB-HIDDEN-TIMEOUT-0注释掉"><a href="#将-etc-default-grub文档中的GRUB-HIDDEN-TIMEOUT-0注释掉" class="headerlink" title="将/etc/default/grub文档中的GRUB_HIDDEN_TIMEOUT=0注释掉"></a>将/etc/default/grub文档中的GRUB_HIDDEN_TIMEOUT=0注释掉</h6><p><strong>(2)  出现菜单之后，进入新内核，出现如下提示：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Gave up waiting <span class="keyword">for</span> root device. Common problems:</span><br><span class="line">    -Boot args (cat /proc/cmdline)</span><br><span class="line">    -Check rootdelay= (did the system <span class="built_in">wait</span> long enough?)</span><br><span class="line">    -Check root= (did the system <span class="built_in">wait</span> <span class="keyword">for</span> the right device?)</span><br><span class="line">    -Missing modules (cat /proc/modules; ls /dev)</span><br><span class="line">ALERT! /dev/sda does not exist ...</span><br><span class="line">   或者</span><br><span class="line">ALERT!  /dev/disk/by-uuid/34e5c1 ... does not exist ...</span><br></pre></td></tr></table></figure>
+<p>如果Grub.cfg没有出现什么重要的改动(直接运行update-grub之后），出现问题就是 Missing modules。由于Linux启动时，initramfs需要从initrd.img中读取系统中一些基本的驱动程序。而如果在编译内核的过程中，<br>没有操作好，initrd.img会被破坏，最直接的表现是initrd.img文件大小比正常的小很多。可以使用如下命令比较各个initrd.img的大小：ls -l initrd*</p>
+<h5 id="解决方法：-1"><a href="#解决方法：-1" class="headerlink" title="解决方法："></a>解决方法：</h5><pre><code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">重新创建对应内核的initrd.img：</span><br><span class="line">  1 备份以前编译的initrd.img,以免出错：</span><br><span class="line">     $ cp /boot/initrd.img.(编译内核的版本） /root</span><br><span class="line"></span><br><span class="line">  2 在管理员权限下创建新的initrd.img      </span><br><span class="line">     $ mkinitramfs -o /boot/initrd.img.(编译内核的版本) (编译内核的版本)</span><br><span class="line">     $ ls -l /boot/initrd.img.(编译内核的版本)</span><br><span class="line"></span><br><span class="line">  3  重新更新下Grub.cfg(之前已经更新过，最好还是更新一下)，重启        </span><br><span class="line">     $ update-grub</span><br><span class="line">     $ reboot</span><br></pre></td></tr></table></figure>
+</code></pre><h4 id="0x03-小结"><a href="#0x03-小结" class="headerlink" title="0x03.　小结"></a>0x03.　小结</h4><p>最终以上问题可以解决，编译Linux内核的时候，一定要仔细。一般编译内核快的要半个小时，有时可能需要1小时或以上，有时候一个小的失误可能会导致前面的工作白费。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/04/06/Linux/Ubuntu14-04-Update-Kernel：Missing-Modules/" data-id="cje8aweme0007d8jqag2g5vss" class="article-share-link">Teilen</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ubuntu/">ubuntu</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Linux/Kali-Linux" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/04/06/Linux/Kali-Linux/" class="article-date">
+  <time datetime="2016-04-06T08:03:12.000Z" itemprop="datePublished">2016-04-06</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Linux/">Linux</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/04/06/Linux/Kali-Linux/">Kali Linux</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Kali Linux 安装后的配置，首先更换Kali Linux国内的软件源。</p>
+<h2 id="0x01-Kali-Linux更换源"><a href="#0x01-Kali-Linux更换源" class="headerlink" title="0x01.　Kali Linux更换源"></a>0x01.　Kali Linux更换源</h2><h3 id="中科大kali源"><a href="#中科大kali源" class="headerlink" title="中科大kali源"></a>中科大kali源</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">deb http://mirrors.ustc.edu.cn/kali sana main non-free contrib</span><br><span class="line">deb http://mirrors.ustc.edu.cn/kali-security/ sana/updates main contrib non-free</span><br><span class="line">deb-src http://mirrors.ustc.edu.cn/kali-security/ sana/updates main contrib non-free</span><br></pre></td></tr></table></figure>
+<h3 id="阿里云kali源"><a href="#阿里云kali源" class="headerlink" title="阿里云kali源"></a>阿里云kali源</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">deb http://mirrors.aliyun.com/kali sana main non-free contrib</span><br><span class="line">deb http://mirrors.aliyun.com/kali-security/ sana/updates main contrib non-free</span><br><span class="line">deb-src http://mirrors.aliyun.com/kali-security/ sana/updates main contrib non-free</span><br></pre></td></tr></table></figure>
+<h3 id="对软件进行一次整体更新："><a href="#对软件进行一次整体更新：" class="headerlink" title="对软件进行一次整体更新："></a>对软件进行一次整体更新：</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ apt-get update &amp; apt-get upgrade</span><br><span class="line">$ apt-get dist-upgrade</span><br><span class="line">$ apt-get clean</span><br></pre></td></tr></table></figure>
+<h2 id="0x02-Kali-Linux安装中文输入法（以下任选）"><a href="#0x02-Kali-Linux安装中文输入法（以下任选）" class="headerlink" title="0x02.　Kali Linux安装中文输入法（以下任选）"></a>0x02.　Kali Linux安装中文输入法（以下任选）</h2><h3 id="拼音五笔"><a href="#拼音五笔" class="headerlink" title="拼音五笔"></a>拼音五笔</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ apt-get install fcitx-table-wbpy ttf-wqy-microhei ttf-wqy-zenhei</span><br></pre></td></tr></table></figure>
+<h3 id="经典的ibus"><a href="#经典的ibus" class="headerlink" title="经典的ibus"></a>经典的ibus</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ apt-get install ibus ibus-pinyin</span><br></pre></td></tr></table></figure>
+<h3 id="fcitx拼音"><a href="#fcitx拼音" class="headerlink" title="fcitx拼音"></a>fcitx拼音</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ apt-get install fcitx fcitx-googlepinyin</span><br></pre></td></tr></table></figure>
+<h3 id="如果安装出现问题，可能是因为没有软件源，依赖问题。解决方法："><a href="#如果安装出现问题，可能是因为没有软件源，依赖问题。解决方法：" class="headerlink" title="如果安装出现问题，可能是因为没有软件源，依赖问题。解决方法："></a>如果安装出现问题，可能是因为没有软件源，依赖问题。解决方法：</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ aptitude update</span><br><span class="line">$ aptitude install ibus ibus-pinyin</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/04/06/Linux/Kali-Linux/" data-id="cje8awelz0002d8jqan8qy25w" class="article-share-link">Teilen</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kali/">Kali</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+
+
+  <nav id="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/page/2/">&laquo; zurück</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span>
+  </nav>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Kategorien</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mobile-Security/">Mobile Security</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Programming/">Programming</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Security/">Security</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android-Reverse/">Android Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kali/">Kali</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PWN/">PWN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RegExp/">RegExp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ubuntu/">ubuntu</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/字符串处理/">字符串处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/搜索算法/">搜索算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/树结构/">树结构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/软件调试/">软件调试</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Android-Reverse/" style="font-size: 17.5px;">Android Reverse</a> <a href="/tags/Kali/" style="font-size: 10px;">Kali</a> <a href="/tags/PWN/" style="font-size: 20px;">PWN</a> <a href="/tags/RegExp/" style="font-size: 10px;">RegExp</a> <a href="/tags/Reverse/" style="font-size: 10px;">Reverse</a> <a href="/tags/ubuntu/" style="font-size: 12.5px;">ubuntu</a> <a href="/tags/字符串处理/" style="font-size: 10px;">字符串处理</a> <a href="/tags/搜索算法/" style="font-size: 15px;">搜索算法</a> <a href="/tags/树结构/" style="font-size: 10px;">树结构</a> <a href="/tags/软件调试/" style="font-size: 17.5px;">软件调试</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archiv</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">letzter Beitrag</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2017/03/17/Mobile Security/ARM64-汇编语言/">ARM64 汇编语言</a>
+          </li>
+        
+          <li>
+            <a href="/2017/03/11/Mobile Security/ARM32-汇编语言/">ARM32 汇编语言</a>
+          </li>
+        
+          <li>
+            <a href="/2017/03/04/PWN/Linux堆漏洞之Use-after-free实例/">Linux堆漏洞之Use after free实例</a>
+          </li>
+        
+          <li>
+            <a href="/2017/03/01/PWN/Linux堆漏洞之off-by-one/">Linux堆漏洞之off-by-one</a>
+          </li>
+        
+          <li>
+            <a href="/2017/02/24/PWN/Linux堆漏洞之Double-free/">Linux堆漏洞之Double free</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 D0m021ng<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

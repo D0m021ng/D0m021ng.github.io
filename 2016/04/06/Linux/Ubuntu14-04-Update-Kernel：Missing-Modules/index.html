@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Ubuntu 14.04 更换内核重启出现：Missing Modules | 不要说话</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="0x01.　前言最近由于实验的需要，需要更换Linux系统的内核。我的系统是Ubuntu1404，内核版本时3.19。由于实验的平台需要内核版本3.14.0，只好将Ubuntu14.04的内核从3.19降级到3.14.0。在编译安装之后，运行命令：update-grub,重启之后发现没有出现Grub程序菜单。接下来就是一系列问题。。。 0x02.　问题(1)  重启之后没有出现Grub菜单 由于U">
+<meta name="keywords" content="ubuntu">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ubuntu 14.04 更换内核重启出现：Missing Modules">
+<meta property="og:url" content="http://yoursite.com/2016/04/06/Linux/Ubuntu14-04-Update-Kernel：Missing-Modules/index.html">
+<meta property="og:site_name" content="不要说话">
+<meta property="og:description" content="0x01.　前言最近由于实验的需要，需要更换Linux系统的内核。我的系统是Ubuntu1404，内核版本时3.19。由于实验的平台需要内核版本3.14.0，只好将Ubuntu14.04的内核从3.19降级到3.14.0。在编译安装之后，运行命令：update-grub,重启之后发现没有出现Grub程序菜单。接下来就是一系列问题。。。 0x02.　问题(1)  重启之后没有出现Grub菜单 由于U">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-02-09T13:29:34.920Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Ubuntu 14.04 更换内核重启出现：Missing Modules">
+<meta name="twitter:description" content="0x01.　前言最近由于实验的需要，需要更换Linux系统的内核。我的系统是Ubuntu1404，内核版本时3.19。由于实验的平台需要内核版本3.14.0，只好将Ubuntu14.04的内核从3.19降级到3.14.0。在编译安装之后，运行命令：update-grub,重启之后发现没有出现Grub程序菜单。接下来就是一系列问题。。。 0x02.　问题(1)  重启之后没有出现Grub菜单 由于U">
+  
+    <link rel="alternate" href="/atom.xml" title="不要说话" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">不要说话</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Suche"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Linux/Ubuntu14-04-Update-Kernel：Missing-Modules" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/04/06/Linux/Ubuntu14-04-Update-Kernel：Missing-Modules/" class="article-date">
+  <time datetime="2016-04-06T08:52:28.000Z" itemprop="datePublished">2016-04-06</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Linux/">Linux</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Ubuntu 14.04 更换内核重启出现：Missing Modules
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="0x01-前言"><a href="#0x01-前言" class="headerlink" title="0x01.　前言"></a>0x01.　前言</h2><p>最近由于实验的需要，需要更换Linux系统的内核。我的系统是Ubuntu1404，内核版本时3.19。由于实验的平台需要内核版本3.14.0，只好将Ubuntu14.04的内核从3.19降级到3.14.0。在编译安装之后，运行命令：update-grub,重启之后发现没有出现Grub程序菜单。接下来就是一系列问题。。。</p>
+<h2 id="0x02-问题"><a href="#0x02-问题" class="headerlink" title="0x02.　问题"></a>0x02.　问题</h2><p><strong>(1)  重启之后没有出现Grub菜单</strong></p>
+<p>由于Ubuntu14.04使用的是Grub2.0，在有些地方的配置与以前的Grub有所不同。重启之后没有出现Grub菜单，是由于Grub菜单被隐藏，并且是按照默认启动。</p>
+<h5 id="解决方法："><a href="#解决方法：" class="headerlink" title="解决方法："></a>解决方法：</h5><h6 id="将-etc-default-grub文档中的GRUB-HIDDEN-TIMEOUT-0注释掉"><a href="#将-etc-default-grub文档中的GRUB-HIDDEN-TIMEOUT-0注释掉" class="headerlink" title="将/etc/default/grub文档中的GRUB_HIDDEN_TIMEOUT=0注释掉"></a>将/etc/default/grub文档中的GRUB_HIDDEN_TIMEOUT=0注释掉</h6><p><strong>(2)  出现菜单之后，进入新内核，出现如下提示：</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Gave up waiting <span class="keyword">for</span> root device. Common problems:</span><br><span class="line">    -Boot args (cat /proc/cmdline)</span><br><span class="line">    -Check rootdelay= (did the system <span class="built_in">wait</span> long enough?)</span><br><span class="line">    -Check root= (did the system <span class="built_in">wait</span> <span class="keyword">for</span> the right device?)</span><br><span class="line">    -Missing modules (cat /proc/modules; ls /dev)</span><br><span class="line">ALERT! /dev/sda does not exist ...</span><br><span class="line">   或者</span><br><span class="line">ALERT!  /dev/disk/by-uuid/34e5c1 ... does not exist ...</span><br></pre></td></tr></table></figure>
+<p>如果Grub.cfg没有出现什么重要的改动(直接运行update-grub之后），出现问题就是 Missing modules。由于Linux启动时，initramfs需要从initrd.img中读取系统中一些基本的驱动程序。而如果在编译内核的过程中，<br>没有操作好，initrd.img会被破坏，最直接的表现是initrd.img文件大小比正常的小很多。可以使用如下命令比较各个initrd.img的大小：ls -l initrd*</p>
+<h5 id="解决方法：-1"><a href="#解决方法：-1" class="headerlink" title="解决方法："></a>解决方法：</h5><pre><code><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">重新创建对应内核的initrd.img：</span><br><span class="line">  1 备份以前编译的initrd.img,以免出错：</span><br><span class="line">     $ cp /boot/initrd.img.(编译内核的版本） /root</span><br><span class="line"></span><br><span class="line">  2 在管理员权限下创建新的initrd.img      </span><br><span class="line">     $ mkinitramfs -o /boot/initrd.img.(编译内核的版本) (编译内核的版本)</span><br><span class="line">     $ ls -l /boot/initrd.img.(编译内核的版本)</span><br><span class="line"></span><br><span class="line">  3  重新更新下Grub.cfg(之前已经更新过，最好还是更新一下)，重启        </span><br><span class="line">     $ update-grub</span><br><span class="line">     $ reboot</span><br></pre></td></tr></table></figure>
+</code></pre><h4 id="0x03-小结"><a href="#0x03-小结" class="headerlink" title="0x03.　小结"></a>0x03.　小结</h4><p>最终以上问题可以解决，编译Linux内核的时候，一定要仔细。一般编译内核快的要半个小时，有时可能需要1小时或以上，有时候一个小的失误可能会导致前面的工作白费。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/04/06/Linux/Ubuntu14-04-Update-Kernel：Missing-Modules/" data-id="cje8aweme0007d8jqag2g5vss" class="article-share-link">Teilen</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ubuntu/">ubuntu</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/04/30/Mobile Security/Protection-Measures-Of-APK/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Neuer</strong>
+      <div class="article-nav-title">
+        
+          APK保护方法
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/04/06/Linux/Kali-Linux/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Älter</strong>
+      <div class="article-nav-title">Kali Linux</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Kategorien</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mobile-Security/">Mobile Security</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Programming/">Programming</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Security/">Security</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Android-Reverse/">Android Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kali/">Kali</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/PWN/">PWN</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RegExp/">RegExp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reverse/">Reverse</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/ubuntu/">ubuntu</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/字符串处理/">字符串处理</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/搜索算法/">搜索算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/树结构/">树结构</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/软件调试/">软件调试</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Android-Reverse/" style="font-size: 17.5px;">Android Reverse</a> <a href="/tags/Kali/" style="font-size: 10px;">Kali</a> <a href="/tags/PWN/" style="font-size: 20px;">PWN</a> <a href="/tags/RegExp/" style="font-size: 10px;">RegExp</a> <a href="/tags/Reverse/" style="font-size: 10px;">Reverse</a> <a href="/tags/ubuntu/" style="font-size: 12.5px;">ubuntu</a> <a href="/tags/字符串处理/" style="font-size: 10px;">字符串处理</a> <a href="/tags/搜索算法/" style="font-size: 15px;">搜索算法</a> <a href="/tags/树结构/" style="font-size: 10px;">树结构</a> <a href="/tags/软件调试/" style="font-size: 17.5px;">软件调试</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archiv</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/03/">March 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">November 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/10/">October 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">July 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">June 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">May 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">April 2016</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">letzter Beitrag</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2017/03/17/Mobile Security/ARM64-汇编语言/">ARM64 汇编语言</a>
+          </li>
+        
+          <li>
+            <a href="/2017/03/11/Mobile Security/ARM32-汇编语言/">ARM32 汇编语言</a>
+          </li>
+        
+          <li>
+            <a href="/2017/03/04/PWN/Linux堆漏洞之Use-after-free实例/">Linux堆漏洞之Use after free实例</a>
+          </li>
+        
+          <li>
+            <a href="/2017/03/01/PWN/Linux堆漏洞之off-by-one/">Linux堆漏洞之off-by-one</a>
+          </li>
+        
+          <li>
+            <a href="/2017/02/24/PWN/Linux堆漏洞之Double-free/">Linux堆漏洞之Double free</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 D0m021ng<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>
