@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.0.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.0.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.0.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.0.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.0.4" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.0.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  
+  <meta name="keywords" content="PWN," />
+
+
+<meta name="description" content="0x00.　前言不同于栈上的off-by-one漏洞，堆上的off-by-one漏洞利用更加复杂灵活。本文参考了一下别人的文章，介绍下Linux堆漏洞off-by-one利用技术，如有错误，欢迎斧正。 0x01.　off-by-one原理off-by-one漏洞即一个字节溢出，这种漏洞一般情况下很难利用，但是在堆上却有很多利用方式。了解Linux glibc堆分配器ptmalloc2的知道，我们可">
+<meta name="keywords" content="PWN">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux堆漏洞之off-by-one">
+<meta property="og:url" content="http://yoursite.com/2017/03/01/PWN/Linux堆漏洞之off-by-one/index.html">
+<meta property="og:site_name" content="不要说话">
+<meta property="og:description" content="0x00.　前言不同于栈上的off-by-one漏洞，堆上的off-by-one漏洞利用更加复杂灵活。本文参考了一下别人的文章，介绍下Linux堆漏洞off-by-one利用技术，如有错误，欢迎斧正。 0x01.　off-by-one原理off-by-one漏洞即一个字节溢出，这种漏洞一般情况下很难利用，但是在堆上却有很多利用方式。了解Linux glibc堆分配器ptmalloc2的知道，我们可">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-03-25T00:47:57.054Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux堆漏洞之off-by-one">
+<meta name="twitter:description" content="0x00.　前言不同于栈上的off-by-one漏洞，堆上的off-by-one漏洞利用更加复杂灵活。本文参考了一下别人的文章，介绍下Linux堆漏洞off-by-one利用技术，如有错误，欢迎斧正。 0x01.　off-by-one原理off-by-one漏洞即一个字节溢出，这种漏洞一般情况下很难利用，但是在堆上却有很多利用方式。了解Linux glibc堆分配器ptmalloc2的知道，我们可">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/03/01/PWN/Linux堆漏洞之off-by-one/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+  <title>Linux堆漏洞之off-by-one | 不要说话</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> <div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">不要说话</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-home"></i> <br />Home</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />Tags</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-th"></i> <br />Categories</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />Archives</a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+  
+
+
+
+ </div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/03/01/PWN/Linux堆漏洞之off-by-one/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="D0m021ng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/2.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="不要说话">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Linux堆漏洞之off-by-one</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-03-01T15:53:51+08:00">2017-03-01</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Security/" itemprop="url" rel="index"><span itemprop="name">Security</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00.　前言"></a>0x00.　前言</h3><p>不同于栈上的off-by-one漏洞，堆上的off-by-one漏洞利用更加复杂灵活。本文参考了一下别人的文章，介绍下Linux堆漏洞off-by-one利用技术，如有错误，欢迎斧正。</p>
+<h3 id="0x01-off-by-one原理"><a href="#0x01-off-by-one原理" class="headerlink" title="0x01.　off-by-one原理"></a>0x01.　off-by-one原理</h3><p>off-by-one漏洞即一个字节溢出，这种漏洞一般情况下很难利用，但是在堆上却有很多利用方式。了解Linux glibc堆分配器ptmalloc2的知道，我们可以通过off-by-one覆盖堆块头的size字段，从而改变该堆块的大小或inuse位，利用堆块覆盖或unlink达到想要的目的。<br><strong>由于glibc堆分配器的字节对齐机制，并不是所有的off-by-one漏洞都可以利用。</strong> 例如：32位系统，按照8字节进行对齐，如果malloc(512)，那么实际会分配512+4*2=520字节，其中8字节为prev_size和size字段大小，off-by-one只会覆盖prev_size字段最低字节造成无法利用；如果malloc(508)，由于508+8=516字节，516字节不满足8字节对齐，并且考虑到下一块的prev_size字段（4字节）在前一块已分配时，可以填充前一块数据，实际上只会分配508+4=512字节，off-by-one会覆盖size字段最低字节可以利用。同理，64位系统，按照16字节进行对齐，如果malloc(512)，那么实际会分配512+8*2=528字节；如果malloc(504)，那么实际会分配504+8=512字节。</p>
+<h3 id="0x02-off-by-one利用技巧"><a href="#0x02-off-by-one利用技巧" class="headerlink" title="0x02.　off-by-one利用技巧"></a>0x02.　off-by-one利用技巧</h3><p>如果堆上的off-by-one可以利用，那么有两类利用方式：一类是覆盖size字段inuse位，在free时触发unlink机制；另一类是覆盖size字段最低字节，从而改变堆块大小，使该堆块包含后一块，free掉该堆块之后，再malloc(稍大于该堆块加后一块的大小)，就可以对后一块进行读写。</p>
+<ol>
+<li><p>利用unlink机制<br>这一类利用方式分两种情况：一种是Small bin unlink，另一种是Large bin unlink。</p>
+<p><strong>Small bin unlink:</strong> 利用方式已经在<a href="http://d0m021ng.github.io/2017/02/24/PWN/Linux%E5%A0%86%E6%BC%8F%E6%B4%9E%E4%B9%8BDouble-free/" target="_blank" rel="noopener">Linux堆漏洞之Double-free</a>中介绍过，虽然是不同的漏洞，但是主要利用原理还是类似的，就不介绍了。</p>
+<p><strong>Large bin unlink:</strong> 利用方式在glibc 2.20版之后已经失效，但还是有必要介绍一下其中一些思路。该攻击最早出现在2014年Google Project Zero项目的一篇文章中<a href="https://googleprojectzero.blogspot.fr/2014/08/the-poisoned-nul-byte-2014-edition.html" target="_blank" rel="noopener">The poisoned NUL byte, 2014 edition</a>。在Linux堆漏洞之Double-free中已经讲过unlink宏，其中只讲到unlink Small bin时进行的操作，只需绕过第一层双向循环链表检查就可以利用unlink。如果unlink Large bin，由于Large bin块含有字段fd_nextsize和bk_nextsize，在绕过第一层双向循环链表检查还会进行第二次双向循环链表检查。但是在glibc早期版本(2.19之前)，第二次双向循环链表检查只通过断言(assert)形式，属于调试信息，不能真正的对漏洞进行有效的防护。从而可以利用Large bin unlink导致一次任意地址写，然后利用overwriting tls_dtor_list实现漏洞利用。在程序main()函数结束调用exit()函数时，会遍历tls_dtor_list调用一些处理收尾工作的函数，如果通过overwriting tls_dtor_list使其指向伪造的tls_dtor_list，就可以调用自己的函数（如system(‘/bin/sh’)）。在当前版本的glibc(2.23)中，unlink宏在unlink Large bin 时会进行双向链表检查，而且在__call_dtors_list中获取tls_dtor_list时也做了一些限制，导致很难利用Large bin unlink。 <strong>Overwriting tls_dtor_list是一个很好的利用点，但是目前我还没有找到如何利用。</strong></p>
+</li>
+<li><p>利用堆块覆盖<br>这一类攻击主要是获取对目标堆块的读写，利用方式分两种情况：一种是覆盖最低字节为任意数(off-by-one overwrite freed or allocated)，另一种是覆盖最低字节为NULL(off-by-one NULL byte)。</p>
+<p><strong>off-by-one overwrite freed or allocated :</strong> 如图1所示，堆块A、B、C，其中堆块A已分配且含有off-by-one漏洞，堆块B已释放，堆块C为目标堆块，需要对堆块C可读写。可以通过堆块A的off-by-one漏洞覆盖堆块B size字段的最低字节（不改变inuse位），使堆块B的长度可以包含堆块C。然后在malloc(B+C)，就可以获取堆块B的原来指针，从而可以对目标堆块进行读写。<br>如果堆块A、B、C都是已分配，可以释放掉堆块B，将问题转化为前面一种情况，同样可以解决。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">      _____________________                          ______|_____B_______|______</span><br><span class="line">     |      |      |       |                        |      |    |    |   |     |</span><br><span class="line">     |  A   |   B  |   C   |                        |  A   | B1 | B2 |   | C   |</span><br><span class="line">     |______|______|_______|                        |______|____|____|___|_____|</span><br><span class="line">图<span class="number">1</span>  overwrite freed <span class="keyword">or</span> allocated                      图<span class="number">2</span>  overwrite null byte</span><br></pre></td></tr></table></figure>
+<p><strong>off-by-one overwrite NULL byte :</strong> 这类漏洞在实际中很常见，如使用strcpy()进行复制时未考虑字符串长度。如图2所示，堆块A、B、C，其中堆块A已分配且含有off-by-one漏洞，堆块B、C已分配，堆块B2为目标堆块，需要对堆块B2可读写。利用方法：先释放掉堆块B，然后通过堆块A的off-by-one漏洞覆盖堆块B size字段的最低字节为NULL，减小堆块B的size字段值 <strong>（如果堆块B size字段未改变，再次分配时，堆块C的prev_size字段会改变，造成漏洞无法利用）</strong> ；再申请两个较小的堆块B1和B2(B1+B2&lt;B)，这时堆块C的prev_size大小仍然是堆块B的大小，释放掉堆块B1和堆块C时就会导致堆块B和堆块C进行合并，然后再malloc(B+C)大小的堆块就可以得到原来堆块B的地址，从而可以对堆块B2进行读写。</p>
+</li>
+</ol>
+<h3 id="0x03-off-by-one漏洞实例"><a href="#0x03-off-by-one漏洞实例" class="headerlink" title="0x03.　off-by-one漏洞实例"></a>0x03.　off-by-one漏洞实例</h3><p>   下面分享一下off-by-one NULL byte 漏洞代码，今后遇到这类漏洞，再补充一个实例。<br>   <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;malloc.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>* argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">void</span> *A,*B,*C;</span><br><span class="line">    <span class="keyword">void</span> *B1,*B2;</span><br><span class="line">    <span class="keyword">void</span> *Overlapping;</span><br><span class="line">    A = <span class="built_in">malloc</span>(<span class="number">0x100</span><span class="number">-8</span>);</span><br><span class="line">    B = <span class="built_in">malloc</span>(<span class="number">0x200</span>);</span><br><span class="line">    C = <span class="built_in">malloc</span>(<span class="number">0x100</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"chunk B address: %x,  C address: %x\n"</span>, B, C);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">free</span>(B);</span><br><span class="line">    ((char *)A)[0x100 - 8] = '\x00';    // off-by-one NULL byte</span><br><span class="line"></span><br><span class="line">    B1=<span class="built_in">malloc</span>(<span class="number">0x100</span>);</span><br><span class="line">    B2=<span class="built_in">malloc</span>(<span class="number">0x80</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"chunk B1 address: %x,  B2 address: %x\n"</span>, B1, B2);</span><br><span class="line">    <span class="built_in">free</span>(B1);</span><br><span class="line">    <span class="built_in">free</span>(C);</span><br><span class="line">    Overlapping = <span class="built_in">malloc</span>(<span class="number">0x300</span>);  </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"new malloced chunk: %x\n"</span>, Overlapping);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="0x04-参考文献"><a href="#0x04-参考文献" class="headerlink" title="0x04.　参考文献"></a>0x04.　参考文献</h3><p><a href="http://bobao.360.cn/learning/detail/3113.html" target="_blank" rel="noopener">1. 从一字节溢出到任意代码执行-Linux下堆漏洞利用</a><br><a href="https://sploitfun.wordpress.com/2015/06/09/off-by-one-vulnerability-heap-based/" target="_blank" rel="noopener">2. Off-By-One Vulnerability (Heap Based)</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/PWN/" rel="tag"># PWN</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/24/PWN/Linux堆漏洞之Double-free/" rel="next" title="Linux堆漏洞之Double free">
+                <i class="fa fa-chevron-left"></i> Linux堆漏洞之Double free
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/03/04/PWN/Linux堆漏洞之Use-after-free实例/" rel="prev" title="Linux堆漏洞之Use after free实例">
+                Linux堆漏洞之Use after free实例 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/2.png"
+                alt="D0m021ng" />
+            
+              <p class="site-author-name" itemprop="name">D0m021ng</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">29</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">10</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-前言"><span class="nav-number">1.</span> <span class="nav-text">0x00.　前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-off-by-one原理"><span class="nav-number">2.</span> <span class="nav-text">0x01.　off-by-one原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-off-by-one利用技巧"><span class="nav-number">3.</span> <span class="nav-text">0x02.　off-by-one利用技巧</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-off-by-one漏洞实例"><span class="nav-number">4.</span> <span class="nav-text">0x03.　off-by-one漏洞实例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-参考文献"><span class="nav-number">5.</span> <span class="nav-text">0x04.　参考文献</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">D0m021ng</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Pisces</a> v6.0.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.0.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.0.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.0.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.0.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.0.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.0.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.0.4"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.0.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.0.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.0.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.0.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.0.4" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.0.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  
+  <meta name="keywords" content="软件调试," />
+
+
+<meta name="description" content="接着《调试器gdb的基本使用方法（1）》，继续介绍gdb的基本使用方法。 0x01.　其他断点硬件断点（hbreak）,适用于ROM空间等无法修改的内存区域中的程序。在有些框架中无法使用。临时断点（tbreak）和临时硬件断点（thbreak），与断点相同，都会在运行到该处时暂停，不同之处就是临时断点（临时硬件断点）会在此时被删除，故在只需停止一次时用起来很方便。 0x02.　改变变量的值可以使用">
+<meta name="keywords" content="软件调试">
+<meta property="og:type" content="article">
+<meta property="og:title" content="调试器gdb的基本使用方法（2）">
+<meta property="og:url" content="http://yoursite.com/2016/07/31/Debug/调试器gdb的基本使用方法（2）/index.html">
+<meta property="og:site_name" content="不要说话">
+<meta property="og:description" content="接着《调试器gdb的基本使用方法（1）》，继续介绍gdb的基本使用方法。 0x01.　其他断点硬件断点（hbreak）,适用于ROM空间等无法修改的内存区域中的程序。在有些框架中无法使用。临时断点（tbreak）和临时硬件断点（thbreak），与断点相同，都会在运行到该处时暂停，不同之处就是临时断点（临时硬件断点）会在此时被删除，故在只需停止一次时用起来很方便。 0x02.　改变变量的值可以使用">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2016-11-04T13:50:00.309Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="调试器gdb的基本使用方法（2）">
+<meta name="twitter:description" content="接着《调试器gdb的基本使用方法（1）》，继续介绍gdb的基本使用方法。 0x01.　其他断点硬件断点（hbreak）,适用于ROM空间等无法修改的内存区域中的程序。在有些框架中无法使用。临时断点（tbreak）和临时硬件断点（thbreak），与断点相同，都会在运行到该处时暂停，不同之处就是临时断点（临时硬件断点）会在此时被删除，故在只需停止一次时用起来很方便。 0x02.　改变变量的值可以使用">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/07/31/Debug/调试器gdb的基本使用方法（2）/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+  <title>调试器gdb的基本使用方法（2） | 不要说话</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> <div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">不要说话</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-home"></i> <br />Home</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />Tags</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-th"></i> <br />Categories</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />Archives</a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+  
+
+
+
+ </div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/07/31/Debug/调试器gdb的基本使用方法（2）/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="D0m021ng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/2.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="不要说话">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">调试器gdb的基本使用方法（2）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-07-31T11:31:17+08:00">2016-07-31</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>接着《调试器gdb的基本使用方法（1）》，继续介绍gdb的基本使用方法。</p>
+<h3 id="0x01-其他断点"><a href="#0x01-其他断点" class="headerlink" title="0x01.　其他断点"></a>0x01.　其他断点</h3><p>硬件断点（<code>hbreak</code>）,适用于ROM空间等无法修改的内存区域中的程序。在有些框架中无法使用。临时断点（<code>tbreak</code>）和临时硬件断点（<code>thbreak</code>），与断点相同，都会在运行到该处时暂停，不同之处就是临时断点（临时硬件断点）会在此时被删除，故在只需停止一次时用起来很方便。</p>
+<h3 id="0x02-改变变量的值"><a href="#0x02-改变变量的值" class="headerlink" title="0x02.　改变变量的值"></a>0x02.　改变变量的值</h3><p>可以使用命令<code>set variable</code> 改变运行中程序的变量值。格式：<code>set variable &lt;变量&gt;=&lt;表达式&gt;</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">(gdb) p options</span><br><span class="line"><span class="meta">$</span>7 = 1</span><br><span class="line">(gdb) set variable options = 0</span><br><span class="line">(gdb) p options</span><br><span class="line"><span class="meta">$</span>8 = 0</span><br></pre></td></tr></table></figure>
+<h3 id="0x03-生成内核转储文件"><a href="#0x03-生成内核转储文件" class="headerlink" title="0x03.　生成内核转储文件"></a>0x03.　生成内核转储文件</h3><p>使用 <code>generate-core-file</code>可将调试中的进程生成内核转储文件。<br>例如：<code>(gdb) generate-core-file  ====&gt; Saved corefile core.13163</code><br>有了内核转储文件和调试对象，以后就能查看生成转储文件时的运行历史（寄存器值、内存值等）。</p>
+<h3 id="0x04-attach-到进程"><a href="#0x04-attach-到进程" class="headerlink" title="0x04.　attach 到进程"></a>0x04.　attach 到进程</h3><p>要调试守护进程（damon process）等已经启动的进程，或者调试陷入死循环而无法返回控制台的进程时，可以使用<code>attach</code>命令。<br>如下格式：<code>attach pid</code>，执行这一命令就可以attach到进程ID为pid的进程上。可以使用<code>ps</code>命令查看进程ID。<br>需要在gdb和进程分离时使用<code>detach</code>命令。这样调试中的进程就被从gdb的控制下释放出来。进程被detach后会继续运行。<br>进程信息可以用<code>info proc</code>命令显示。</p>
+<h3 id="0x05-条件断点"><a href="#0x05-条件断点" class="headerlink" title="0x05.　条件断点"></a>0x05.　条件断点</h3><p>有一种断点仅在特定条件下中断。<br>格式：<code>break 断点 if 条件</code>，该命令将测试给定的条件，如果为真则暂停运行。<br>另外几种格式：<br><code>condition 断点编号</code>       //给指定的断点删除触发条件<br><code>condition 断点编号  条件</code> //给指定的断点添加触发条件</p>
+<h3 id="0x06-反复执行"><a href="#0x06-反复执行" class="headerlink" title="0x06.　反复执行"></a>0x06.　反复执行</h3><p>在编号指定的断点、监视点（watchpoints）或捕获点（catchpoint）忽略指定的次数。格式：<code>ignore 断点编号  次数</code><br><code>continue</code> 命令与<code>ignore</code>命令一样，也可以指定次数，达到指定次数前，执行到断点时不暂停，二者的意义是相同的。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">格式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">continue N</td>
+<td>执行continue N次</td>
+</tr>
+<tr>
+<td style="text-align:center">step N</td>
+<td>执行step N次</td>
+</tr>
+<tr>
+<td style="text-align:center">stepi N</td>
+<td>执行stepi N次</td>
+</tr>
+<tr>
+<td style="text-align:center">next N</td>
+<td>执行next N次</td>
+</tr>
+<tr>
+<td style="text-align:center">nexti N</td>
+<td>执行nexti N次</td>
+</tr>
+</tbody>
+</table>
+<p>其他指令，<code>finish</code>命令执行完当前函数后暂停。<code>until</code>命令执行完当前函数等代码块后暂停，如果时循环，则在执行完循环后暂停，常用于跳出循环。</p>
+<h3 id="0x07-删除断点和禁用断点"><a href="#0x07-删除断点和禁用断点" class="headerlink" title="0x07.　删除断点和禁用断点"></a>0x07.　删除断点和禁用断点</h3><p>用<code>clear</code>命令删除已定义的断点，用<code>disable</code>命令禁用断点，用<code>enable</code>命令重新启用断点。<br><code>clear</code>的使用方法和设置断点的方法类似。</p>
+<p><strong>禁用断点：</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">格式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">disable [breakpoints]</td>
+<td>禁用所有断点</td>
+</tr>
+<tr>
+<td style="text-align:center">disable [breakpoints] 断点编号</td>
+<td>禁用指定断点</td>
+</tr>
+<tr>
+<td style="text-align:center">disable display 显示编号</td>
+<td>禁用display命令定义的自动显示</td>
+</tr>
+<tr>
+<td style="text-align:center">disable mem  内存区域</td>
+<td>禁用mem命令定义的内存区域</td>
+</tr>
+</tbody>
+</table>
+<p><strong>启用断点：</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">格式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">enable [breakpoints]</td>
+<td>重新启用所有断点</td>
+</tr>
+<tr>
+<td style="text-align:center">enable [breakpoints] 断点编号</td>
+<td>重新启用指定断点</td>
+</tr>
+<tr>
+<td style="text-align:center">enable [breakpoints] once 断点编号</td>
+<td>重新启用指定断点，仅一次</td>
+</tr>
+<tr>
+<td style="text-align:center">enable [breakpoints] delete 断点编号</td>
+<td>重新启用指定断点，触发后删除该断点</td>
+</tr>
+<tr>
+<td style="text-align:center">enable display 显示编号</td>
+<td>启用display命令定义的自动显示</td>
+</tr>
+<tr>
+<td style="text-align:center">enable mem  内存区域</td>
+<td>启用mem命令定义的内存区域</td>
+</tr>
+</tbody>
+</table>
+<h3 id="0x08-断点命令"><a href="#0x08-断点命令" class="headerlink" title="0x08.　断点命令"></a>0x08.　断点命令</h3><p>断定命令（<code>commands</code>）可以定义在断点中断后自动执行的命令。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">格式：</span><br><span class="line">  commands  断点编号</span><br><span class="line">     命令</span><br><span class="line">     ...</span><br><span class="line">  end</span><br></pre></td></tr></table></figure></p>
+<p>程序在指定的断点处暂停后，就会自动执行命令。</p>
+<h3 id="0x09-gdb的常用命令及省略形式"><a href="#0x09-gdb的常用命令及省略形式" class="headerlink" title="0x09.　gdb的常用命令及省略形式"></a>0x09.　gdb的常用命令及省略形式</h3><p>命令名称在不与其他命令重复的前提下，可以按照下述方式简写，如下表所示。在命令行模式下使用时，按Tab键，gdb就会自动补全命令。</p>
+<p><strong>常见命令和简写形式</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">命令</th>
+<th style="text-align:center">简写形式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">backtrace</td>
+<td style="text-align:center">bt、where</td>
+<td>显示栈帧</td>
+</tr>
+<tr>
+<td style="text-align:center">break</td>
+<td style="text-align:center">b</td>
+<td>设置断点</td>
+</tr>
+<tr>
+<td style="text-align:center">continue</td>
+<td style="text-align:center">c、cont</td>
+<td>继续运行</td>
+</tr>
+<tr>
+<td style="text-align:center">clear</td>
+<td style="text-align:center"></td>
+<td>删除断点</td>
+</tr>
+<tr>
+<td style="text-align:center">delete</td>
+<td style="text-align:center">d</td>
+<td>删除断点</td>
+</tr>
+<tr>
+<td style="text-align:center">finish</td>
+<td style="text-align:center">fin</td>
+<td>运行到函数结束</td>
+</tr>
+<tr>
+<td style="text-align:center">info breakpoints</td>
+<td style="text-align:center">info break</td>
+<td>显示断点信息</td>
+</tr>
+<tr>
+<td style="text-align:center">next</td>
+<td style="text-align:center">n</td>
+<td>执行下一行，单步步过</td>
+</tr>
+<tr>
+<td style="text-align:center">print</td>
+<td style="text-align:center">p</td>
+<td>显示表达式</td>
+</tr>
+<tr>
+<td style="text-align:center">run</td>
+<td style="text-align:center">r</td>
+<td>运行程序</td>
+</tr>
+<tr>
+<td style="text-align:center">step</td>
+<td style="text-align:center">s</td>
+<td>一次执行一行，单步步入</td>
+</tr>
+<tr>
+<td style="text-align:center">x</td>
+<td style="text-align:center"></td>
+<td>显示内存内容</td>
+</tr>
+<tr>
+<td style="text-align:center">until</td>
+<td style="text-align:center">u</td>
+<td>执行到指定行</td>
+</tr>
+<tr>
+<td style="text-align:center">directory</td>
+<td style="text-align:center">dir</td>
+<td>插入目录</td>
+</tr>
+<tr>
+<td style="text-align:center">disable</td>
+<td style="text-align:center">dis</td>
+<td>禁用断点</td>
+</tr>
+<tr>
+<td style="text-align:center">down</td>
+<td style="text-align:center">do</td>
+<td>当前调用的栈帧中选择要显示的栈帧</td>
+</tr>
+<tr>
+<td style="text-align:center">edit</td>
+<td style="text-align:center">e</td>
+<td>编辑文件或函数</td>
+</tr>
+<tr>
+<td style="text-align:center">frame</td>
+<td style="text-align:center">f</td>
+<td>选择要显示的栈帧</td>
+</tr>
+<tr>
+<td style="text-align:center">forward-search</td>
+<td style="text-align:center">fo</td>
+<td>向前搜索</td>
+</tr>
+<tr>
+<td style="text-align:center">generate-core-file</td>
+<td style="text-align:center">gcore</td>
+<td>生成内核转储</td>
+</tr>
+<tr>
+<td style="text-align:center">help</td>
+<td style="text-align:center">h</td>
+<td>显示帮助信息</td>
+</tr>
+<tr>
+<td style="text-align:center">info</td>
+<td style="text-align:center">i</td>
+<td>显示信息</td>
+</tr>
+<tr>
+<td style="text-align:center">list</td>
+<td style="text-align:center">l</td>
+<td>显示函数或行</td>
+</tr>
+<tr>
+<td style="text-align:center">nexti</td>
+<td style="text-align:center">ni</td>
+<td>汇编级，单步步过</td>
+</tr>
+<tr>
+<td style="text-align:center">print-object</td>
+<td style="text-align:center">po</td>
+<td>显示目标信息</td>
+</tr>
+<tr>
+<td style="text-align:center">sharedlibrary</td>
+<td style="text-align:center">share</td>
+<td>加载共享库的符号</td>
+</tr>
+<tr>
+<td style="text-align:center">stepi</td>
+<td style="text-align:center">si</td>
+<td>汇编级，单步步入</td>
+</tr>
+</tbody>
+</table>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/软件调试/" rel="tag"># 软件调试</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/07/30/Debug/调试器gdb的基本使用方法（1）/" rel="next" title="调试器gdb的基本使用方法（1）">
+                <i class="fa fa-chevron-left"></i> 调试器gdb的基本使用方法（1）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/10/07/PWN/Linux栈溢出漏洞利用小结/" rel="prev" title="Linux栈溢出漏洞利用小结">
+                Linux栈溢出漏洞利用小结 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/2.png"
+                alt="D0m021ng" />
+            
+              <p class="site-author-name" itemprop="name">D0m021ng</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">29</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">10</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-其他断点"><span class="nav-number">1.</span> <span class="nav-text">0x01.　其他断点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-改变变量的值"><span class="nav-number">2.</span> <span class="nav-text">0x02.　改变变量的值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-生成内核转储文件"><span class="nav-number">3.</span> <span class="nav-text">0x03.　生成内核转储文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-attach-到进程"><span class="nav-number">4.</span> <span class="nav-text">0x04.　attach 到进程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x05-条件断点"><span class="nav-number">5.</span> <span class="nav-text">0x05.　条件断点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x06-反复执行"><span class="nav-number">6.</span> <span class="nav-text">0x06.　反复执行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x07-删除断点和禁用断点"><span class="nav-number">7.</span> <span class="nav-text">0x07.　删除断点和禁用断点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x08-断点命令"><span class="nav-number">8.</span> <span class="nav-text">0x08.　断点命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x09-gdb的常用命令及省略形式"><span class="nav-number">9.</span> <span class="nav-text">0x09.　gdb的常用命令及省略形式</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">D0m021ng</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Pisces</a> v6.0.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.0.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.0.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.0.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.0.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.0.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.0.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.0.4"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

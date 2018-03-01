@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=6.0.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.0.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.0.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.0.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.0.4" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '6.0.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  
+  <meta name="keywords" content="软件调试," />
+
+
+<meta name="description" content="一般在使用调试器的时，有些基本的操作，比如：设置断点、检查变量、设置监视点、移动调用栈等等。现在介绍GDB的这些操作。 0x01.　单步调试源代码在gdb中用run命令运行程序。也可以安排程序的执行在某个地方暂停，以便检查变量的值，从而得到关于程序错误所在的位置线索。下面是可以用来暂停程序执行的一些方法。  断点在gdb中通过break命令及其行号设置断点，主要有4中方法: 12345678910">
+<meta name="keywords" content="软件调试">
+<meta property="og:type" content="article">
+<meta property="og:title" content="主要的调试器操作">
+<meta property="og:url" content="http://yoursite.com/2016/06/16/Debug/主要的调试器操作/index.html">
+<meta property="og:site_name" content="不要说话">
+<meta property="og:description" content="一般在使用调试器的时，有些基本的操作，比如：设置断点、检查变量、设置监视点、移动调用栈等等。现在介绍GDB的这些操作。 0x01.　单步调试源代码在gdb中用run命令运行程序。也可以安排程序的执行在某个地方暂停，以便检查变量的值，从而得到关于程序错误所在的位置线索。下面是可以用来暂停程序执行的一些方法。  断点在gdb中通过break命令及其行号设置断点，主要有4中方法: 12345678910">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2016-08-01T03:50:17.112Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="主要的调试器操作">
+<meta name="twitter:description" content="一般在使用调试器的时，有些基本的操作，比如：设置断点、检查变量、设置监视点、移动调用栈等等。现在介绍GDB的这些操作。 0x01.　单步调试源代码在gdb中用run命令运行程序。也可以安排程序的执行在某个地方暂停，以便检查变量的值，从而得到关于程序错误所在的位置线索。下面是可以用来暂停程序执行的一些方法。  断点在gdb中通过break命令及其行号设置断点，主要有4中方法: 12345678910">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/06/16/Debug/主要的调试器操作/"/>
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+  <title>主要的调试器操作 | 不要说话</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"> <div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">不要说话</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-home"></i> <br />Home</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />Tags</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-th"></i> <br />Categories</a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />Archives</a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+  
+
+
+
+ </div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/06/16/Debug/主要的调试器操作/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="D0m021ng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/2.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="不要说话">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">主要的调试器操作</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-06-16T20:45:50+08:00">2016-06-16</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>一般在使用调试器的时，有些基本的操作，比如：设置断点、检查变量、设置监视点、移动调用栈等等。现在介绍GDB的这些操作。</p>
+<h3 id="0x01-单步调试源代码"><a href="#0x01-单步调试源代码" class="headerlink" title="0x01.　单步调试源代码"></a>0x01.　单步调试源代码</h3><p>在gdb中用run命令运行程序。也可以安排程序的执行在某个地方暂停，以便检查变量的值，从而得到关于程序错误所在的位置线索。下面是可以用来暂停程序执行的一些方法。</p>
+<ol>
+<li><p>断点<br>在gdb中通过break命令及其行号设置断点，主要有4中方法:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">格式： <span class="keyword">break</span> function</span><br><span class="line">说明：在函数function的入口处设置断点。比如：(gdb) <span class="keyword">break</span> main</span><br><span class="line"></span><br><span class="line">格式：<span class="keyword">break</span> line_number</span><br><span class="line">说明：在当前活动源代码文件的line_number出设置断点。比如：(gdb) <span class="keyword">break</span> <span class="number">35</span>  </span><br><span class="line"></span><br><span class="line">格式：<span class="keyword">break</span> filename:line_number</span><br><span class="line">说明：在源代码文件filename的line_number处设置断点。如果filename不在当前工作目录中，则可以给出相对路径名或者完全路径名来帮助gdb查找该文件。比如：(gdb) <span class="keyword">break</span> source/bed.c:<span class="number">35</span></span><br><span class="line"></span><br><span class="line">格式：<span class="keyword">break</span> filename:function</span><br><span class="line">说明：在文件filename中的函数function()的入口处设置断点。重载函数或者使用同名静态函数的程序可能需要使用这种形式，比如：(gdb) <span class="keyword">break</span> bed.c:parseAguments</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>单步调试<br>gdb拥有单步调试的能力，比如next命令让gdb执行下一行，然后暂停。step命令的作用与此类似。两个区别：step是单步进入，即碰到函数调用时，step让gdb进入函数内部一一执行；而next是单步步过，即碰到函数执行时，next让gdb在函数调用的下一条语句暂停，跳过函数的执行。</p>
+</li>
+<li><p>恢复操作<br>gdb中，continue命令通知调试器恢复执行并继续。还有finish和utill指令。</p>
+</li>
+<li><p>临时断点<br>在gdb中，tbreak命令与break相似，但是这一命令设置的断点的有效期只到首次到达指定行时为知。</p>
+</li>
+</ol>
+<h3 id="0x02-检查变量"><a href="#0x02-检查变量" class="headerlink" title="0x02.　检查变量"></a>0x02.　检查变量</h3><p>当调试器暂停了程序的执行后，可以执行一些命令来显示程序变量的值。这些变量可以是局部变量、全局变量、数组的元素和C语言的struct、C++类中的成员变量等。如果发现某个变量有一个出乎意料的值，那往往是找出某个程序错误的位置和性质的重要线索。gdb中可以使用print命令输出当前值：<br>(gdb) print j</p>
+<h3 id="0x03-设置监视点"><a href="#0x03-设置监视点" class="headerlink" title="0x03.　设置监视点"></a>0x03.　设置监视点</h3><p>监视点结合了断点和变量检查的概念。最基本形式的监视点通知调试器，每当指定变量的值发生变化时都暂停程序的执行。例如。在程序执行期间，假设要在变量z改变值时查看程序的状态。在gdb中，可以执行如下命令：<br>(gdb) watch z</p>
+<h3 id="0x04-上下移动调用栈"><a href="#0x04-上下移动调用栈" class="headerlink" title="0x04.　上下移动调用栈"></a>0x04.　上下移动调用栈</h3><p>在函数的调用期间，与调用关联的运行时信息存储在称为栈帧(stack frame)的内存区域中。帧中包含函数的局部变量的值、其形参，以及调用该函数的位置的记录。每次发生函数调用时，都会创建一个新帧，并将其推到一个系统维护的栈上；栈最上方的帧表示当前正在执行的函数，当函数退出时，这个帧被弹出栈，并且释放。<br>在gdb中可以用如下命令查看以前的帧：<br>(gdb) frame 1<br>也可以使用backtrace命令显示整个栈，即当前存在的所有帧的集合：<br>(gdb) backtrace</p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/软件调试/" rel="tag"># 软件调试</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/06/15/Debug/软件调试的原则/" rel="next" title="软件调试的原则">
+                <i class="fa fa-chevron-left"></i> 软件调试的原则
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/06/19/Mobile Security/APKTOOL学习指南/" rel="prev" title="Apktool学习指南">
+                Apktool学习指南 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/2.png"
+                alt="D0m021ng" />
+            
+              <p class="site-author-name" itemprop="name">D0m021ng</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">29</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  <a href="/categories/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">10</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-单步调试源代码"><span class="nav-number">1.</span> <span class="nav-text">0x01.　单步调试源代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-检查变量"><span class="nav-number">2.</span> <span class="nav-text">0x02.　检查变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-设置监视点"><span class="nav-number">3.</span> <span class="nav-text">0x03.　设置监视点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-上下移动调用栈"><span class="nav-number">4.</span> <span class="nav-text">0x04.　上下移动调用栈</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">D0m021ng</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Pisces</a> v6.0.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.0.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.0.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.0.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.0.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.0.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.0.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.0.4"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
