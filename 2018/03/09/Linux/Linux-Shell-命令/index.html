@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2">
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.1">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.1">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.1">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.1" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.0.1',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="0x01. Linux基础命令 find功能： 查找文件并执行指定操作常用参数：-name  指定文件名-gid,uid, group, user-path  指定查找路径-type  指定文件类型（b块设备、c字符设备、d目录、f普通文件、l符号链接文件）-exec     locate/mlocate/updatedb功能： locate利用事先建立的系统中所有文件名称及路径的locate数据">
+<meta name="keywords" content="Shell">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux Shell 命令">
+<meta property="og:url" content="http://yoursite.com/2018/03/09/Linux/Linux-Shell-命令/index.html">
+<meta property="og:site_name" content="不要说话">
+<meta property="og:description" content="0x01. Linux基础命令 find功能： 查找文件并执行指定操作常用参数：-name  指定文件名-gid,uid, group, user-path  指定查找路径-type  指定文件类型（b块设备、c字符设备、d目录、f普通文件、l符号链接文件）-exec     locate/mlocate/updatedb功能： locate利用事先建立的系统中所有文件名称及路径的locate数据">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-03-09T14:39:19.385Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux Shell 命令">
+<meta name="twitter:description" content="0x01. Linux基础命令 find功能： 查找文件并执行指定操作常用参数：-name  指定文件名-gid,uid, group, user-path  指定查找路径-type  指定文件类型（b块设备、c字符设备、d目录、f普通文件、l符号链接文件）-exec     locate/mlocate/updatedb功能： locate利用事先建立的系统中所有文件名称及路径的locate数据">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/09/Linux/Linux-Shell-命令/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Linux Shell 命令 | 不要说话</title>
+  
+
+
+
+
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?1af9afd17b6140a97d0c07a87fa5d062";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">不要说话</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/09/Linux/Linux-Shell-命令/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="D0m021ng">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="不要说话">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Linux Shell 命令
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-03-09 20:30:32" itemprop="dateCreated datePublished" datetime="2018-03-09T20:30:32+08:00">2018-03-09</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-03-09 22:39:19" itemprop="dateModified" datetime="2019-03-09T22:39:19+08:00">2019-03-09</time>
+              
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="post-meta-item-icon">
+            <i class="fa fa-eye"></i>
+             阅读次数： 
+            <span class="busuanzi-value" id="busuanzi_value_page_pv"></span>
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="0x01-Linux基础命令"><a href="#0x01-Linux基础命令" class="headerlink" title="0x01. Linux基础命令"></a>0x01. Linux基础命令</h2><ol>
+<li><p>find<br><strong>功能：</strong> 查找文件并执行指定操作<br><strong>常用参数：</strong><br>-name  指定文件名<br>-gid,uid, group, user<br>-path  指定查找路径<br>-type  指定文件类型（b块设备、c字符设备、d目录、f普通文件、l符号链接文件）<br>-exec   </p>
+</li>
+<li><p>locate/mlocate/updatedb<br><strong>功能：</strong> locate利用事先建立的系统中所有文件名称及路径的locate数据库，实现快速定位给定的文件。       mlocate是locate命令的安全增强版，4locate命令实际是mlocate命令的符号连接。<br><strong>经验：</strong> 由于locate指令基于数据库进行查询，第一次允许前，必须使用updatedb执行创建locate数据库，并定时更新locate数据库。  </p>
+</li>
+<li><p>dd<br><strong>功能：</strong> 用于复制文件并对原文件的内容进行转换和格式化处理。<br><strong>参数：</strong>  conv=&lt;关键字，关键字，..&gt;   将文件按指定关键字的方式转换（在<code>,</code>前后无空格）</p>
+</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">conv参数</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">ascii</td>
+<td style="text-align:center">将ebcdic码转换成ascii码</td>
+</tr>
+<tr>
+<td style="text-align:center">block</td>
+<td style="text-align:center">输出cbs指定的字节数</td>
+</tr>
+<tr>
+<td style="text-align:center">lcase</td>
+<td style="text-align:center">将大写字母转换成小写字母</td>
+</tr>
+<tr>
+<td style="text-align:center">ucase</td>
+<td style="text-align:center">将小写字母转换成大写字母</td>
+</tr>
+<tr>
+<td style="text-align:center">swab</td>
+<td style="text-align:center">交换每对输入字节，读入的字节是奇数，最后字节简单的复制到输出</td>
+</tr>
+<tr>
+<td style="text-align:center">sync</td>
+<td style="text-align:center">用0填充每个输入块的末尾，使其大小为选项ibs的值</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 复制文件并将文件中的小写字母全部转换成大写字</span></span><br><span class="line"><span class="meta">[demo@hust#</span><span class="bash">] dd <span class="keyword">if</span>=test.sh conv=ucase of=newtest</span></span><br><span class="line">1</span><br></pre></td></tr></table></figure>
+<ol>
+<li><p>ln<br><strong>功能：</strong> ln 命令用来为文件创建连接，连接类型分为硬连接（<code>hard link</code>）和符号连接（<code>symbolic link</code>）两种。默认的连接类型是硬连接，使用“-s”选项创建符号连接。<br><strong>语法：</strong> <code>ln sourcefile targetfile</code><br><strong>硬连接和符号连接区别：</strong><br>（1）硬连接要创建一个具有相同索引节点的连接文件；符号连接文件中保存的是源文件存放的路径。因此删除源文件后，<code>硬连接没影响，符号连接失效</code>。<br>（2）创建硬连接时，源文件和目标文件必须在同一个硬盘分区下，不能跨分区。符号连接可以跨分区。因为索引节点在不同的分区中自成体系。<br>（3）互为硬连接的两个文件等同于一个文件，删除两者任何一个，不影响另外一个文件。修改两者任何一个，另外一个文件内容发生同样变化。<br>（4）ln命令默认创建连接为硬连接，不能为目录创建硬连接。为目录建立连接，必须使用符号连接。         </p>
+</li>
+<li><p>unlink<br><strong>功能：</strong> 使用系统调用函数unlink删除指定文件。只能删除普通文件，不能删除目录。</p>
+</li>
+<li><p>rename<br><strong>功能：</strong> rename用字符串替换的方式批量改变文件名。本质是采用替换的方式将文件名中的指定字符串替换为目标字符串，使用shell通配符。       </p>
+</li>
+</ol>
+<h2 id="0x02-Linux-文本处理"><a href="#0x02-Linux-文本处理" class="headerlink" title="0x02. Linux 文本处理"></a>0x02. Linux 文本处理</h2><h4 id="1-sed（文本转换和过滤）"><a href="#1-sed（文本转换和过滤）" class="headerlink" title="1. sed（文本转换和过滤）"></a>1. sed（文本转换和过滤）</h4><p><strong>功能：</strong> sed是一个单行流式文本编辑器，被用来在输入流（文本输入或命令管道）上处理基本的文本转换。还具有强大的文本过滤功能。<br><strong>原理：</strong> sed在工作时，首先将文本文件的一行内容读取到临时缓冲区（模式空间），然后对文本进行处理，处理完成后将缓冲区中的文本显示到标准输出设备；然后继续处理下一行文本，重复此过程，直到文件结束。sed还有内部命令，常用的有<code>d</code>删除指定的行，<code>s</code>替换指定的文本，<code>i</code>插入文本。<br><strong>参数：</strong> </p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数</th>
+<th style="text-align:center">功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">-e &lt;脚本&gt;</td>
+<td style="text-align:center">添加脚本到命令中去执行</td>
+</tr>
+<tr>
+<td style="text-align:center">-f &lt;脚本文件&gt;</td>
+<td style="text-align:center">添加脚本文件到命令中去执行</td>
+</tr>
+<tr>
+<td style="text-align:center">-i &lt;后缀&gt;</td>
+<td style="text-align:center">直接在文件中进行替换</td>
+</tr>
+<tr>
+<td style="text-align:center">-l &lt;数字&gt;</td>
+<td style="text-align:center">指定行的最大字符长度</td>
+</tr>
+<tr>
+<td style="text-align:center">-r</td>
+<td style="text-align:center">在脚本中使用扩展的规则表达式</td>
+</tr>
+<tr>
+<td style="text-align:center">-s 或 -separate</td>
+<td style="text-align:center">每个文件看做单独的，而不是将所有文件看做一个长的文本流</td>
+</tr>
+<tr>
+<td style="text-align:center">-u 或 -unbuffered</td>
+<td style="text-align:center">从文件中加载最少的数据量，增加清空输出缓冲区的频率</td>
+</tr>
+</tbody>
+</table>
+<p><strong>注意：</strong><br>（1）使用sed处理文本文件时，原文本内容不发生改变。<br>（2）sed命令通常被用来自动编辑或处理一个或多个文本文件，可以极大的简化对文本文件的反复操作和。<br>（3）sed的内部命令最好使用单引号括起来。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 删除文件的第一行</span></span><br><span class="line"><span class="meta">[demo@hust#</span><span class="bash">] sed -e <span class="string">'1d'</span> /etc/fstab</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 删除多行内容</span></span><br><span class="line"><span class="meta">[demo@hust#</span><span class="bash">] sed -e <span class="string">'1,3d'</span> /etc/fstab</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 删除文件中以<span class="string">'#'</span>开头的行，sed命令中<span class="string">'/'</span>之间为正则表达式</span></span><br><span class="line"><span class="meta">[demo@hust#</span><span class="bash">] sed -e <span class="string">'/^#/d'</span> /etc/xinetd.conf</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 将一行中第一处符合模式的内容替换掉，如果要替换所有内容，则命令尾部加上参数g</span></span><br><span class="line"><span class="meta">[demo@hust#</span><span class="bash">] sed -e <span class="string">'s/defaults/hello/'</span> //etc/fstab</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 替换所有指定内容</span></span><br><span class="line"><span class="meta">[demo@hust#</span><span class="bash">] sed -e <span class="string">'s/defaults/hello/g'</span> /etc/fstab</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 已匹配字符串标记 &amp;</span></span><br><span class="line"><span class="meta">[demo@hust#</span><span class="bash">] <span class="built_in">echo</span> this is an example | sed <span class="string">'s/\w\+/[&amp;]/g'</span></span></span><br><span class="line">[this] [is] [an] [example]</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 子串匹配标记（\1），匹配给定样式的其中一部分   </span></span><br><span class="line"><span class="meta">#</span><span class="bash"> \(pattern\)用于匹配子串，第一个子串，\1；第二个子串，\2。</span></span><br><span class="line"><span class="meta">[demo@hust#</span><span class="bash">] <span class="built_in">echo</span> this is digit 7 <span class="keyword">in</span> a number | sed <span class="string">'s/digit \([0-9]\)/\1/'</span></span></span><br><span class="line">this is 7 in a number</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> sed表达式通常用单引号来引用，不过也可以使用双引号。双引号会通过对表达式求值进行扩展    </span></span><br><span class="line"><span class="meta">[demo@hust#</span><span class="bash">] text=hello</span></span><br><span class="line"><span class="meta">[demo@hust#</span><span class="bash">] <span class="built_in">echo</span> hello world | sed <span class="string">"s/<span class="variable">$text</span>/HELLO/"</span></span></span><br><span class="line">HElLO world</span><br></pre></td></tr></table></figure></p>
+<p><strong>sed正则表达式</strong><br>命令<code>p</code>用于显示模式空间的内容。默认情况下，sed把输入行打印在屏幕上，选项<code>-n</code>用于取消默认的打印操作。当选项-n和命令p同时出现时,sed可打印选定的内容。<br>选项-r用于在脚本中使用扩展的规则表达式<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 从文件file.txt中找到合适的电话号码：xxx-xxx-xxxx or (xxx) xxx-xxxx</span></span><br><span class="line"><span class="meta">[demo@hust#</span><span class="bash">] sed -n -r <span class="string">'/^([0-9]&#123;3&#125;-|\([0-9]&#123;3&#125;\) )[0-9]&#123;3&#125;-[0-9]&#123;4&#125;$/ p'</span> file.txt</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 从文件mail.txt中找到合适的邮箱地址</span></span><br><span class="line"><span class="meta">[demo@hust#</span><span class="bash">] sed -n -r <span class="string">'/^[0-Z_]&#123;3,&#125;@(\.[0-Z]&#123;2,&#125;)+$/ p'</span> mail.txt</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 从文件ip.txt中找到合适的ip地址</span></span><br><span class="line"><span class="meta">[demo@hust#</span><span class="bash">] sed -n -r <span class="string">'/^$/ p'</span> ip.txt</span></span><br></pre></td></tr></table></figure></p>
+<h4 id="2-wc"><a href="#2-wc" class="headerlink" title="2. wc"></a>2. wc</h4><p><strong>功能：</strong> 用于统计文本文件的字节数、单词数和行数。<br><strong>参数：</strong> <code>-c</code>统计字节数， <code>-w</code>统计单词数， <code>-l</code>统计行数。    </p>
+<h4 id="3-uniq"><a href="#3-uniq" class="headerlink" title="3. uniq"></a>3. uniq</h4><p><strong>功能：</strong> uniq 用于报告或忽略文件中的重复行<br><strong>参数：</strong><br>-c 在行首显示该行重复出现的次数；<br>-d 仅输出文件中重复行的内容；<br>-u 仅显示不重复的行的内容；<br><strong>注意：</strong><br>（1）uniq仅能对有序文件进行去除重复行的操作<br>（2）uniq要求文件中的各个字段用空白分割开     </p>
+<h4 id="4-sort"><a href="#4-sort" class="headerlink" title="4. sort"></a>4. sort</h4><p><strong>功能：</strong> 将文件进行排序，并将排序结果输出到标准输出。<br><strong>参数：</strong><br>-k 位置1   设置比较关键字的位置。关键字的默认位置为1<br>-r  反序排序<br>-m  合并已排序的文件，不执行排序操作<br>-o  将排序结构保存到输出文件中    </p>
+<h4 id="5-comm"><a href="#5-comm" class="headerlink" title="5. comm"></a>5. comm</h4><p><strong>功能：</strong> 以行为单位比较两个文件，并将比较结果显示到标准输出。<br><strong>参数：</strong><br>-1   不显示在第一个文件中出现的内容<br>-2   不显示在第二个文件中出现的内容<br>-3   不显示同时在两个文件中都出现的内容      </p>
+<h4 id="6-cut"><a href="#6-cut" class="headerlink" title="6. cut"></a>6. cut</h4><p><strong>功能：</strong> 将文本按列进行切分，也可以指定分隔每列的定界符。<br><strong>参数：</strong>  </p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">参数</th>
+<th style="text-align:center">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">-b &lt;起始字节-结束字节&gt;</td>
+<td style="text-align:center">仅显示行中指定字节范围的内容</td>
+</tr>
+<tr>
+<td style="text-align:center">-c &lt;起始字符-结束字符&gt;</td>
+<td style="text-align:center">仅显示行中指定范围的字符</td>
+</tr>
+<tr>
+<td style="text-align:center">-d &lt;分隔符&gt;</td>
+<td style="text-align:center">设置字段的分隔符</td>
+</tr>
+<tr>
+<td style="text-align:center">-f &lt;起始字段-结束字段&gt;</td>
+<td style="text-align:center">显示指定的字段内容</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 提取特定的字段或列</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> cut -f FIELD_LIST filename   FIELD_LIST是需要显示的列，由列号组成，逗号分隔   </span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 显示第2列和第3列</span></span><br><span class="line"><span class="meta">[demo@hust#</span><span class="bash">] cut -f 2,3 filename    </span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> --complement选项对提取的字段进行补集运算</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 显示除第3列以外的所有列</span></span><br><span class="line"><span class="meta">[demo@hust#</span><span class="bash">] cut -f 3 --complement filename</span></span><br></pre></td></tr></table></figure>
+<h4 id="7-tr"><a href="#7-tr" class="headerlink" title="7. tr"></a>7. tr</h4><p><strong>功能：</strong> 对来自标准输入的内容进行字符替换、字符删除以及重复字符压缩<br><strong>参数：</strong> <code>tr  [options]  set1  set2</code><br><strong>说明:</strong> 将来自stdin的输入字符从set1映射到set2，然后将输出写入stdout（标准输出）。set1和set2是字符类或字符集。如果两个字符集的长度不相等，那么set2会不断重复其最后一个字符，直到长度与set1相同。        </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 字符替换，由大写转换成小写</span></span><br><span class="line"><span class="meta">[demo@hust#</span><span class="bash">] <span class="built_in">echo</span> <span class="string">"HELLO WHO IS THIS"</span> | tr <span class="string">'A-Z'</span> <span class="string">'a-z'</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 字符删除，-d选项：删除字符</span></span><br><span class="line"><span class="meta">[demo@hust#</span><span class="bash">] <span class="built_in">echo</span> <span class="string">"HEllo 123 world 456"</span> | tr -d <span class="string">'0-9'</span></span></span><br><span class="line">HEllo world</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 重复字符压缩，-s选项：仅保留连续出现的字符的第一个字符，删除其余字符</span></span><br><span class="line"><span class="meta">[demo@hust#</span><span class="bash">] <span class="built_in">echo</span> <span class="string">"GNU     is      not     UNIX. Recursive ?"</span> | tr -s <span class="string">' '</span></span></span><br><span class="line">GNU is not UNIX. Recursive ?</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 字符集补集, -c选项，使用set1的补集。</span></span><br><span class="line"><span class="meta">[demo@hust#</span><span class="bash">] tr -c [set1]  [set2]</span></span><br></pre></td></tr></table></figure>
+<h4 id="8-awk"><a href="#8-awk" class="headerlink" title="8. awk"></a>8. awk</h4><p><strong>（1）简介：</strong><br><code>awk</code> 是一个强大的文本分析工具，相对于grep的查找，awk在其对数据分析并生成报告时，显得尤为强大。<code>awk</code> 有3个不同版本：<code>awk、nawk和gawk</code>。一般指gawk，gawk是awk的GNU版本。       </p>
+<p><strong>（2）使用方法：</strong><br><code>awk &#39;{pattern + action}&#39;  {filenames}</code><br>其中 <code>pattern</code> 表示 <code>awk</code> 在数据中查找的内容，而action是在找到匹配内容时所执行的一系列命令。  </p>
+<p><code>awk</code> 语言的最基本功能是在文件或者字符串中基于指定规则浏览和抽取信息，awk抽取信息后，才能进行其他文本操作。完整的awk脚本通常用来格式化文本文件中的信息。<br>通常，awk是以文件的一行为处理单位，awk每接收文件的一行，然后执行相应的命令，来处理文本。                                        </p>
+<p><strong>（3）调用awk</strong><br>有三种方式调用<code>awk</code>：<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">1. 命令行方式</span><br><span class="line">awk [-F field-separator] 'command' input-files    </span><br><span class="line">其中，commands 是真正awk命令，[-F域分隔符]是可选的。 input-file(s) 是待处理的文件。      </span><br><span class="line">在awk中，文件的每一行中，由域分隔符分开的每一项称为一个域。</span><br><span class="line">通常，在不指名-F域分隔符的情况下，默认的域分隔符是空格。</span><br><span class="line"></span><br><span class="line">2. shell脚本方式</span><br><span class="line">将所有的awk命令插入一个文件，并使awk程序可执行，然后awk命令解释器作为脚本的首行，一遍通过键入脚本名称来调用。</span><br><span class="line"><span class="meta">#</span><span class="bash">!/bin/awk          </span></span><br><span class="line"></span><br><span class="line">3. 将所有的awk命令插入一个单独文件，然后调用</span><br><span class="line">awk -f awk-script-file input-file(s)</span><br><span class="line">中，-f选项加载awk-script-file中的awk脚本，input-file(s)跟上面的是一样的。</span><br></pre></td></tr></table></figure></p>
+<p><strong>（4）入门实例</strong><br><strong>注意：</strong> awk中的命令需要用大括号<code>{}</code>括起来。             </p>
+<p><strong>awk 工作流程：</strong><br><code>[demo@hust#] last -n 5 | awk  &#39;{print $1}&#39;</code><br><strong>说明：</strong> 读入有换行符分割的一条记录，然后将记录按指定的<code>域分隔符</code>划分域、填充域。则<code>$0</code>表示所有域，<code>$1</code>表示第一个域，<code>$n</code>表示第n个域。 默认域分隔符是 <code>空白键</code>、<code>[tab]键</code>。</p>
+<p><code>[demo@hust#] cat /etc/passwd |awk  -F &#39;:&#39;  &#39;BEGIN {print &quot;name,shell&quot;}  {print $1&quot;,&quot;$7} END {print &quot;blue,/bin/nosh&quot;}&#39;</code><br><strong>说明：</strong> 先执行BEGIN，然后读取文件，读入有换行符分割的一条记录，然后将记录按指定的<code>域分隔符</code>划分域、填充域，<code>$0</code>则表示所有域，<code>$1</code>则表示第一个域，<code>$n</code>表示第n个域，随后执行模式所对应的动作action。直到所有的记录都读完，最后执行END操作。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 显示/etc/passwd的账户</span></span><br><span class="line"><span class="meta">[demo@hust#</span><span class="bash">] cat /etc/passwd |awk  -F <span class="string">':'</span>  <span class="string">'&#123;print $1&#125;'</span>  </span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 显示/etc/passwd的账户和账户对应的shell,而账户与shell之间以tab键分割</span></span><br><span class="line"><span class="meta">[demo@hust#</span><span class="bash">] cat /etc/passwd |awk  -F <span class="string">':'</span>  <span class="string">'&#123;print $1"\t"$7&#125;'</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 搜索/etc/passwd有root关键字的所有行</span></span><br><span class="line"><span class="meta">[demo@hust#</span><span class="bash">] awk -F: <span class="string">'/root/'</span> /etc/passwd</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 找root开头的</span></span><br><span class="line"><span class="meta">[demo@hust#</span><span class="bash">] awk -F: <span class="string">'/^root/'</span> /etc/passwd</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 搜索/etc/passwd有root关键字的所有行，并显示对应的shell</span></span><br><span class="line"><span class="meta">[demo@hust#</span><span class="bash">] awk -F: <span class="string">'/root/&#123;print $7&#125;'</span> /etc/passwd</span></span><br></pre></td></tr></table></figure>
+<p><strong>（5）awk内置变量</strong><br>awk有许多内置变量用来设置环境信息，这些变量可以被改变，下面给出了最常用的一些变量。<br><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">ARGC               命令行参数个数</span><br><span class="line">ARGV               命令行参数排列</span><br><span class="line">ENVIRON            支持队列中系统环境变量的使用</span><br><span class="line">FILENAME           awk浏览的文件名</span><br><span class="line">FNR                浏览文件的记录数</span><br><span class="line">FS                 设置输入域分隔符，等价于命令行 -F选项</span><br><span class="line">NF                 浏览记录的域的个数</span><br><span class="line">NR                 已读的记录数</span><br><span class="line">OFS                输出域分隔符</span><br><span class="line">ORS                输出记录分隔符</span><br><span class="line">RS                 控制记录分隔符</span><br></pre></td></tr></table></figure></p>
+<p><strong>print和printf</strong><br>awk中同时提供了print和printf两种打印输出的函数。<br>其中print函数的参数可以是变量、数值或者字符串。字符串必须用双引号引用，参数用逗号分隔。如果没有逗号，参数就串联在一起而无法区分。这里，逗号的作用与输出文件的分隔符的作用是一样的，只是后者是空格而已。<br>printf函数，其用法和c语言中printf基本相似,可以格式化字符串,输出复杂时，printf更加好用，代码更易懂。                  </p>
+<p><strong>（6）awk 编程</strong>       </p>
+<ol>
+<li><p><strong>变量和赋值</strong><br>awk可以自定义变量</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 统计/etc/passwd的账户人数</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> count是自定义变量，action&#123;&#125;可以有多个语句，以;号隔开</span></span><br><span class="line">awk 'BEGIN &#123;count = 0; print "[start] user count is ", count&#125; &#123;count++&#125; END &#123;print "[end] user count is ", count&#125;' /etc/passwd</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 统计某个文件夹下的文件占有字节数</span></span><br><span class="line">ls -l | awk 'BEGIN &#123;size = 0;&#125; &#123;size += $5&#125; END &#123;printf("[end] size is %d", size);&#125;'</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 以M为单位显示     </span></span><br><span class="line">ls -l | awk 'BEGIN &#123;size = 0;&#125; &#123;size = size + $5;&#125; END &#123;print "[end] size is ", size/1024/1024, "M"&#125;'</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>条件语句</strong><br>awk中的条件语句是从C语言中借鉴来的</p>
+</li>
+<li><p><strong>循环语句</strong><br>awk中的循环语句同样借鉴于C语言，支持while、do/while、for、break、continue，这些关键字的语义和C语言中的语义完全相同。             </p>
+</li>
+<li><p><strong>数组</strong><br>因为awk中数组的下标可以是数字和字母，数组的下标被称为关键字。</p>
+</li>
+</ol>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Shell/" rel="tag"># Shell</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/03/17/Mobile Security/ARM64-汇编语言/" rel="next" title="ARM64 汇编语言">
+                <i class="fa fa-chevron-left"></i> ARM64 汇编语言
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">D0m021ng</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">30</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">4</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#0x01-Linux基础命令"><span class="nav-number">1.</span> <span class="nav-text">0x01. Linux基础命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#0x02-Linux-文本处理"><span class="nav-number">2.</span> <span class="nav-text">0x02. Linux 文本处理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-sed（文本转换和过滤）"><span class="nav-number">2.0.1.</span> <span class="nav-text">1. sed（文本转换和过滤）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-wc"><span class="nav-number">2.0.2.</span> <span class="nav-text">2. wc</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-uniq"><span class="nav-number">2.0.3.</span> <span class="nav-text">3. uniq</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-sort"><span class="nav-number">2.0.4.</span> <span class="nav-text">4. sort</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-comm"><span class="nav-number">2.0.5.</span> <span class="nav-text">5. comm</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-cut"><span class="nav-number">2.0.6.</span> <span class="nav-text">6. cut</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7-tr"><span class="nav-number">2.0.7.</span> <span class="nav-text">7. tr</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#8-awk"><span class="nav-number">2.0.8.</span> <span class="nav-text">8. awk</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2016 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">D0m021ng</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.8.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.0.1</div>
+
+
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-user"></i>
+    </span>
+    <span class="site-uv" title="总访客量">
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+    </span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+  
+
+  
+    <span class="post-meta-item-icon">
+      <i class="fa fa-eye"></i>
+    </span>
+    <span class="site-pv" title="总访问量">
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.1"></script>
+
+  <script src="/js/src/motion.js?v=7.0.1"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/schemes/muse.js?v=7.0.1"></script>
+
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.1"></script>
+<script src="/js/src/post-details.js?v=7.0.1"></script>
+
+
+
+  
+
+
+  <script src="/js/src/next-boot.js?v=7.0.1"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
