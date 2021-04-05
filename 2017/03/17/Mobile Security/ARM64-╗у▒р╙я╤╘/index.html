@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="0x00.　前言前面已经介绍过ARM32汇编语言，但是从ARMv8-A开始出现了64位的ARM指令集，因此有必要学习一下64位的ARM指令集。虽然ARM官方将64位的ARM指令集叫做Aarch64，但为了和前面ARM32对比，暂且叫64位的ARM指令集为ARM64。ARM32和ARM64属于两套不同的指令集，在此仅介绍ARM64指令集中的一些改变。 0x01.　ARM64汇编中寄存器　　ARM64">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ARM64 汇编语言">
+<meta property="og:url" content="http://yoursite.com/2017/03/17/Mobile%20Security/ARM64-%E2%95%97%D1%83%E2%96%92%D1%80%E2%95%99%D1%8F%E2%95%A4%E2%95%98/index.html">
+<meta property="og:site_name" content="不要说话">
+<meta property="og:description" content="0x00.　前言前面已经介绍过ARM32汇编语言，但是从ARMv8-A开始出现了64位的ARM指令集，因此有必要学习一下64位的ARM指令集。虽然ARM官方将64位的ARM指令集叫做Aarch64，但为了和前面ARM32对比，暂且叫64位的ARM指令集为ARM64。ARM32和ARM64属于两套不同的指令集，在此仅介绍ARM64指令集中的一些改变。 0x01.　ARM64汇编中寄存器　　ARM64">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2017-03-17T21:40:32.000Z">
+<meta property="article:modified_time" content="2017-03-24T16:52:48.000Z">
+<meta property="article:author" content="D0m021ng">
+<meta property="article:tag" content="Android Reverse">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2017/03/17/Mobile%20Security/ARM64-%E2%95%97%D1%83%E2%96%92%D1%80%E2%95%99%D1%8F%E2%95%A4%E2%95%98/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>ARM64 汇编语言 | 不要说话</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">不要说话</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/03/17/Mobile%20Security/ARM64-%E2%95%97%D1%83%E2%96%92%D1%80%E2%95%99%D1%8F%E2%95%A4%E2%95%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="D0m021ng">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="不要说话">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ARM64 汇编语言
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-03-17 21:40:32" itemprop="dateCreated datePublished" datetime="2017-03-17T21:40:32+00:00">2017-03-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2017-03-24 16:52:48" itemprop="dateModified" datetime="2017-03-24T16:52:48+00:00">2017-03-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Mobile-Security/" itemprop="url" rel="index"><span itemprop="name">Mobile Security</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00.　前言"></a>0x00.　前言</h3><p>前面已经介绍过ARM32汇编语言，但是从ARMv8-A开始出现了64位的ARM指令集，因此有必要学习一下64位的ARM指令集。虽然ARM官方将64位的ARM指令集叫做Aarch64，但为了和前面ARM32对比，暂且叫64位的ARM指令集为ARM64。ARM32和ARM64属于两套不同的指令集，在此仅介绍ARM64指令集中的一些改变。</p>
+<h3 id="0x01-ARM64汇编中寄存器"><a href="#0x01-ARM64汇编中寄存器" class="headerlink" title="0x01.　ARM64汇编中寄存器　　"></a>0x01.　ARM64汇编中寄存器　　</h3><p>ARM64微处理器中，程序员可以使用31个64位的通用寄存器x0~x30，堆栈指针寄存器sp，指令指针寄存器pc。也可以只使用这些通用寄存器中的低32位，即w0~w30，wsp。ARM遵循ATPCS规则，ARM64汇编语言函数前8个参数使用x0-x7寄存器（或w0-w7寄存器）传递，多于8个的参数均通过堆栈传递，并且返回值通过x0寄存器（或w0寄存器）返回。在使用软中断进行系统调时，系统调用号通过x8寄存器传递，用svc指令产生软中断，实现从用户模式到管理模式的切换。例如：<br><figure class="highlight arm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">mov</span> x0, <span class="number">123</span> <span class="comment">// exit code</span></span><br><span class="line"><span class="keyword">mov</span> x8, <span class="number">93</span>  <span class="comment">// sys_exit() is at index 93 in kernel functions table</span></span><br><span class="line"><span class="keyword">svc</span> <span class="number">#0</span>      <span class="comment">// generate kernel call sys_exit(123);</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="0x02-AMR64汇编语言"><a href="#0x02-AMR64汇编语言" class="headerlink" title="0x02.　AMR64汇编语言"></a>0x02.　AMR64汇编语言</h3><p>ARM64汇编指令集所有指令的长度固定，每条指令是4字节（32位宽度），并且没有Thumb指令集。</p>
+<ol>
+<li>访存指令<br>ARM32中的LDM、STM、PUSH、POP指令，在ARM64中并不存在。取而代之的是LDP、STP指令，如一般在函数开头用来代替PUSH.<br>例如，用IDA Pro逆向的某个ARM64 SO库函数的开头和结尾：<figure class="highlight arm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">STP</span>      X24, X23, [<span class="built_in">SP</span>,<span class="symbol">#var_40</span>]!</span><br><span class="line"><span class="symbol">STP</span>      X22, X21, [<span class="built_in">SP</span>,<span class="number">#0x40</span>+var_30]</span><br><span class="line"><span class="symbol">STP</span>      X20, X19, [<span class="built_in">SP</span>,<span class="number">#0x40</span>+var_20]</span><br><span class="line"><span class="symbol">STP</span>      X29, X30, [<span class="built_in">SP</span>,<span class="number">#0x40</span>+var_10]</span><br><span class="line"><span class="keyword">ADD</span>      X29, <span class="built_in">SP</span>, <span class="number">#0x40</span>+var_10</span><br><span class="line"><span class="symbol">....</span></span><br><span class="line"><span class="keyword">SUB</span>      <span class="built_in">SP</span>, X29, <span class="number">#0x30</span></span><br><span class="line"><span class="symbol">LDP</span>      X29, X30, [<span class="built_in">SP</span>,<span class="number">#0x150</span>+var_120]</span><br><span class="line"><span class="symbol">LDP</span>      X20, X19, [<span class="built_in">SP</span>,<span class="number">#0x150</span>+var_130]</span><br><span class="line"><span class="symbol">LDP</span>      X22, X21, [<span class="built_in">SP</span>,<span class="number">#0x150</span>+var_140]</span><br><span class="line"><span class="symbol">LDP</span>      X24, X23, [<span class="built_in">SP</span>+<span class="number">0x150</span>+var_150],<span class="number">#0x40</span></span><br><span class="line"><span class="symbol">RET</span></span><br></pre></td></tr></table></figure></li>
+<li><p>跳转指令<br>跳转和链接指令，将PC保存到链接寄存器(BL和BLR)。</p>
+</li>
+<li><p>ARM64指令<br>ARM32指令集在涉及程序计数器（PC）计算时，由于多流水线的原因，需要加上4或者8的偏移。而ARM64指令集在涉及程序计数器（PC）计算时，不需要加上偏移。能够修改PC的唯一的方式，使用隐式的控制流指令（条件跳转，无条件跳转，异常生成，异常返回）。</p>
+</li>
+</ol>
+<p><strong>PS:</strong> 由于时间关系，没有深入学习ARM64汇编指令集。以后有时间，继续补充本文，2017.03.24。</p>
+<h3 id="0x03-参考文献"><a href="#0x03-参考文献" class="headerlink" title="0x03.　参考文献"></a>0x03.　参考文献</h3><p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/ARM_architecture">1. Wiki ARM Architecture</a><br><a target="_blank" rel="noopener" href="https://wiki.cdot.senecacollege.ca/wiki/Aarch64_Register_and_Instruction_Quick_Start">2. Aarch64 Register and Instruction Quick Start</a><br><a target="_blank" rel="noopener" href="http://cocoahuke.com/2015/08/30/ARMarch64%E6%B1%87%E7%BC%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">3. ARMarch64汇编学习笔记</a><br><a target="_blank" rel="noopener" href="http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.den0024a/ch05s01.html">4. ARM The Architecture for the Digital World</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Android-Reverse/" rel="tag"># Android Reverse</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/03/11/Mobile%20Security/ARM32-%E2%95%97%D1%83%E2%96%92%D1%80%E2%95%99%D1%8F%E2%95%A4%E2%95%98/" rel="prev" title="ARM32 汇编语言">
+      <i class="fa fa-chevron-left"></i> ARM32 汇编语言
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">0x00.　前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-ARM64%E6%B1%87%E7%BC%96%E4%B8%AD%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">2.</span> <span class="nav-text">0x01.　ARM64汇编中寄存器　　</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-AMR64%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80"><span class="nav-number">3.</span> <span class="nav-text">0x02.　AMR64汇编语言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">4.</span> <span class="nav-text">0x03.　参考文献</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">D0m021ng</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">29</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">D0m021ng</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

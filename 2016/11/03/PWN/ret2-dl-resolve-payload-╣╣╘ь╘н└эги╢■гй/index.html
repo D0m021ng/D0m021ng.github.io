@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="0x00.　payload构造思路前面我们已经大致介绍了dl-resolve如何进行函数地址的解析。 主要步骤是：通过函数的function@plt，将reloc_arg参数压栈。再跳转到过程链接表的开始PLT[0]，将link_map地址压栈。然后调用_dl_runtime_resolve(link_map, reloc_arg)解析函数的地址，并写回到函数的全局偏移表（.got.plt）中，最">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux栈溢出利用之return to dl-resolve payload 构造原理（二）">
+<meta property="og:url" content="http://yoursite.com/2016/11/03/PWN/ret2-dl-resolve-payload-%E2%95%A3%E2%95%A3%E2%95%98%D1%8C%E2%95%98%D0%BD%E2%94%94%D1%8D%D0%B3%D0%B8%E2%95%A2%E2%96%A0%D0%B3%D0%B9/index.html">
+<meta property="og:site_name" content="不要说话">
+<meta property="og:description" content="0x00.　payload构造思路前面我们已经大致介绍了dl-resolve如何进行函数地址的解析。 主要步骤是：通过函数的function@plt，将reloc_arg参数压栈。再跳转到过程链接表的开始PLT[0]，将link_map地址压栈。然后调用_dl_runtime_resolve(link_map, reloc_arg)解析函数的地址，并写回到函数的全局偏移表（.got.plt）中，最">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2016-11-03T23:53:57.000Z">
+<meta property="article:modified_time" content="2017-03-02T00:48:42.000Z">
+<meta property="article:author" content="D0m021ng">
+<meta property="article:tag" content="PWN">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2016/11/03/PWN/ret2-dl-resolve-payload-%E2%95%A3%E2%95%A3%E2%95%98%D1%8C%E2%95%98%D0%BD%E2%94%94%D1%8D%D0%B3%D0%B8%E2%95%A2%E2%96%A0%D0%B3%D0%B9/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Linux栈溢出利用之return to dl-resolve payload 构造原理（二） | 不要说话</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">不要说话</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/11/03/PWN/ret2-dl-resolve-payload-%E2%95%A3%E2%95%A3%E2%95%98%D1%8C%E2%95%98%D0%BD%E2%94%94%D1%8D%D0%B3%D0%B8%E2%95%A2%E2%96%A0%D0%B3%D0%B9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="D0m021ng">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="不要说话">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Linux栈溢出利用之return to dl-resolve payload 构造原理（二）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-11-03 23:53:57" itemprop="dateCreated datePublished" datetime="2016-11-03T23:53:57+00:00">2016-11-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2017-03-02 00:48:42" itemprop="dateModified" datetime="2017-03-02T00:48:42+00:00">2017-03-02</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Security/" itemprop="url" rel="index"><span itemprop="name">Security</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="0x00-payload构造思路"><a href="#0x00-payload构造思路" class="headerlink" title="0x00.　payload构造思路"></a><strong>0x00.　payload构造思路</strong></h3><p>前面我们已经大致介绍了dl-resolve如何进行函数地址的解析。</p>
+<p>主要步骤是：通过函数的function@plt，将reloc_arg参数压栈。再跳转到过程链接表的开始PLT[0]，将link_map地址压栈。然后调用_dl_runtime_resolve(link_map, reloc_arg)解析函数的地址，并写回到函数的全局偏移表（.got.plt）中，最后返回到需要解析的函数中。在_dl_runtime_resolve中调用_dl_fixup函数，主要的操作是：通过参数reloc_arg确定重定位表中该函数的重定位表项；再通过该重定位表项的r_info字段，在动态链接符号表中确定该函数的符号表项，以及类型，并进行一些检查。再由动态链接符号表项的st_name在动态链接字符串表中确定函数名称。</p>
+<p>payload构造：<br>如果我们伪造reloc_arg，使该函数的重定位表项位于我们可控制的位置；再伪造重定位表项（即r_offset和r_info），可使该函数的动态链接符号表表项位于我们可控制的位置；然后，伪造动态链接符号表表项（即st_name、st_value、st_size、st_info、st_other、st_shndx），主要是st_name的值，使该函数动态链接字符串表表项位于我们控制的位置；最后，伪造动态链接字符串表表项值为我们想要解析的函数名，就可以了。</p>
+<h3 id="0x01-32位应用的payload构造"><a href="#0x01-32位应用的payload构造" class="headerlink" title="0x01.　32位应用的payload构造"></a><strong>0x01.　32位应用的payload构造</strong></h3><p>下面以XMAN level4中的32位ELF为例，介绍32位应用payload的构造过程，该ELF有个明显的栈溢出漏洞。</p>
+<p>首先，通过栈溢出向bss段写入我们精心构造的payload2,一般选择bss段偏移为0x400的位置(.bss+0x400)写入。该payload包含解析函数的地址入口、返回值、需要解析函数的参数、伪造的重定位表项、动态链接符号表表项、动态链接字符串表表项、以及函数的参数值。然后，通过平衡堆栈，将程序的执行流交给解析函数。</p>
+<p>  32位应用 payload的主要构成如下：<br>  payload1： 利用漏洞进行读操作，将数据写入bss区。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">___________________________________________________________________________________________________________</span><br><span class="line">| <span class="string">&#x27;A&#x27;</span> * offset | read_plt    | p_p_p_ret |   <span class="number">0</span>   | base_stage | <span class="number">100</span>  | p_ebp_ret | base_stage | leave_ret  |</span><br><span class="line">|--------------|-------------|-----------|-------|------------|------|-----------|------------|------------|</span><br><span class="line">|  溢出填充     |返回地址     |返回地址    | arg1  |arg2,写地址  | arg3 |以写入地址恢复ebp，构造假的栈帧，返回   |</span><br><span class="line">|              |覆盖为read   |为gadget平  |       |.bss+<span class="number">0x400</span>  |      |                                     |</span><br><span class="line">|              |的plt地址    |衡堆栈      |       |            |      |                                     |</span><br><span class="line">|--------------|-------------|-----------|-------|------------|------|-------------------------------------|</span><br></pre></td></tr></table></figure></p>
+<p>payload2:  构造假的表项<br>32位应用，构造假的重定位表项、动态链接符号表项、动态链接字符串表项<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">___       ______________</span><br><span class="line"> |       |   <span class="string">&quot;BBBB&quot;</span>     |  栈顶地址</span><br><span class="line"> |       |--------------|</span><br><span class="line"> |       |    PLT[<span class="number">0</span>]    |  PLT表基址，即调用_dl_runtime_resolve函数的入口</span><br><span class="line"> |       |--------------|</span><br><span class="line"> |       | reloc_offset |  重定位偏移，即相对于重定位表(.rel.plt)的偏移</span><br><span class="line"> |       |--------------|</span><br><span class="line"> |       |     ret      |  返回地址，一般随便填充。</span><br><span class="line"> |       |--------------|</span><br><span class="line"> |       |     arg1     |  函数参数<span class="number">1</span>，arg1</span><br><span class="line"> |       |--------------|</span><br><span class="line"> |       |     arg2     |  函数参数<span class="number">2</span>，arg2</span><br><span class="line"> |       |--------------|  </span><br><span class="line"> |       |     arg3     |  函数参数<span class="number">3</span>，arg3  <span class="comment">//不足3个参数，随便填充其他值</span></span><br><span class="line"> |       |--------------|</span><br><span class="line"><span class="number">80B</span>ytes  |   r_offset   |  假的重定位表项： r_offset ,即函数的got</span><br><span class="line"> |       |--------------|</span><br><span class="line"> |       |   r_info     |  假的重定位表项： r_info</span><br><span class="line"> |       |--------------|</span><br><span class="line"> |       |   align      |  由于动态链接符号表字节对齐，因此需要对齐字节</span><br><span class="line"> |       |--------------|</span><br><span class="line"> |       |   st_name    |  假的动态链接符号表表项： st_name</span><br><span class="line"> |       |--------------|</span><br><span class="line"> |       |   st_value   |  假的动态链接符号表表项： st_value</span><br><span class="line"> |       |--------------|</span><br><span class="line"> |       |   st_size    |  假的动态链接符号表表项： st_size</span><br><span class="line"> |       |--------------|</span><br><span class="line"> |       | st_info....  |  假的动态链接符号表表项： st_info、st_other、st_shndx</span><br><span class="line"> |       |--------------|</span><br><span class="line"> |       |   <span class="string">&quot;system&quot;</span>   |  假的动态链接字符串表表相： 字符串如：<span class="string">&quot;system&quot;</span>、<span class="string">&quot;write&quot;</span>等等    </span><br><span class="line"> |       |--------------|</span><br><span class="line"> |       |&#x27;AAAA....&#x27;    |  填充字符: &#x27;A&#x27;，使长度达到80字节</span><br><span class="line">---      |--------------|  </span><br><span class="line"> |       |  <span class="string">&quot;/bin/sh&quot;</span>   |  写入的参数字符串：<span class="string">&quot;/bin/sh&quot;</span></span><br><span class="line"><span class="number">20B</span>ytes  |--------------|</span><br><span class="line"> |       |  &#x27;AAAA....&#x27;  |  填充字符: &#x27;A&#x27;</span><br><span class="line">_|_      |______________|</span><br></pre></td></tr></table></figure></p>
+<h3 id="0x02-64位应用的payload构造"><a href="#0x02-64位应用的payload构造" class="headerlink" title="0x02.　64位应用的payload构造"></a><strong>0x02.　64位应用的payload构造</strong></h3><p>前面提到过64位应用和32位应用在解析函数地址的时候有一些区别：<br>  1）_dl_runtime_resolve函数的参数reloc_arg的值的不同，32位应用是偏移值，64位应用是索引值；<br>  2）在_dl_fixup中，在伪造sym之后，会造成解析过程中VERSYM取值超出范围，造成segment fault，需要将link_map + 0x1c8地址上的值置0；<br>  3）动态链接符号表表项中的成员顺序有变化（即ELF64_Sym结构体成员顺序有变化）。</p>
+<p>在构造payload的时候需要注意以上3点不同，并且64位应用通过寄存器传参。此外，payload的长度不要太长，构造的payload过长，传输的过程会截断，造成无法利用成功。</p>
+<p>  64位应用 payload的主要构成如下：<br>  payload1:  泄漏link_map地址<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"> _________________________________________</span><br><span class="line">| <span class="string">&#x27;A&#x27;</span> * offset |com_gadget   | addr_vulfun|</span><br><span class="line">|--------------|-------------|------------|</span><br><span class="line">|溢出填充       | x86_64 通用 |漏洞函数     |</span><br><span class="line">|              |的gadget     |的地址       |            </span><br><span class="line">|--------------|-------------|------------|</span><br></pre></td></tr></table></figure><br>  payload2:  覆盖link_map 地址 + 0x1c8的地方为0，并读入数据<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">   ________________________________________________________________________________</span><br><span class="line">| <span class="string">&#x27;A&#x27;</span> * offset |com_gadget    | com_gadget |  p_rbp_ret | base_stage | leave_ret  |</span><br><span class="line">|--------------|--------------|------------|------------|------------|------------|</span><br><span class="line">|  溢出填充     |将link_map地  |读入数据写入 | 以写入地址恢复rbp，构造假的栈帧，返回    |</span><br><span class="line">|              |址偏移<span class="number">0x1c8</span>的  |bss区偏移   |                                      |</span><br><span class="line">|              |地方置<span class="number">0</span>        |<span class="number">0x400</span>位置   |                                      |</span><br><span class="line">|--------------|--------------|------------|--------------------------------------|</span><br></pre></td></tr></table></figure><br>payload3: 构造假的表项，注意函数通过寄存器传参<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">___        __________________</span><br><span class="line"> |        |   <span class="string">&quot;BBBBBBBB&quot;</span>     |  栈顶地址</span><br><span class="line"> |        |------------------|</span><br><span class="line"> |        |   pop_rdi_ret    |  函数的参数入rdi寄存器</span><br><span class="line"> |        |------------------|</span><br><span class="line"> |        |   addr_shell     |   <span class="string">&quot;/bin/sh&quot;</span> 字符串的地址</span><br><span class="line"> |        |------------------|</span><br><span class="line"> |        |    PLT[<span class="number">0</span>]        |  PLT表基址，即调用_dl_runtime_resolve函数的入口</span><br><span class="line"> |        |------------------|</span><br><span class="line"> |        |  reloc_index     |  重定位偏移，即相对于重定位表(.rel.plt)的索引</span><br><span class="line"> |        |------------------|</span><br><span class="line"> |        |  reloc_align     |  reloc_arg值为重定位表的索引，需要对齐</span><br><span class="line"> |        |------------------|</span><br><span class="line"><span class="number">180B</span>ytes  |   r_offset       |  假的重定位表项： r_offset ,即函数的got</span><br><span class="line"> |        |------------------|</span><br><span class="line"> |        |   r_info         |  假的重定位表项： r_info</span><br><span class="line"> |        |------------------|</span><br><span class="line"> |        |   sym_align      |  由于动态链接符号表字节对齐，因此需要对齐字节</span><br><span class="line"> |        |------------------|</span><br><span class="line"> |        |st_name,st_info...|  假的动态链接符号表表项： st_name、st_info、st_other、st_shndx(<span class="number">32</span>+<span class="number">8</span>+<span class="number">8</span>+<span class="number">16</span>=<span class="number">64b</span>its)</span><br><span class="line"> |        |------------------|</span><br><span class="line"> |        |   st_size        |  假的动态链接符号表表项： st_size(<span class="number">64b</span>its)</span><br><span class="line"> |        |------------------|</span><br><span class="line"> |        |   st_value       |  假的动态链接符号表表项： st_value(<span class="number">64b</span>its)</span><br><span class="line"> |        |------------------|</span><br><span class="line"> |        |   <span class="string">&quot;system&quot;</span>       |  假的动态链接字符串表表相： 字符串如：<span class="string">&quot;system&quot;</span>、<span class="string">&quot;write&quot;</span>等等    </span><br><span class="line"> |        |------------------|</span><br><span class="line"> |        |&#x27;AAAA....&#x27;        |  填充字符: &#x27;A&#x27;，使长度达到180字节</span><br><span class="line">---       |------------------|  </span><br><span class="line"> |        |  <span class="string">&quot;/bin/sh&quot;</span>       |  写入的参数字符串：<span class="string">&quot;/bin/sh&quot;</span></span><br><span class="line"><span class="number">200B</span>ytes  |------------------|</span><br><span class="line"> |        |  &#x27;AAAA....&#x27;      |  填充字符: &#x27;A&#x27;</span><br><span class="line">_|_       |__________________|</span><br></pre></td></tr></table></figure></p>
+<h3 id="0x03-参考文献"><a href="#0x03-参考文献" class="headerlink" title="0x03.　参考文献"></a><strong>0x03.　参考文献</strong></h3><p><a target="_blank" rel="noopener" href="http://www.evil0x.com/posts/19226.html">1. 通过ELF动态装载构造ROP链（Return-to-dl-resolve）</a><br><a target="_blank" rel="noopener" href="http://rk700.github.io/2015/08/09/return-to-dl-resolve/">2.  ROP之return to dl-resolve</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/PWN/" rel="tag"># PWN</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/11/03/PWN/ret2-dl-resolve-payload-%E2%95%A3%E2%95%A3%E2%95%98%D1%8C%E2%95%98%D0%BD%E2%94%94%D1%8D%D0%B3%D0%B8%E2%95%A5%E2%95%97%D0%B3%D0%B9/" rel="prev" title="Linux栈溢出利用之return to dl-resolve payload 构造原理（一）">
+      <i class="fa fa-chevron-left"></i> Linux栈溢出利用之return to dl-resolve payload 构造原理（一）
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2017/02/17/PWN/Linux%E2%95%A2%E2%95%A4%E2%95%A5%D1%87%E2%94%82%D0%8E%E2%95%93%D0%BEfastbin%E2%95%A9%E2%95%A1%E2%94%94%C2%A4/" rel="next" title="Linux堆溢出之fastbin实例">
+      Linux堆溢出之fastbin实例 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-payload%E6%9E%84%E9%80%A0%E6%80%9D%E8%B7%AF"><span class="nav-number">1.</span> <span class="nav-text">0x00.　payload构造思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-32%E4%BD%8D%E5%BA%94%E7%94%A8%E7%9A%84payload%E6%9E%84%E9%80%A0"><span class="nav-number">2.</span> <span class="nav-text">0x01.　32位应用的payload构造</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-64%E4%BD%8D%E5%BA%94%E7%94%A8%E7%9A%84payload%E6%9E%84%E9%80%A0"><span class="nav-number">3.</span> <span class="nav-text">0x02.　64位应用的payload构造</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">4.</span> <span class="nav-text">0x03.　参考文献</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">D0m021ng</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">29</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">D0m021ng</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
