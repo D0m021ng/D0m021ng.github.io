@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="最近花了一点时间看完《正则表达式必知必会》，记录下学习的知识点。正则表达式主要是用于处理文本，用于搜索和替换。 0x01.  匹配单个字符（1） 匹配纯文本1234#文本Hello, my name is Ben. Please visit my website at http:&#x2F;&#x2F;www.forta.com#正则表达式Ben（2）匹配任意字符 ( 使用元字符. )（3）匹配特">
+<meta property="og:type" content="article">
+<meta property="og:title" content="正则表达式必知必会">
+<meta property="og:url" content="http://yoursite.com/2016/05/05/Linux/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%BF%85%E7%9F%A5%E5%BF%85%E4%BC%9A/index.html">
+<meta property="og:site_name" content="不要说话">
+<meta property="og:description" content="最近花了一点时间看完《正则表达式必知必会》，记录下学习的知识点。正则表达式主要是用于处理文本，用于搜索和替换。 0x01.  匹配单个字符（1） 匹配纯文本1234#文本Hello, my name is Ben. Please visit my website at http:&#x2F;&#x2F;www.forta.com#正则表达式Ben（2）匹配任意字符 ( 使用元字符. )（3）匹配特">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2016-05-05T20:44:45.000Z">
+<meta property="article:modified_time" content="2021-04-05T06:57:05.392Z">
+<meta property="article:author" content="D0m021ng">
+<meta property="article:tag" content="软件工程">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2016/05/05/Linux/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%BF%85%E7%9F%A5%E5%BF%85%E4%BC%9A/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>正则表达式必知必会 | 不要说话</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">不要说话</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/05/05/Linux/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%BF%85%E7%9F%A5%E5%BF%85%E4%BC%9A/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="D0m021ng">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="不要说话">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          正则表达式必知必会
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-05-05 20:44:45" itemprop="dateCreated datePublished" datetime="2016-05-05T20:44:45+00:00">2016-05-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-04-05 06:57:05" itemprop="dateModified" datetime="2021-04-05T06:57:05+00:00">2021-04-05</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>最近花了一点时间看完《正则表达式必知必会》，记录下学习的知识点。正则表达式主要是用于处理文本，用于搜索和替换。</p>
+<h3 id="0x01-匹配单个字符"><a href="#0x01-匹配单个字符" class="headerlink" title="0x01.  匹配单个字符"></a>0x01.  匹配单个字符</h3><p>（1） 匹配纯文本<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#文本</span><br><span class="line">Hello, my name is Ben. Please visit my website at http:&#x2F;&#x2F;www.forta.com</span><br><span class="line">#正则表达式</span><br><span class="line">Ben</span><br></pre></td></tr></table></figure><br>（2）匹配任意字符 ( 使用元字符. )<br>（3）匹配特殊字符 (使用转义字符\ 转义元字符)</p>
+<h3 id="0x02-匹配一组字符"><a href="#0x02-匹配一组字符" class="headerlink" title="0x02.  匹配一组字符"></a>0x02.  匹配一组字符</h3><p>（1）匹配多个字符中的某一个 ( 使用元字符[和]，如[ns])<br>（2）利用字符集合区间 (使用元字符- ，如：[A-Za-z0-9] )<br>（3）取非匹配 ( 使用元字符^，如：[^0-9])</p>
+<h3 id="0x03-使用元字符"><a href="#0x03-使用元字符" class="headerlink" title="0x03.  使用元字符"></a>0x03.  使用元字符</h3><p>(1) 对特殊字符进行转义 (使用转义字符)<br>(2) 匹配空白字符<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">| 元字符    |    说明    |</span><br><span class="line">| -------  | :-------: |</span><br><span class="line">| [\b]     | 回退（并删除）一个字符（Backspace键）|</span><br><span class="line">| \f       | 换页符|</span><br><span class="line">| \n       | 换行符|</span><br><span class="line">| \r       | 回车符|</span><br><span class="line">| \t       | 制表符（Tab键）|</span><br><span class="line">| \v       | 垂直制表符|</span><br></pre></td></tr></table></figure><br>(3) 匹配特定的字符类别<br>1）匹配数字（与非数字）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">\d    匹配任何一个数字字符（等价于[0-9]）</span><br><span class="line">\D   匹配任何一个非数字字符（等价于[^0-9]）</span><br></pre></td></tr></table></figure></p>
+<p>2）匹配字母和数字（与非字母和数字）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">\w    匹配任何一个字母数字字符（大小写均可）或下划线（等价于[a-zA-Z0-9_]）</span><br><span class="line">\W   匹配任何一个非字母数字或下划线字符（等价于[^a-zA-Z0-9_]）</span><br></pre></td></tr></table></figure></p>
+<p>3）匹配空白字符（与非空白字符）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">\s    匹配任何一个空白字符（等价于[\f\n\r\t\v]）</span><br><span class="line">\S    匹配任何一个非空白字符（等价于[^\f\n\r\t\v]）</span><br></pre></td></tr></table></figure></p>
+<p>(4) 使用POSIX字符类<br>POSIX字符类是许多（但不是所有）正则表达式实现都支持的一种简写形式。</p>
+<h3 id="0x04-重复匹配"><a href="#0x04-重复匹配" class="headerlink" title="0x04.  重复匹配"></a>0x04.  重复匹配</h3><ol>
+<li>有多个匹配<pre><code>1)  匹配一个或多个字符（使用元字符 ``+``）
+2）匹配零个或多个字符（使用元字符  ``*``）
+3）匹配零个或一个字符（使用元字符  ``?``）
+</code></pre></li>
+<li>匹配的重复次数<pre><code>1) 为重复匹配次数设定一个精确的值（如：``&#123;3&#125;``）
+2) 为重复匹配次数设定一个区间（如：``&#123;3-9&#125;``）
+3) 匹配“至少重复多少次”（如：``&#123;3, &#125;``）
+</code></pre></li>
+<li>防止过度匹配<br>在进行模式匹配的时候会出现一种过度匹配的现象：在文本中匹配<code>&lt;[Bb]&gt;.*&lt;/[Bb]&gt;</code>时，会匹配第一个<B>或<b>到最后一个<B>或<b>之间的所有字符。原因：<code>*</code>和<code>+</code>都是所谓的“贪婪型”元字符，它们在进行匹配时的 行为模式是多多益善而不是适可而止。</li>
+</ol>
+<p>解决的方法：使用元字符的”懒惰型”版本，即在元字符后面加一个?后缀。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">贪婪型元字符         懒惰型元字符</span><br><span class="line">    *                  *?</span><br><span class="line">    +                  +?</span><br><span class="line">  &#123;n, &#125;            (n, )?   </span><br></pre></td></tr></table></figure></p>
+<h3 id="0x05-位置匹配"><a href="#0x05-位置匹配" class="headerlink" title="0x05.  位置匹配"></a>0x05.  位置匹配</h3><p>(1) 单词边界 （使用元字符 \b表示，如：\bcat\b）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#文本</span><br><span class="line">The caption wore his cap and cape proudly as he sat listening to the recap of how his crew saved the men from a capsized vessel.</span><br><span class="line">#正则表达式          匹配结果</span><br><span class="line"> \bcap\b           cap</span><br><span class="line"> \bcap             captain cap cape capsized  </span><br><span class="line"> cap\b             cap recap                      </span><br></pre></td></tr></table></figure></p>
+<p>(2) 字符串边界（使用元字符^和$分别表示字符串的首和尾）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#文本</span><br><span class="line">&lt;?xml version&#x3D;&quot;1.0&quot; encoding&#x3D;&quot;UTF-8&quot; ?&gt;</span><br><span class="line">&lt;wsdl:definitions targerNamespace&#x3D;&quot;http:&#x2F;&#x2F;tips.cf&quot;</span><br><span class="line">xmlns:impl&#x3D;&quot;http:&#x2F;&#x2F;tips&#x2F;cf&quot; xmlns:intf&#x3D;&quot;http:&#x2F;&#x2F;tips.cf&quot;</span><br><span class="line">xmlns:apachesoap&#x3D;&quot;http:&#x2F;&#x2F;xml.apache.org&#x2F;xml.soap&quot;</span><br><span class="line">#正则表达式</span><br><span class="line">^\s*&lt;\?xml.*\?&gt;     匹配第一行</span><br></pre></td></tr></table></figure></p>
+<h3 id="0x06-使用子表达式"><a href="#0x06-使用子表达式" class="headerlink" title="0x06.  使用子表达式"></a>0x06.  使用子表达式</h3><p>(1)  子表达式 (使用元字符(和)包含表达式)<br>(2)  子表达式的嵌套</p>
+<h3 id="0x07-回溯引用：前后一致匹配"><a href="#0x07-回溯引用：前后一致匹配" class="headerlink" title="0x07.  回溯引用：前后一致匹配"></a>0x07.  回溯引用：前后一致匹配</h3><p>(1)  回溯引用匹配<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#正则表达式</span><br><span class="line">[ ]+(\w+)[ ]+\1</span><br><span class="line">&lt;[hH](1-6)&gt;.*?&lt;&#x2F;[hH]\1&gt;    #.*?表示懒惰型.*匹配</span><br></pre></td></tr></table></figure></p>
+<p>(2)  回溯引用在替换操作中的应用<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#正则表达式                            </span><br><span class="line">(\w+[\w\.]*@[\w\.]+\.\w+)       </span><br><span class="line">#替换</span><br><span class="line">&lt;A HREF&#x3D;&quot;mailto:$1&quot;&gt;$1&lt;&#x2F;A&gt;</span><br></pre></td></tr></table></figure></p>
+<h3 id="0x08-前后查找"><a href="#0x08-前后查找" class="headerlink" title="0x08.  前后查找"></a>0x08.  前后查找</h3><p>(1)  向前查找（以 ?= 开头的子表达式）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#文本</span><br><span class="line">http:&#x2F;&#x2F;www.forta.com&#x2F;</span><br><span class="line">https:&#x2F;&#x2F;mail&#x2F;forta.com&#x2F;</span><br><span class="line">ftp:&#x2F;&#x2F;ftp.forta.com&#x2F;</span><br><span class="line">#正则表达式        结果</span><br><span class="line">.*(?&#x3D;:)        http https ftp   #?&#x3D;表示：只要找到：就行了，不要把它包括在最终的匹配结果里。</span><br></pre></td></tr></table></figure><br>(2)  向后查找（以 ?&lt;= 开头的子表达式）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">#文本</span><br><span class="line">ABC01:  $23.45</span><br><span class="line">HGG42:  $5.31</span><br><span class="line">CFMX1:  $899.00</span><br><span class="line">XTC99:  $69.96</span><br><span class="line">Total items found: 4</span><br><span class="line"># 正则表达式         结果</span><br><span class="line">(?&lt;&#x3D;\$)[0-9.]+     23.45  5.31 899.00 69.96       </span><br></pre></td></tr></table></figure></p>
+<p>(3)  对前后查找取非<br>负向前查找将向前查找不与给定模式匹配的文本，负向后查找将向后查找不与给定模式匹配的文本。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">操作符          说明</span><br><span class="line">(?&#x3D;)          正向前查找</span><br><span class="line">(?!)          负向前查找</span><br><span class="line">(?&lt;&#x3D;)         正向后查找</span><br><span class="line">(?&lt;!)         负向后查找    </span><br><span class="line">#文本</span><br><span class="line">I paid $30 for 100 apples, 50 oranges, and 60 pears.</span><br><span class="line">I saved $5 on this order.</span><br><span class="line"></span><br><span class="line">#正则表达式                   </span><br><span class="line">(?&lt;&#x3D;\$)\d+          #向后查找价格</span><br><span class="line">\b(?&lt;!\$)\d+\b      #只查找数量</span><br></pre></td></tr></table></figure></p>
+<h3 id="0x09-嵌入条件"><a href="#0x09-嵌入条件" class="headerlink" title="0x09.  嵌入条件"></a>0x09.  嵌入条件</h3><p>正则表达式里的条件要用?定义。<br>?匹配前一个字符或表达式，如果它存在的话。<br>?=和?&lt;=匹配前面或后面的文本，如果它存在的话。<br>嵌入条件语法也使用了?，嵌入条件的两种情况：1) 根据一个回溯引用来进行条件处理；2）根据一个前后查找来进行条件处理。<br>（1）回溯引用条件<br>定义这种条件的语法是：(?(backreference)true-regex|false-regex) ；也可以只用前面的true-regex;<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">#文本</span><br><span class="line">123-456-7890</span><br><span class="line">(123)456-7890</span><br><span class="line">(123)-456-7890</span><br><span class="line">(123-456-7890</span><br><span class="line">1234567890</span><br><span class="line">123 456 7890</span><br><span class="line">#正则表达式    匹配美式电话号码</span><br><span class="line">(\()?\d&#123;3&#125;(?(1)\)|-)\d&#123;3&#125;-\d&#123;4&#125;)   </span><br><span class="line">#结果</span><br><span class="line">123-456-7890</span><br><span class="line">(123)456-7890</span><br></pre></td></tr></table></figure><br>（2）前后查找条件<br>定义这种条件的语法类似上面，只需把回溯引用替换为一个完整的前后查找表达式就行了。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">#文本  美国的邮政编码两种格式：12345形式的ZIP格式;12345-6789形式的ZIP+4格式</span><br><span class="line">11111</span><br><span class="line">22222</span><br><span class="line">33333</span><br><span class="line">44444-</span><br><span class="line">55555-5555</span><br><span class="line">#正则表达式</span><br><span class="line">\d&#123;5&#125;(?(?&#x3D;-)-\d&#123;4&#125;)    #匹配美式邮编</span><br><span class="line">#结果</span><br><span class="line">11111</span><br><span class="line">22222</span><br><span class="line">33333</span><br><span class="line">55555-5555</span><br></pre></td></tr></table></figure></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B/" rel="tag"># 软件工程</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/05/02/Linux/2016%E8%85%BE%E8%AE%AF%E6%B8%B8%E6%88%8F%E5%AE%89%E5%85%A8%E7%AB%9E%E8%B5%9B%E7%AC%AC%E4%B8%80%E8%BD%AEAndroid%E9%A2%98%E5%88%86%E6%9E%90/" rel="prev" title="2016腾讯游戏安全竞赛第一轮Android题分析">
+      <i class="fa fa-chevron-left"></i> 2016腾讯游戏安全竞赛第一轮Android题分析
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/05/17/Programming/Trie-Tree/" rel="next" title="Trie树">
+      Trie树 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-%E5%8C%B9%E9%85%8D%E5%8D%95%E4%B8%AA%E5%AD%97%E7%AC%A6"><span class="nav-number">1.</span> <span class="nav-text">0x01.  匹配单个字符</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-%E5%8C%B9%E9%85%8D%E4%B8%80%E7%BB%84%E5%AD%97%E7%AC%A6"><span class="nav-number">2.</span> <span class="nav-text">0x02.  匹配一组字符</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-%E4%BD%BF%E7%94%A8%E5%85%83%E5%AD%97%E7%AC%A6"><span class="nav-number">3.</span> <span class="nav-text">0x03.  使用元字符</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-%E9%87%8D%E5%A4%8D%E5%8C%B9%E9%85%8D"><span class="nav-number">4.</span> <span class="nav-text">0x04.  重复匹配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x05-%E4%BD%8D%E7%BD%AE%E5%8C%B9%E9%85%8D"><span class="nav-number">5.</span> <span class="nav-text">0x05.  位置匹配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x06-%E4%BD%BF%E7%94%A8%E5%AD%90%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-number">6.</span> <span class="nav-text">0x06.  使用子表达式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x07-%E5%9B%9E%E6%BA%AF%E5%BC%95%E7%94%A8%EF%BC%9A%E5%89%8D%E5%90%8E%E4%B8%80%E8%87%B4%E5%8C%B9%E9%85%8D"><span class="nav-number">7.</span> <span class="nav-text">0x07.  回溯引用：前后一致匹配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x08-%E5%89%8D%E5%90%8E%E6%9F%A5%E6%89%BE"><span class="nav-number">8.</span> <span class="nav-text">0x08.  前后查找</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x09-%E5%B5%8C%E5%85%A5%E6%9D%A1%E4%BB%B6"><span class="nav-number">9.</span> <span class="nav-text">0x09.  嵌入条件</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">D0m021ng</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">D0m021ng</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

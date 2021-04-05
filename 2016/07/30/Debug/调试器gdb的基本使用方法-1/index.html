@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本系列主要是记录下Linux环境下的标准调试器GDB的使用方法。GDB的功能极其丰富，各种各样的命令使人眼花缭乱。下面按照调试的流程进行说明，流程如下: (1) 带着调试选项编译、构建调试对象。(2) 启动调试器（GDB）、设置断点、显示栈帧、显示值、继续执行。 0x01.　准备通过gcc的 -g 选项生成调试信息。即如： $ gcc -Wall -O2 -g  源文件如果使用Makefile构建">
+<meta property="og:type" content="article">
+<meta property="og:title" content="调试器gdb的基本使用方法（1）">
+<meta property="og:url" content="http://yoursite.com/2016/07/30/Debug/%E8%B0%83%E8%AF%95%E5%99%A8gdb%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95-1/index.html">
+<meta property="og:site_name" content="不要说话">
+<meta property="og:description" content="本系列主要是记录下Linux环境下的标准调试器GDB的使用方法。GDB的功能极其丰富，各种各样的命令使人眼花缭乱。下面按照调试的流程进行说明，流程如下: (1) 带着调试选项编译、构建调试对象。(2) 启动调试器（GDB）、设置断点、显示栈帧、显示值、继续执行。 0x01.　准备通过gcc的 -g 选项生成调试信息。即如： $ gcc -Wall -O2 -g  源文件如果使用Makefile构建">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2016-07-30T22:13:03.000Z">
+<meta property="article:modified_time" content="2021-04-05T07:00:44.621Z">
+<meta property="article:author" content="D0m021ng">
+<meta property="article:tag" content="软件调试">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2016/07/30/Debug/%E8%B0%83%E8%AF%95%E5%99%A8gdb%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95-1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>调试器gdb的基本使用方法（1） | 不要说话</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">不要说话</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/07/30/Debug/%E8%B0%83%E8%AF%95%E5%99%A8gdb%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="D0m021ng">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="不要说话">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          调试器gdb的基本使用方法（1）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-07-30 22:13:03" itemprop="dateCreated datePublished" datetime="2016-07-30T22:13:03+00:00">2016-07-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-04-05 07:00:44" itemprop="dateModified" datetime="2021-04-05T07:00:44+00:00">2021-04-05</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%BD%AF%E4%BB%B6%E8%B0%83%E8%AF%95/" itemprop="url" rel="index"><span itemprop="name">软件调试</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本系列主要是记录下Linux环境下的标准调试器GDB的使用方法。GDB的功能极其丰富，各种各样的命令使人眼花缭乱。下面按照调试的流程进行说明，流程如下: (1) 带着调试选项编译、构建调试对象。(2) 启动调试器（GDB）、设置断点、显示栈帧、显示值、继续执行。</p>
+<h3 id="0x01-准备"><a href="#0x01-准备" class="headerlink" title="0x01.　准备"></a>0x01.　准备</h3><p>通过gcc的 <code>-g</code> 选项生成调试信息。即如： <code>$ gcc -Wall -O2 -g  源文件</code><br>如果使用Makefile构建，一般要给CFLAGS中指定 -g 选项。如： <code>CFLAGS = -Wall -O2 -g</code><br>如果用configure脚本生成Makefile，可以这样用： <code>$ ./configur CFLAGS=&quot;-Wall -O2 -g&quot;</code><br>构建方法通常会写在INSTALL、README等文件中，参考即可。</p>
+<h3 id="0x02-启动"><a href="#0x02-启动" class="headerlink" title="0x02.　启动"></a>0x02.　启动</h3><p>启动gdb调试器很简单，通过如下命令： <code>$ gdb 可执行文件名</code><br>启动后会显示一些信息，并出现gdb提示符。</p>
+<h3 id="0x03-设置断点"><a href="#0x03-设置断点" class="headerlink" title="0x03.　设置断点"></a>0x03.　设置断点</h3><p>可以在函数名和行号等上设置断点。程序运行后，到达断点就会自动暂停运行。此时可以查看该时刻的变量值、显示栈帧、重新设置断点或重新运行等。断点命令break(简写b)。</p>
+<table>
+<thead>
+<tr>
+<th>格式：</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>   break</td>
+<td>函数名</td>
+</tr>
+<tr>
+<td>   break</td>
+<td>行号  </td>
+</tr>
+<tr>
+<td>   break</td>
+<td>文件名：行号</td>
+</tr>
+<tr>
+<td>   break</td>
+<td>文件名：函数名</td>
+</tr>
+<tr>
+<td>   break</td>
+<td>+偏移量</td>
+</tr>
+<tr>
+<td>   break</td>
+<td>-偏移量</td>
+</tr>
+<tr>
+<td>   break</td>
+<td>* 地址</td>
+</tr>
+</tbody>
+</table>
+<p>如上所示，断点可以通过函数名、当前文件内的行号来设置，也可以先指定文件名再指定行号，还可以指定与暂停位置的偏移量，或者用地址来设置。</p>
+<h3 id="0x04-运行"><a href="#0x04-运行" class="headerlink" title="0x04.　运行"></a>0x04.　运行</h3><p>用<code>run</code>命令开始运行，不加参数只执行run，就会执行到设置了断点的位置后暂停运行。可以简写为r。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">格式：</span><br><span class="line">  run  参数</span><br><span class="line">例子：</span><br><span class="line">  (gdb) run -a</span><br><span class="line">  Starting program: &#x2F;home&#x2F;xxx&#x2F;work&#x2F;coreutils&#x2F;src&#x2F;uname -a</span><br><span class="line">  Breakpoint 1,main (argc&#x3D;2, argv&#x3D;0xbf9cd714) at uname.c:184</span><br><span class="line"></span><br></pre></td></tr></table></figure><br>经常用到的一个操作是main()上设置断点，然后执行到main()函数。<code>start</code> 命令能达到同样的效果。</p>
+<h3 id="0x05-显示栈帧"><a href="#0x05-显示栈帧" class="headerlink" title="0x05.　显示栈帧"></a>0x05.　显示栈帧</h3><p><code>backtrace</code> 命令可以在遇到断点而暂停执行时显示栈帧。该命令简写为 <code>bt</code> 。此外，<code>backtrace</code>的别名还有<code>where</code> 和<code>info stack</code>(简写为 <code>info s</code>)。</p>
+<table>
+<thead>
+<tr>
+<th>命令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>backtrace</td>
+<td>显示所有栈帧</td>
+</tr>
+<tr>
+<td>backtrace N</td>
+<td>只显示开头N个栈帧</td>
+</tr>
+<tr>
+<td>backtrace -N</td>
+<td>只显示最后N个栈帧</td>
+</tr>
+<tr>
+<td>backtrace full</td>
+<td>显示所有栈帧和局部变量</td>
+</tr>
+<tr>
+<td>backtrace full N</td>
+<td>显示开头N个栈帧和局部变量</td>
+</tr>
+<tr>
+<td>backtrace full -N</td>
+<td>显示最后N个栈帧和局部变量</td>
+</tr>
+</tbody>
+</table>
+<h3 id="0x06-显示变量"><a href="#0x06-显示变量" class="headerlink" title="0x06.　显示变量"></a>0x06.　显示变量</h3><p><code>print</code> 命令可以显示变量。简写为<code>p</code>。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">格式：  print 变量</span><br><span class="line">(gdb) p argv</span><br><span class="line">$<span class="number">1</span> = (<span class="keyword">char</span> **) <span class="number">0xbf9cd714</span></span><br><span class="line">(gdb) p *argv</span><br><span class="line">$<span class="number">2</span> = <span class="number">0xbf9cf6a5</span> <span class="string">&quot;/home/xxx/work/coreutils/src/uname&quot;</span></span><br><span class="line">(gdb) p argv[<span class="number">0</span>]</span><br><span class="line">$<span class="number">3</span> = <span class="number">0xbf9cf6a5</span> <span class="string">&quot;/home/xxx/work/coreutils/src/uname&quot;</span></span><br><span class="line">(gdb) p argv[<span class="number">1</span>]</span><br><span class="line">$<span class="number">4</span> = <span class="number">0xbf9cf6cd</span> <span class="string">&quot;-a&quot;</span></span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure></p>
+<h3 id="0x07-显示寄存器"><a href="#0x07-显示寄存器" class="headerlink" title="0x07.　显示寄存器"></a>0x07.　显示寄存器</h3><p><code>info registers</code> 可以显示寄存器内容，简写 <code>info reg</code><br>在寄存器名之前添加<code>$</code>，即可显示各个寄存器的内容。<br><code>(gdb) p $eax   ===&gt; $8 = 97</code><br>显示时可以使用以下格式：<code>p/格式  变量</code></p>
+<p>表1-1  显示寄存器可使用的格式</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">格式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">x</td>
+<td>显示为十六进制数</td>
+</tr>
+<tr>
+<td style="text-align:center">d</td>
+<td>显示为十进制数</td>
+</tr>
+<tr>
+<td style="text-align:center">u</td>
+<td>显示为无符号十进制数</td>
+</tr>
+<tr>
+<td style="text-align:center">o</td>
+<td>显示为八进制数</td>
+</tr>
+<tr>
+<td style="text-align:center">t</td>
+<td>显示为二进制数，t的由来是two</td>
+</tr>
+<tr>
+<td style="text-align:center">a</td>
+<td>地址</td>
+</tr>
+<tr>
+<td style="text-align:center">c</td>
+<td>显示为字符（ASCII）</td>
+</tr>
+<tr>
+<td style="text-align:center">f</td>
+<td>浮点小数</td>
+</tr>
+<tr>
+<td style="text-align:center">s</td>
+<td>显示为字符串</td>
+</tr>
+<tr>
+<td style="text-align:center">i</td>
+<td>显示为机器语言（仅在显示内存的X命令中可用）</td>
+</tr>
+</tbody>
+</table>
+<p>例如：<code>(gdb) p/c  $eax ====&gt;$7 = 97 &#39;a&#39;</code></p>
+<p>用<code>x</code>命令可以显示内存的内容，x这个名字的由来是eXamining。<br>显示的格式：<code>x/格式  地址</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">(gdb) x $pc</span><br><span class="line">0x8048ebd &lt;main+173&gt;:   0x0f6ef883</span><br><span class="line">(gdb) x&#x2F;i $pc     &#x2F;&#x2F; x&#x2F;i意为显示汇编指令</span><br><span class="line">0x8048ebd &lt;main+173&gt;:   cmp  $0x6e,%eax</span><br></pre></td></tr></table></figure></p>
+<p>反汇编的命令 <code>disassemble</code>，简写为<code>disas</code></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">格式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">disassemble</td>
+<td>反汇编当前整个函数</td>
+</tr>
+<tr>
+<td style="text-align:center">disassemble  程序计数器</td>
+<td>反汇编程序计数器所在的含数</td>
+</tr>
+<tr>
+<td style="text-align:center">disassemble  开始地址  结束地址</td>
+<td>反汇编从开始地址到结束地址之前的部分</td>
+</tr>
+</tbody>
+</table>
+<h3 id="0x08-单步执行"><a href="#0x08-单步执行" class="headerlink" title="0x08.　单步执行"></a>0x08.　单步执行</h3><p>单步执行的意思是根据源代码一行一行地执行。逐条执行源代码的命令为<code>next</code>（简写为<code>n</code>）和<code>step</code>（简写为<code>s</code>）,其中<code>next</code>为单步步过，即执行时如果遇到函数调用，则跳到函数调用的下一行；<code>step</code>为单步步入，即执行时如果遇到函数调用，则跳到函数内部。<br>如果要逐条执行汇编执行，则可以分别使用<code>nexti</code>和<code>stepi</code>。<code>nexti</code>和<code>stepi</code>的区别同源码级单步执行。</p>
+<h3 id="0x09-继续运行"><a href="#0x09-继续运行" class="headerlink" title="0x09.　继续运行"></a>0x09.　继续运行</h3><p>调试时，可以使用<code>continue</code>（简写为<code>C</code>）命令继续运行程序。程序会在遇到断点后再次暂停运行，如果没有遇到断点，就会一直运行到结束。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">格式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">continue</td>
+<td>继续运行程序，直到遇到断点</td>
+</tr>
+<tr>
+<td style="text-align:center">continue 次数</td>
+<td>指定次数可以忽略断点</td>
+</tr>
+</tbody>
+</table>
+<h3 id="0x10-监视点"><a href="#0x10-监视点" class="headerlink" title="0x10.　监视点"></a>0x10.　监视点</h3><p>大型软件或大量使用指针的程序中，很难弄清变量在什么地方被改变。要想找到变量在何处被改变，可以使用<code>watch</code>命令（监视点，watchpoint）。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">格式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">watch &lt;表达式&gt;</td>
+<td>&lt;表达式&gt;发生变化时暂停运行，&lt;表达式&gt;指常量或变量</td>
+</tr>
+<tr>
+<td style="text-align:center">awatch &lt;表达式&gt;</td>
+<td>&lt;表达式&gt;被访问、改变时暂停运行</td>
+</tr>
+<tr>
+<td style="text-align:center">rwatch &lt;表达式&gt;</td>
+<td>&lt;表达式&gt;被访问时暂停运行</td>
+</tr>
+</tbody>
+</table>
+<h3 id="0x11-删除断点和监视点"><a href="#0x11-删除断点和监视点" class="headerlink" title="0x11.　删除断点和监视点"></a>0x11.　删除断点和监视点</h3><p>用<code>delete</code>（简写<code>d</code>）命令删除断点和监视点<br>格式如下：<code>delete &lt;编号&gt;</code><br>删除&lt;编号&gt;指示的断点或监视点。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%BD%AF%E4%BB%B6%E8%B0%83%E8%AF%95/" rel="tag"># 软件调试</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/06/29/Programming/%E6%90%9C%E7%B4%A2%E4%B9%8BBFS/" rel="prev" title="搜索之BFS">
+      <i class="fa fa-chevron-left"></i> 搜索之BFS
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/07/31/Debug/%E8%B0%83%E8%AF%95%E5%99%A8gdb%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95-2/" rel="next" title="调试器gdb的基本使用方法（2）">
+      调试器gdb的基本使用方法（2） <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-%E5%87%86%E5%A4%87"><span class="nav-number">1.</span> <span class="nav-text">0x01.　准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-%E5%90%AF%E5%8A%A8"><span class="nav-number">2.</span> <span class="nav-text">0x02.　启动</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-%E8%AE%BE%E7%BD%AE%E6%96%AD%E7%82%B9"><span class="nav-number">3.</span> <span class="nav-text">0x03.　设置断点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-%E8%BF%90%E8%A1%8C"><span class="nav-number">4.</span> <span class="nav-text">0x04.　运行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x05-%E6%98%BE%E7%A4%BA%E6%A0%88%E5%B8%A7"><span class="nav-number">5.</span> <span class="nav-text">0x05.　显示栈帧</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x06-%E6%98%BE%E7%A4%BA%E5%8F%98%E9%87%8F"><span class="nav-number">6.</span> <span class="nav-text">0x06.　显示变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x07-%E6%98%BE%E7%A4%BA%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">7.</span> <span class="nav-text">0x07.　显示寄存器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x08-%E5%8D%95%E6%AD%A5%E6%89%A7%E8%A1%8C"><span class="nav-number">8.</span> <span class="nav-text">0x08.　单步执行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x09-%E7%BB%A7%E7%BB%AD%E8%BF%90%E8%A1%8C"><span class="nav-number">9.</span> <span class="nav-text">0x09.　继续运行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x10-%E7%9B%91%E8%A7%86%E7%82%B9"><span class="nav-number">10.</span> <span class="nav-text">0x10.　监视点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x11-%E5%88%A0%E9%99%A4%E6%96%AD%E7%82%B9%E5%92%8C%E7%9B%91%E8%A7%86%E7%82%B9"><span class="nav-number">11.</span> <span class="nav-text">0x11.　删除断点和监视点</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">D0m021ng</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">D0m021ng</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

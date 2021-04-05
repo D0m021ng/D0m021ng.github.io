@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="0x00.　前言最近在学习移动安全，为进行Android系统漏洞挖掘，需要学习ARM汇编语言。现在记录下自己学习ARM32汇编语言的要点与心得，以供参考。 0x01.　ARM32汇编中寄存器ARM32微处理器共有37个32位寄存器，其中31个为通用寄存器，6个为状态寄存器。ARM微处理器支持7种运行模式，分别是：用户模式(usr)、快速中断模式(fiq)、外部中断模式(irq)、管理模式(svc)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ARM32 汇编语言">
+<meta property="og:url" content="http://yoursite.com/2017/03/11/Linux/ARM32-%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80/index.html">
+<meta property="og:site_name" content="不要说话">
+<meta property="og:description" content="0x00.　前言最近在学习移动安全，为进行Android系统漏洞挖掘，需要学习ARM汇编语言。现在记录下自己学习ARM32汇编语言的要点与心得，以供参考。 0x01.　ARM32汇编中寄存器ARM32微处理器共有37个32位寄存器，其中31个为通用寄存器，6个为状态寄存器。ARM微处理器支持7种运行模式，分别是：用户模式(usr)、快速中断模式(fiq)、外部中断模式(irq)、管理模式(svc)">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2017-03-11T11:33:18.000Z">
+<meta property="article:modified_time" content="2021-04-05T06:55:49.674Z">
+<meta property="article:author" content="D0m021ng">
+<meta property="article:tag" content="软件调试">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2017/03/11/Linux/ARM32-%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>ARM32 汇编语言 | 不要说话</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">不要说话</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/03/11/Linux/ARM32-%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="D0m021ng">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="不要说话">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ARM32 汇编语言
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2017-03-11 11:33:18" itemprop="dateCreated datePublished" datetime="2017-03-11T11:33:18+00:00">2017-03-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-04-05 06:55:49" itemprop="dateModified" datetime="2021-04-05T06:55:49+00:00">2021-04-05</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00.　前言"></a>0x00.　前言</h3><p>最近在学习移动安全，为进行Android系统漏洞挖掘，需要学习ARM汇编语言。现在记录下自己学习ARM32汇编语言的要点与心得，以供参考。</p>
+<h3 id="0x01-ARM32汇编中寄存器"><a href="#0x01-ARM32汇编中寄存器" class="headerlink" title="0x01.　ARM32汇编中寄存器"></a>0x01.　ARM32汇编中寄存器</h3><p>ARM32微处理器共有37个32位寄存器，其中31个为通用寄存器，6个为状态寄存器。ARM微处理器支持7种运行模式，分别是：用户模式(usr)、快速中断模式(fiq)、外部中断模式(irq)、管理模式(svc)、数据访问终止模式(abt)、系统模式(sys)、未定义指令中止模式(und)。由于ARM微处理器正常的程序执行状态为用户模式，因此先了解一下用户模式下ARM32。<br>在用户模式下，ARM32微处理器可以访问的寄存器有：不分组的寄存器R0-R7、分组寄存器R8-R14、程序计数器R15(PC)以及当前程序状态寄存器CPSR。<strong>ARM遵循ATPCS规则，ARM32汇编语言函数前4个参数使用R0-R3寄存器传递，多于4个的参数均通过堆栈传递，并且返回值通过R0寄存器返回。在使用软中断进行系统调时，系统调用号通过R7寄存器传递，用SWI指令产生软中断，实现从用户模式到管理模式的切换。例如，调用exit(0)的汇编代码如下：</strong><br><figure class="highlight arm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">MOV</span> <span class="built_in">R0</span>, <span class="number">#0</span>  <span class="comment">@参数0</span></span><br><span class="line"><span class="keyword">MOv</span> <span class="built_in">R7</span>, <span class="number">#1</span>  <span class="comment">@系统功能号1为 exit</span></span><br><span class="line"><span class="keyword">SWI</span> <span class="number">#0</span>      <span class="comment">@执行 exit(0)</span></span><br></pre></td></tr></table></figure></p>
+<p>ARM32微处理器有两种工作状态：ARM32状态与Thumb状态。处理器可以在两种状态之间随意切换，当处理器处于ARM状态时，会执行32位对齐的ARM指令；当处于Thumb状态时，会执行16位对齐的Thumb指令。Thumb状态下对寄存器的命名与ARM32有部分差异，它们的关系如下表所示。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Thumb状态下寄存器</th>
+<th style="text-align:center">ARM32状态下寄存器</th>
+<th style="text-align:center">用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">R0-R7</td>
+<td style="text-align:center">R0-R7</td>
+<td style="text-align:center">通用寄存器</td>
+</tr>
+<tr>
+<td style="text-align:center">CPSR</td>
+<td style="text-align:center">CPSR</td>
+<td style="text-align:center">程序状态寄存器</td>
+</tr>
+<tr>
+<td style="text-align:center">SL</td>
+<td style="text-align:center">R10</td>
+<td style="text-align:center">栈限制寄存器</td>
+</tr>
+<tr>
+<td style="text-align:center">FP</td>
+<td style="text-align:center">R11</td>
+<td style="text-align:center">桢指针寄存器</td>
+</tr>
+<tr>
+<td style="text-align:center">IP</td>
+<td style="text-align:center">R12</td>
+<td style="text-align:center">内部过程调用寄存器</td>
+</tr>
+<tr>
+<td style="text-align:center">SP</td>
+<td style="text-align:center">R13</td>
+<td style="text-align:center">栈顶指针寄存器</td>
+</tr>
+<tr>
+<td style="text-align:center">LR</td>
+<td style="text-align:center">R14</td>
+<td style="text-align:center">子程序链接寄存器</td>
+</tr>
+<tr>
+<td style="text-align:center">PC</td>
+<td style="text-align:center">R15</td>
+<td style="text-align:center">程序计数器</td>
+</tr>
+</tbody>
+</table>
+<h3 id="0x02-ARM32处理器寻址方式"><a href="#0x02-ARM32处理器寻址方式" class="headerlink" title="0x02.　ARM32处理器寻址方式"></a>0x02.　ARM32处理器寻址方式</h3><p>ARM微处理器采用的是精简指令集，指令间的组合灵活。ARM微处理器支持九种寻址方式，分别是：立即寻址、寄存器寻址、寄存器移位寻址、寄存器间接寻址、基址寻址、多寄存器寻址、堆栈寻址、块拷贝寻址、相对寻址。先介绍其中几种寻址方式。</p>
+<ol>
+<li><p>寄存器移位寻址<br>寄存器移位寻址是ARM指令集特有的寻址方式，寄存器移位寻址方式：在操作前对源寄存器操作数进行移位操作。支持以下5种移位操作：<br>LSL： 逻辑左移，移位后寄存器空出的低位补0。<br>LSR： 逻辑右移，移位后寄存器空出的高位补0。<br>ASR： 算术右移，移位过程中符号位保持不变，如果源操作数为正数，则移位后寄存器空出的高位补0；否则补1。<br>ROR： 循环右移，移位后移出的低位填入移位空出的高位。<br>RRX： 带扩展的循环右移，操作数右移一位，移位后寄存器空出的高位用C标志的值填充。<br>例如：</p>
+<figure class="highlight arm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">MOV</span>　<span class="built_in">R0</span>,　<span class="built_in">R1</span>, <span class="keyword">LSL</span> <span class="number">#2</span>   <span class="comment">@R0=R1*4</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>基址寻址<br>基址寻址是将基址寄存器与偏移量相加，形成操作数的有效地址，所需的操作数保存在有效地址所指向的存储单元中。基址寻址多用于查表、数据访问等操作。例如：</p>
+<figure class="highlight arm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">LDR</span>　<span class="built_in">R0</span>, [<span class="built_in">R1</span>, #-<span class="number">4</span>]   <span class="comment">@R0=[R1-4]</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>多寄存器寻址<br>多寄存器寻址一条指令最多可以完成16个通用寄存器值的传送。比如LDMIA和LDMIB指令，LDM是数据加载指令，指令的后缀IA表示每次执行完加载操作后寄存器的值自增1个字；指令的后缀IB表示每次执行加载操作前寄存器的值自增1个字；还有两条指令后缀DA和DB，分别表示在指令操作后和操作前寄存器的值自减1个字。ARM32指令集中，字表示一个32位的数字，注意：该条指令的源寄存器与目的寄存器位置。例如：</p>
+<figure class="highlight arm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">LDMIA</span> <span class="built_in">R0</span>, &#123;<span class="built_in">R1</span>, <span class="built_in">R2</span>, <span class="built_in">R3</span>, <span class="built_in">R4</span>&#125;   <span class="comment">@R1=[R0], R2=[R0+4], R3=[R0+8], R4=[R0+12]</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>堆栈寻址<br>堆栈寻址是ARM指令集特有的一种寻址方式，堆栈寻址需要使用特定的指令来完成。堆栈寻址的指令有LDMFA/STMFA、LDMEA/STMEA、LDMFD/STMFD、LDMED/STMED。LDM和STM为指令前缀，表示多寄存器寻址。FA(Full  Ascending stack)、FD(Full Descending stack)、EA、ED为指令后缀，其中：FA表示满递增堆栈，堆栈向高地址生长，堆栈指针指向下一个要放入的空地址；<strong>FD表示满递减堆栈，堆栈向低地址生长，堆栈指针指向最后一个入栈的有效数据数据项；</strong> EA表示空递增堆栈，堆栈向高地址生长；ED空递减堆栈，堆栈向低地址生长。例如：</p>
+<figure class="highlight arm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">STMFD</span>  <span class="built_in">SP</span>!, &#123;<span class="built_in">R1</span>-<span class="built_in">R7</span>, <span class="built_in">LR</span>&#125;   <span class="comment">@将R1-R7, LR入栈，多用于保护子程序现场</span></span><br><span class="line"><span class="keyword">LDMFD</span>  <span class="built_in">SP</span>!, &#123;<span class="built_in">R1</span>-<span class="built_in">R7</span>, <span class="built_in">LR</span>&#125;   <span class="comment">@将数据出栈，放入R1-R7, LR寄存器。多用于恢复子程序现场</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>块拷贝寻址<br>块拷贝寻址可实现连续地址数据从存储器的某一位置拷贝到另一位置。块拷贝寻址的指令有LDMIA/STMIA、LDMDA/STMDA、LDMIB/STMIB、LDMDB/STMDB。指令前缀和指令后缀前面已经介绍了。例如：</p>
+<figure class="highlight arm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">STMIA</span>  <span class="built_in">R0</span>!, &#123;<span class="built_in">R1</span>-<span class="built_in">R3</span>&#125;   <span class="comment">@从R0寄存器指向的存储单元中读取3个字到R1-R3寄存器</span></span><br><span class="line"><span class="keyword">LDMIA</span>  <span class="built_in">R0</span>!, &#123;<span class="built_in">R1</span>-<span class="built_in">R3</span>&#125;   <span class="comment">@存储R1-R3寄存器的内容到R0寄存器指向的存储单元</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>相对寻址<br>相对寻址以程序计数器PC的当前值为基地址，指令中的地址标作为偏移量，将两者相加之后得到操作数的有效地址。例如：</p>
+<figure class="highlight arm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">BL</span> NEXT</span><br><span class="line">   ....</span><br><span class="line"><span class="symbol">NEXT</span>：</span><br><span class="line">   ....</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="0x03-ARM32指令集与Thumb指令集"><a href="#0x03-ARM32指令集与Thumb指令集" class="headerlink" title="0x03.　ARM32指令集与Thumb指令集"></a>0x03.　ARM32指令集与Thumb指令集</h3><p>前面讲过ARM32微处理器有ARM32与Thumb两种工作状态，因此，有ARM32与Thumbe指令集。一般地，ARM32指令集每条指令占4个字节码，Thumb指令集每条指令占2个字节码，两者不能混用。但是可以通过BX、BLX等指令在跳转的时候实现切换。同时，在使用IDA进行逆向时，IDA对此识别也有问题，可能会把Thumb的代码识别为ARM，或者反过来。一旦调试起来，运行到相应位置，便会报出异常，导致程序退出，我们可以使用Alt+G可以修改相应的识别。</p>
+<ol>
+<li><p>跳转指令<br>ARM中有两种方式可以实现程序挑战：一种是使用挑战指令直接跳转；另一种是给PC寄存器直接赋值实现挑战。跳转指令有4种:B跳转指令、BL带链接的跳转指令、LX带状态切换的跳转指令、BLX带链接和状态切换的跳转指令。<br><strong>现在介绍下ARM32指令集与Thumb指令集切换方法，在BX和BLX指令跳转时，判断目标地址最低位是否为1。</strong><br>如果为1，跳转时将CPSR寄存器标志T置位，并将目标地址处的代码解释位Thumb代码，处理器切换到Thumb状态；<br>如果为0，跳转时将CPSR寄存器标志T复位，并将目标地址处的代码解释位ARM32代码，处理器切换到ARM32状态。</p>
+</li>
+<li><p>ARM32与Thumb跳转偏移计算<br>ARM32: 低27位是偏移位置，下跳： 偏移=(目标地址 - 当前PC地址)/指令长度;  正数下跳，负数上跳。<br>Thumb:  目标地址 = 偏移 * 指令长度 + 当前PC地址</p>
+</li>
+<li><p>ARM指令执行(多流水线)<br>ARM指令执行分为3步：取地址 -&gt;分析 -&gt;运行。在涉及程序计数器相加时需要注意。例如：</p>
+<figure class="highlight arm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">@ 1  取地址 -&gt;分析  -&gt;运行</span></span><br><span class="line"><span class="comment">@ 2          取地址 -&gt;分析 -&gt;运行</span></span><br><span class="line"><span class="comment">@ 3                  取地址 -&gt;分析 -&gt;运行</span></span><br><span class="line"><span class="comment">@ 因此，执行一条涉及PC的指令时，PC一般指向下两条指令的地址；</span></span><br><span class="line"><span class="comment">@ 例如： Thumb指令集, PC = PC + 2*2； ARM32指令集，PC = PC + 4*2</span></span><br><span class="line"><span class="comment">@ R2=0x30c2, PC = PC + 2*2, R2 = 0x756A8F12 + 4 + 0x30c2 = 0x756ABFD8</span></span><br><span class="line"><span class="number">0x756A8F12</span>  <span class="keyword">ADD</span>  <span class="built_in">R2</span>, <span class="built_in">PC</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="0x04-参考文献"><a href="#0x04-参考文献" class="headerlink" title="0x04.　参考文献"></a>0x04.　参考文献</h3><p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/ARM_architecture">1. Wiki ARM Architecture</a><br><a target="_blank" rel="noopener" href="https://book.douban.com/subject/20556210/">2. Android软件安全与逆向分析</a><br><a target="_blank" rel="noopener" href="http://blog.csdn.net/tigerjibo/article/details/6050649">3. ARM汇编之寄存器</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%BD%AF%E4%BB%B6%E8%B0%83%E8%AF%95/" rel="tag"># 软件调试</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2017/03/04/PWN/Linux%E5%A0%86%E6%BC%8F%E6%B4%9E%E4%B9%8BUse-after-free%E5%AE%9E%E4%BE%8B/" rel="prev" title="Linux堆漏洞之Use after free实例">
+      <i class="fa fa-chevron-left"></i> Linux堆漏洞之Use after free实例
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2017/03/17/Linux/ARM64-%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80/" rel="next" title="ARM64 汇编语言">
+      ARM64 汇编语言 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">0x00.　前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-ARM32%E6%B1%87%E7%BC%96%E4%B8%AD%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">2.</span> <span class="nav-text">0x01.　ARM32汇编中寄存器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-ARM32%E5%A4%84%E7%90%86%E5%99%A8%E5%AF%BB%E5%9D%80%E6%96%B9%E5%BC%8F"><span class="nav-number">3.</span> <span class="nav-text">0x02.　ARM32处理器寻址方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-ARM32%E6%8C%87%E4%BB%A4%E9%9B%86%E4%B8%8EThumb%E6%8C%87%E4%BB%A4%E9%9B%86"><span class="nav-number">4.</span> <span class="nav-text">0x03.　ARM32指令集与Thumb指令集</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">5.</span> <span class="nav-text">0x04.　参考文献</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">D0m021ng</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">D0m021ng</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

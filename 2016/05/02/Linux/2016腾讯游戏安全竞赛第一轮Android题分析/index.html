@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="最近在学习Android SO库逆向方面的知识，以2016腾讯游戏安全竞赛第一轮Android题练手，参考了一些资料，其中也有些不足的地方，希望未来好好学习逆向方面的知识。 0x01.　分析思路本题用JEB看了一下，对于输入的Name和Code进行验证，主要的验证逻辑在SO库中。因此直接逆向SO库，找到导出的函数NativeCheckRegister(String name, String cod">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2016腾讯游戏安全竞赛第一轮Android题分析">
+<meta property="og:url" content="http://yoursite.com/2016/05/02/Linux/2016%E8%85%BE%E8%AE%AF%E6%B8%B8%E6%88%8F%E5%AE%89%E5%85%A8%E7%AB%9E%E8%B5%9B%E7%AC%AC%E4%B8%80%E8%BD%AEAndroid%E9%A2%98%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="不要说话">
+<meta property="og:description" content="最近在学习Android SO库逆向方面的知识，以2016腾讯游戏安全竞赛第一轮Android题练手，参考了一些资料，其中也有些不足的地方，希望未来好好学习逆向方面的知识。 0x01.　分析思路本题用JEB看了一下，对于输入的Name和Code进行验证，主要的验证逻辑在SO库中。因此直接逆向SO库，找到导出的函数NativeCheckRegister(String name, String cod">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2016-05-02T18:41:59.000Z">
+<meta property="article:modified_time" content="2021-04-05T06:54:42.431Z">
+<meta property="article:author" content="D0m021ng">
+<meta property="article:tag" content="软件调试">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2016/05/02/Linux/2016%E8%85%BE%E8%AE%AF%E6%B8%B8%E6%88%8F%E5%AE%89%E5%85%A8%E7%AB%9E%E8%B5%9B%E7%AC%AC%E4%B8%80%E8%BD%AEAndroid%E9%A2%98%E5%88%86%E6%9E%90/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>2016腾讯游戏安全竞赛第一轮Android题分析 | 不要说话</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">不要说话</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/05/02/Linux/2016%E8%85%BE%E8%AE%AF%E6%B8%B8%E6%88%8F%E5%AE%89%E5%85%A8%E7%AB%9E%E8%B5%9B%E7%AC%AC%E4%B8%80%E8%BD%AEAndroid%E9%A2%98%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="D0m021ng">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="不要说话">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          2016腾讯游戏安全竞赛第一轮Android题分析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-05-02 18:41:59" itemprop="dateCreated datePublished" datetime="2016-05-02T18:41:59+00:00">2016-05-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-04-05 06:54:42" itemprop="dateModified" datetime="2021-04-05T06:54:42+00:00">2021-04-05</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>最近在学习Android SO库逆向方面的知识，以2016腾讯游戏安全竞赛第一轮Android题练手，参考了一些资料，其中也有些不足的地方，希望未来好好学习逆向方面的知识。</p>
+<h3 id="0x01-分析思路"><a href="#0x01-分析思路" class="headerlink" title="0x01.　分析思路"></a>0x01.　分析思路</h3><p>本题用JEB看了一下，对于输入的Name和Code进行验证，主要的验证逻辑在SO库中。因此直接逆向SO库，找到导出的函数NativeCheckRegister(String name, String code)。</p>
+<h3 id="0x02-SO库逆向"><a href="#0x02-SO库逆向" class="headerlink" title="0x02.　SO库逆向"></a>0x02.　SO库逆向</h3><p>根据对SO中NativeCheckRegister函数的分析，该函数对Name字符串处理了2次，产生长度为20的字符数组；对Code字符串处理了1次，也产生长度为20的字符数组；做好对这两个数组进行比较。</p>
+<ol>
+<li><p><strong>对Name字符串的第一次处理</strong><br>函数刚开始就检查输入字符串Name的长度，是否在6和20之间；然后对Name字符串进行第一次处理，得到长为20的字符串。处理过程：每次会从Name字符串取一个字节，操作公式为：<strong>字节×(0x1339e7e+循环次数)×Name长度+上一次得到的4字节高3字节（第一次为0）</strong>，然后将得到的4字节的低字节存入新数组。循环次数为0x10次，多出来的4个长度为维护得到的4字节数的高3字节以及一个0。</p>
+</li>
+<li><p><strong>对Code字符串的处理</strong><br>在对Code字符串进行处理时用了2个子例程，分别是sub_146c和sub_1498。sub_1498是对注册码进行一些操作，得到一个数组；之后对数组长度进行判断，是否为0x14(即20)，等于0x20则进行后面的处理；反之直接结束。<br><strong>sub_1498子例程处理过程：</strong><br>该子例程传入的参数是 <strong>Code字符串首地址(R1)</strong> 和 <strong>栈上新数组首地址(R0)</strong>；<br>执行流程: 先通过查表操作判断Code字符串是否满足约束条件（Code字节对应的表值不能超过0x3F），如果不满足，则进行截断。因此查询的表需要dump下来，后面的字符串也要用到这个表。然后对满足约束条件的字符串进行处理。将字符串以4字节为单位，进行处理生成新的3字节字符存入栈上新数组；不足4字节的，分别进行一下处理：剩下1字节，直接退出；剩下2字节，经过操作生成1字节退出；剩下3字节，经过操作生成2字节退出；根据前面的数组长度要求为0x14,可以推断出注册码长度必须为27位：20/3=6…2 , 6*4+3 = 27 。<br>将字符串以4字节为单位操作的步骤：<br>1）通过查表，将第1个字节对应的表值逻辑左移2位，与第2个字节对应的表值逻辑右移4位进行或运算，产生第1个新字节；<br>2）通过查表，将第2个字节对应的表值逻辑左移4位，与第3个字节对应的表值逻辑右移2位进行或运算，产生第2个新字节；<br>3）通过查表，将第3个字节对应的表值逻辑左移6位，与第4个字节对应的表值进行或运算，产生第3个新字节；</p>
+</li>
+<li><p><strong>对Name字符串的第二次处理</strong><br>将20位的Name字符串数组，每个元素除以0xA,然后重新保存。</p>
+</li>
+<li><p><strong>比较</strong><br>将Name进行2次操作生成的长度20的数组，与注册码进行了1次操作生成的长度20的数组进行5次比较；<br>根据5次比较，设Name每4字节对应一个变量，那么就有5个已知的变量a1(对应数组0x00)、a2(0x04)、a3(0x08)、a4(0x0c)、a5(0x10);设注册码的20位数组每4个字节对应一个未知变量，那么就有5个未知变量x1(0x00)、x2(0x04)、x3(0x08)、x4(0x0c)、x5(0x10);根据比较列出方程：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1) a1 + x5 = x3</span><br><span class="line">2) a2 + x5 + a1 = x5 * 2</span><br><span class="line">3) x4 + a3 = x1</span><br><span class="line">4) a4 + x4 + a3 = x4 * 2</span><br><span class="line">5) x2 + a5  = a3 * 3</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%BD%AF%E4%BB%B6%E8%B0%83%E8%AF%95/" rel="tag"># 软件调试</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/04/30/Linux/Protection-Measures-Of-APK/" rel="prev" title="APK保护方法">
+      <i class="fa fa-chevron-left"></i> APK保护方法
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/05/05/Linux/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%BF%85%E7%9F%A5%E5%BF%85%E4%BC%9A/" rel="next" title="正则表达式必知必会">
+      正则表达式必知必会 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-%E5%88%86%E6%9E%90%E6%80%9D%E8%B7%AF"><span class="nav-number">1.</span> <span class="nav-text">0x01.　分析思路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-SO%E5%BA%93%E9%80%86%E5%90%91"><span class="nav-number">2.</span> <span class="nav-text">0x02.　SO库逆向</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">D0m021ng</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">27</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2016 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">D0m021ng</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
